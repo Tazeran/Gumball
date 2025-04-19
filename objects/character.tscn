@@ -1,0 +1,37 @@
+[gd_scene load_steps=4 format=3 uid="uid://c0e27836xgmhi"]
+
+[ext_resource type="PackedScene" uid="uid://xy8rvnjp22n5" path="res://models/characterStarter.glb" id="1_vn7w5"]
+[ext_resource type="Texture2D" uid="uid://0odt7cvj574e" path="res://models/Textures/colormapStarter.png" id="2_bnbr5"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_pjthe"]
+albedo_texture = ExtResource("2_bnbr5")
+
+[node name="character" instance=ExtResource("1_vn7w5")]
+
+[node name="leg-left" parent="character/root" index="0"]
+transform = Transform3D(0.965926, 0, 0.258819, 0, 1, 0, -0.258819, 0, 0.965926, 0.125, 0.17625, -0.02375)
+material_override = SubResource("StandardMaterial3D_pjthe")
+
+[node name="leg-right" parent="character/root" index="1"]
+transform = Transform3D(0.965926, 0, -0.258819, 0, 1, 0, 0.258819, 0, 0.965926, -0.125, 0.17625, -0.02375)
+material_override = SubResource("StandardMaterial3D_pjthe")
+
+[node name="torso" parent="character/root" index="2"]
+transform = Transform3D(1, 0, 0, 0, 0.996194, 0.0871557, 0, -0.0871557, 0.996194, -1.80478e-15, 0.17625, -0.02375)
+material_override = SubResource("StandardMaterial3D_pjthe")
+
+[node name="arm-left" parent="character/root/torso" index="0"]
+transform = Transform3D(0.707107, 0.707107, 0, -0.707107, 0.707107, 0, 0, 0, 1, 0.3, 0.175, 0)
+material_override = SubResource("StandardMaterial3D_pjthe")
+
+[node name="arm-right" parent="character/root/torso" index="1"]
+transform = Transform3D(0.707107, -0.707107, 0, 0.707107, 0.707107, 0, 0, 0, 1, -0.3, 0.1195, 0)
+material_override = SubResource("StandardMaterial3D_pjthe")
+
+[node name="antenna" parent="character/root/torso" index="2"]
+transform = Transform3D(1, 0, 0, 0, 0.999999, 0, 0, 0, 0.999999, 0, 0.6, 0)
+material_override = SubResource("StandardMaterial3D_pjthe")
+
+[node name="AnimationPlayer" parent="." index="1"]
+deterministic = true
+playback_default_blend_time = 0.2
