@@ -33,33 +33,12 @@ shadow_offset = Vector2(2, 2)
 environment = ExtResource("1_ahusb")
 
 [node name="Player" parent="." node_paths=PackedStringArray("view") instance=ExtResource("2_onms2")]
-view = NodePath("../View")
-
-[node name="View" type="Node3D" parent="." node_paths=PackedStringArray("target")]
-transform = Transform3D(0.707107, -0.298836, 0.640856, 0, 0.906308, 0.422618, -0.707107, -0.298836, 0.640856, 0, 0, 0)
-script = ExtResource("5_bg0fr")
-target = NodePath("../Player")
-
-[node name="Camera" type="Camera3D" parent="View"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 10)
-current = true
-fov = 40.0
+view = NodePath("../UI Control/GridContainer/SubViewportContainer/SubViewport/View")
 
 [node name="Player2" parent="." node_paths=PackedStringArray("view") instance=ExtResource("2_onms2")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.712518, 1, 4.13031)
-view = NodePath("../View")
+view = NodePath("../UI Control/GridContainer/SubViewportContainer/SubViewport/View")
 player_id = 2
-
-[node name="View2" type="Node3D" parent="." node_paths=PackedStringArray("target")]
-transform = Transform3D(0.707107, -0.298836, 0.640856, 0, 0.906308, 0.422618, -0.707107, -0.298836, 0.640856, 0, 0, 0)
-script = ExtResource("5_bg0fr")
-target = NodePath("../Player2")
-player_id = 2
-
-[node name="Camera" type="Camera3D" parent="View2"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 10)
-current = true
-fov = 40.0
 
 [node name="World" type="Node3D" parent="."]
 
@@ -206,10 +185,34 @@ transform = Transform3D(-0.422618, -0.694272, 0.582563, 0, 0.642788, 0.766044, -
 shadow_enabled = true
 shadow_opacity = 0.75
 
-[node name="HUD" type="CanvasLayer" parent="."]
+[node name="UI Control" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="GridContainer" type="GridContainer" parent="UI Control"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+columns = 2
+
+[node name="SubViewportContainer" type="SubViewportContainer" parent="UI Control/GridContainer"]
+layout_mode = 2
+
+[node name="SubViewport" type="SubViewport" parent="UI Control/GridContainer/SubViewportContainer"]
+handle_input_locally = false
+render_target_update_mode = 4
+
+[node name="HUD1" type="CanvasLayer" parent="UI Control/GridContainer/SubViewportContainer/SubViewport"]
 script = ExtResource("11_apvpm")
 
-[node name="Icon" type="TextureRect" parent="HUD"]
+[node name="Icon" type="TextureRect" parent="UI Control/GridContainer/SubViewportContainer/SubViewport/HUD1"]
 offset_left = 57.0
 offset_top = 67.0
 offset_right = 313.0
@@ -217,7 +220,7 @@ offset_bottom = 323.0
 scale = Vector2(0.2, 0.2)
 texture = ExtResource("13_jfda3")
 
-[node name="x" type="Label" parent="HUD"]
+[node name="x" type="Label" parent="UI Control/GridContainer/SubViewportContainer/SubViewport/HUD1"]
 offset_left = 112.0
 offset_top = 64.0
 offset_right = 144.0
@@ -225,7 +228,7 @@ offset_bottom = 123.0
 text = "×"
 label_settings = SubResource("LabelSettings_38ys3")
 
-[node name="Coins" type="Label" parent="HUD"]
+[node name="Coins" type="Label" parent="UI Control/GridContainer/SubViewportContainer/SubViewport/HUD1"]
 offset_left = 144.0
 offset_top = 64.0
 offset_right = 368.0
@@ -233,5 +236,63 @@ offset_bottom = 123.0
 text = "0"
 label_settings = SubResource("LabelSettings_38ys3")
 
-[connection signal="coin_collected" from="Player" to="HUD" method="_on_coin_collected"]
-[connection signal="coin_collected" from="Player2" to="HUD" method="_on_coin_collected"]
+[node name="View" type="Node3D" parent="UI Control/GridContainer/SubViewportContainer/SubViewport" node_paths=PackedStringArray("target", "sub_viewport")]
+transform = Transform3D(0.707107, -0.298836, 0.640856, 0, 0.906308, 0.422618, -0.707107, -0.298836, 0.640856, 0, 0, 0)
+script = ExtResource("5_bg0fr")
+target = NodePath("../../../../../Player")
+sub_viewport = NodePath("..")
+
+[node name="Camera" type="Camera3D" parent="UI Control/GridContainer/SubViewportContainer/SubViewport/View"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 10)
+current = true
+fov = 40.0
+
+[node name="SubViewportContainer2" type="SubViewportContainer" parent="UI Control/GridContainer"]
+layout_mode = 2
+
+[node name="SubViewport" type="SubViewport" parent="UI Control/GridContainer/SubViewportContainer2"]
+handle_input_locally = false
+render_target_update_mode = 4
+
+[node name="HUD2" type="CanvasLayer" parent="UI Control/GridContainer/SubViewportContainer2/SubViewport"]
+script = ExtResource("11_apvpm")
+player_id = 2
+
+[node name="Icon" type="TextureRect" parent="UI Control/GridContainer/SubViewportContainer2/SubViewport/HUD2"]
+offset_left = 57.0
+offset_top = 67.0
+offset_right = 313.0
+offset_bottom = 323.0
+scale = Vector2(0.2, 0.2)
+texture = ExtResource("13_jfda3")
+
+[node name="x" type="Label" parent="UI Control/GridContainer/SubViewportContainer2/SubViewport/HUD2"]
+offset_left = 112.0
+offset_top = 64.0
+offset_right = 144.0
+offset_bottom = 123.0
+text = "×"
+label_settings = SubResource("LabelSettings_38ys3")
+
+[node name="Coins" type="Label" parent="UI Control/GridContainer/SubViewportContainer2/SubViewport/HUD2"]
+offset_left = 144.0
+offset_top = 64.0
+offset_right = 368.0
+offset_bottom = 123.0
+text = "0"
+label_settings = SubResource("LabelSettings_38ys3")
+
+[node name="View2" type="Node3D" parent="UI Control/GridContainer/SubViewportContainer2/SubViewport" node_paths=PackedStringArray("target", "sub_viewport")]
+transform = Transform3D(0.707107, -0.298836, 0.640856, 0, 0.906308, 0.422618, -0.707107, -0.298836, 0.640856, 0, 0, 0)
+script = ExtResource("5_bg0fr")
+target = NodePath("../../../../../Player2")
+player_id = 2
+sub_viewport = NodePath("..")
+
+[node name="Camera" type="Camera3D" parent="UI Control/GridContainer/SubViewportContainer2/SubViewport/View2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 10)
+current = true
+fov = 40.0
+
+[connection signal="coin_collected" from="Player" to="UI Control/GridContainer/SubViewportContainer/SubViewport/HUD1" method="_on_coin_collected"]
+[connection signal="coin_collected" from="Player2" to="UI Control/GridContainer/SubViewportContainer/SubViewport/HUD1" method="_on_coin_collected"]

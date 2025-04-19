@@ -3,6 +3,7 @@ extends Node3D
 @export_group("Links")
 @export var target: Node
 @export var player_id := 1 # Player ID for input filtering
+@export var sub_viewport: SubViewport  # 👈 manually assign this in editor
 
 @export_group("Zoom")
 @export var zoom_minimum := 16.0
@@ -12,6 +13,7 @@ extends Node3D
 @export_group("Rotation")
 @export var rotation_speed := 120.0
 
+
 var camera_rotation: Vector3
 var zoom := 10.0
 
@@ -19,6 +21,13 @@ var zoom := 10.0
 
 func _ready():
 	camera_rotation = rotation_degrees
+	# Assign this camera to the specified SubViewport
+	if sub_viewport:
+		sub_viewport.add_child(self)  # Move the entire View node under SubViewport
+		camera.current = true
+	else:
+		push_warning("No SubViewport assigned to View with player_id " + str(player_id))
+
 
 func _physics_process(delta):
 	# Follow target
