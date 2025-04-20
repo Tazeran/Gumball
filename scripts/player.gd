@@ -35,6 +35,16 @@ func _physics_process(delta):
 	applied_velocity.y = -gravity
 	velocity = applied_velocity
 	move_and_slide()
+	
+	# Check collisions and push RigidBody3Ds (e.g., marbles)
+	for i in range(get_slide_collision_count()):
+		var collision = get_slide_collision(i)
+		var body = collision.get_collider()
+
+		if body is RigidBody3D:
+			var push_force = velocity.normalized() * 3.0  # Tune the multiplier
+			body.apply_impulse(Vector3.ZERO, push_force)
+
 
 	# Rotation
 	if Vector2(velocity.z, velocity.x).length() > 0:
