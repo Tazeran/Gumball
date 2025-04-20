@@ -1,4 +1,4 @@
-[gd_scene load_steps=22 format=3 uid="uid://bqqgyqafm7xwp"]
+[gd_scene load_steps=24 format=3 uid="uid://bqqgyqafm7xwp"]
 
 [ext_resource type="Environment" uid="uid://bqnqgflivjvue" path="res://scenes/main-environment.tres" id="1_ahusb"]
 [ext_resource type="PackedScene" uid="uid://dl2ed4gkybggf" path="res://objects/Base/player.tscn" id="2_onms2"]
@@ -19,7 +19,10 @@
 [ext_resource type="PackedScene" uid="uid://dpu2usku1kyvk" path="res://objects/TerrainGreen/barrel_2.tscn" id="16_jbj1t"]
 [ext_resource type="PackedScene" uid="uid://ckh16odrt7i00" path="res://objects/TerrainGreen/block_grass_overhang_edge_2.tscn" id="17_gqmmt"]
 [ext_resource type="FontFile" uid="uid://d0cxd77jybrcn" path="res://fonts/lilita_one_regular.ttf" id="17_tk810"]
+[ext_resource type="Script" uid="uid://ssthegxvlm2c" path="res://scenes/sub_viewport_container.gd" id="17_yc10j"]
 [ext_resource type="PackedScene" uid="uid://cqjh213dnlg0l" path="res://objects/TerrainGreen/door_large_open_2.tscn" id="19_gqmmt"]
+
+[sub_resource type="GDScript" id="GDScript_jscy8"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_38ys3"]
 font = ExtResource("17_tk810")
@@ -204,10 +207,14 @@ columns = 2
 
 [node name="SubViewportContainer" type="SubViewportContainer" parent="UI Control/GridContainer"]
 layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+script = ExtResource("17_yc10j")
 
 [node name="SubViewport" type="SubViewport" parent="UI Control/GridContainer/SubViewportContainer"]
 handle_input_locally = false
 render_target_update_mode = 4
+script = SubResource("GDScript_jscy8")
 
 [node name="HUD1" type="CanvasLayer" parent="UI Control/GridContainer/SubViewportContainer/SubViewport"]
 script = ExtResource("11_apvpm")
@@ -249,6 +256,9 @@ fov = 40.0
 
 [node name="SubViewportContainer2" type="SubViewportContainer" parent="UI Control/GridContainer"]
 layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+script = ExtResource("17_yc10j")
 
 [node name="SubViewport" type="SubViewport" parent="UI Control/GridContainer/SubViewportContainer2"]
 handle_input_locally = false
