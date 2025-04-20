@@ -40,7 +40,7 @@ view = NodePath("../UI Control/GridContainer/SubViewportContainer/SubViewport/Vi
 
 [node name="Player2" parent="." node_paths=PackedStringArray("view") instance=ExtResource("2_onms2")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.712518, 1, 4.13031)
-view = NodePath("../UI Control/GridContainer/SubViewportContainer/SubViewport/View")
+view = NodePath("../UI Control/GridContainer/SubViewportContainer2/SubViewport/View2")
 player_id = 2
 
 [node name="World" type="Node3D" parent="."]
