@@ -39,14 +39,16 @@ shadow_offset = Vector2(2, 2)
 [node name="Environment" type="WorldEnvironment" parent="."]
 environment = ExtResource("1_ahusb")
 
-[node name="Player" parent="." node_paths=PackedStringArray("view") instance=ExtResource("2_onms2")]
+[node name="Player" parent="." node_paths=PackedStringArray("view", "hud") instance=ExtResource("2_onms2")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19.7015, 7.92305, -3.52558)
 view = NodePath("../UI Control/GridContainer/SubViewportContainer/SubViewport/View")
+hud = NodePath("../UI Control/GridContainer/SubViewportContainer/SubViewport/HUD1")
 
-[node name="Player2" parent="." node_paths=PackedStringArray("view") instance=ExtResource("2_onms2")]
+[node name="Player2" parent="." node_paths=PackedStringArray("view", "hud") instance=ExtResource("2_onms2")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19.9953, 7.91033, -1.22254)
 view = NodePath("../UI Control/GridContainer/SubViewportContainer2/SubViewport/View2")
 player_id = 2
+hud = NodePath("../UI Control/GridContainer/SubViewportContainer2/SubViewport/HUD2")
 
 [node name="World" type="Node3D" parent="."]
 
@@ -118,6 +120,36 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14.5685, 2.03849, 7.05883)
 
 [node name="coin15" parent="World" instance=ExtResource("10_fwhys")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13.7634, 2.03849, 7.05883)
+
+[node name="coin16" parent="World" instance=ExtResource("10_fwhys")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20.7538, 7.70616, 0.952179)
+
+[node name="coin17" parent="World" instance=ExtResource("10_fwhys")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20.1027, 7.70616, 0.952179)
+
+[node name="coin18" parent="World" instance=ExtResource("10_fwhys")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19.3228, 7.70616, 0.952179)
+
+[node name="coin19" parent="World" instance=ExtResource("10_fwhys")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18.4799, 7.70616, 0.952179)
+
+[node name="coin20" parent="World" instance=ExtResource("10_fwhys")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17.6748, 7.70616, 0.952179)
+
+[node name="coin21" parent="World" instance=ExtResource("10_fwhys")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20.7538, 7.70616, -6.2945)
+
+[node name="coin22" parent="World" instance=ExtResource("10_fwhys")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20.1027, 7.70616, -6.2945)
+
+[node name="coin23" parent="World" instance=ExtResource("10_fwhys")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19.3228, 7.70616, -6.2945)
+
+[node name="coin24" parent="World" instance=ExtResource("10_fwhys")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18.4799, 7.70616, -6.2945)
+
+[node name="coin25" parent="World" instance=ExtResource("10_fwhys")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17.6748, 7.70616, -6.2945)
 
 [node name="coin2" parent="World" instance=ExtResource("10_fwhys")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -21.7246, 1.97005, 2.40176)
@@ -307,7 +339,6 @@ render_target_update_mode = 4
 
 [node name="HUD2" type="CanvasLayer" parent="UI Control/GridContainer/SubViewportContainer2/SubViewport"]
 script = ExtResource("11_apvpm")
-player_id = 2
 
 [node name="Icon" type="TextureRect" parent="UI Control/GridContainer/SubViewportContainer2/SubViewport/HUD2"]
 offset_left = 57.0
@@ -355,6 +386,3 @@ marble_scene = ExtResource("23_pm3ni")
 
 [node name="helix-large-left2" parent="." instance=ExtResource("24_y6deb")]
 transform = Transform3D(2.45, 0, 0, 0, 2.45, 0, 0, 0, 2.45, 19.3077, 1.57618, -3.1543)
-
-[connection signal="coin_collected" from="Player" to="UI Control/GridContainer/SubViewportContainer/SubViewport/HUD1" method="_on_coin_collected"]
-[connection signal="coin_collected" from="Player2" to="UI Control/GridContainer/SubViewportContainer/SubViewport/HUD1" method="_on_coin_collected"]

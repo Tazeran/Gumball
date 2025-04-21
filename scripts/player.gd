@@ -1,6 +1,6 @@
 extends CharacterBody3D
 
-signal coin_collected
+signal coin_collected(coins: int)
 
 @export_subgroup("Components")
 @export var view: Node3D
@@ -9,6 +9,9 @@ signal coin_collected
 @export var player_id := 1
 @export var movement_speed := 250
 @export var jump_strength := 7
+@export var hud: Node
+
+
 
 var movement_velocity: Vector3
 var rotation_direction: float
@@ -18,11 +21,22 @@ var previously_floored := false
 var jump_single := true
 var jump_double := true
 var coins := 0
+var spawn_position: Vector3
 
 @onready var particles_trail = $ParticlesTrail
 @onready var sound_footsteps = $SoundFootsteps
 @onready var model = $Character
 @onready var animation = $Character/AnimationPlayer
+
+func _ready():
+	spawn_position = global_transform.origin
+	if hud:
+		#print("hudding ", hud.name, " player ", self.name)
+		#hud.connect_to_player(self)
+		connect("coin_collected", Callable(hud, "_on_coin_collected"))
+	#else:
+		#print("Player ID ", player_id, " has no HUD assigned!")
+	print("Player ", name, " has HUD: ", hud.name, " (ref: ", hud, ")")
 
 # Called every physics frame
 func _physics_process(delta):
@@ -54,7 +68,7 @@ func _physics_process(delta):
 
 	# Respawn if fallen
 	if position.y < -10:
-		get_tree().reload_current_scene()
+		global_transform.origin = spawn_position
 
 	# Animation scaling on landing
 	model.scale = model.scale.lerp(Vector3(1, 1, 1), delta * 10)
