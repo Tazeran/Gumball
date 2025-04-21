@@ -35,6 +35,10 @@ project/assembly_name="Starter Kit 3D Platformer"
 
 movie_writer/movie_file="C:/Users/Kenney/Desktop/video-footage.avi"
 
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/AIHelp/plugin.cfg")
+
 [filesystem]
 
 import/blender/enabled=false
