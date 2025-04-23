@@ -1,4 +1,4 @@
-[gd_scene load_steps=28 format=3 uid="uid://bqqgyqafm7xwp"]
+[gd_scene load_steps=29 format=3 uid="uid://bqqgyqafm7xwp"]
 
 [ext_resource type="Environment" uid="uid://bqnqgflivjvue" path="res://scenes/main-environment.tres" id="1_ahusb"]
 [ext_resource type="PackedScene" uid="uid://dl2ed4gkybggf" path="res://objects/Base/player.tscn" id="2_onms2"]
@@ -21,6 +21,7 @@
 [ext_resource type="FontFile" uid="uid://d0cxd77jybrcn" path="res://fonts/lilita_one_regular.ttf" id="17_tk810"]
 [ext_resource type="Script" uid="uid://ssthegxvlm2c" path="res://scenes/sub_viewport_container.gd" id="17_yc10j"]
 [ext_resource type="PackedScene" uid="uid://cqjh213dnlg0l" path="res://objects/TerrainGreen/door_large_open_2.tscn" id="19_gqmmt"]
+[ext_resource type="Script" uid="uid://do2yn7w5n6yq7" path="res://scenes/RingUI.gd" id="21_2wyq8"]
 [ext_resource type="Script" uid="uid://cs0q2hrbc1qw3" path="res://objects/marble_spawner.gd" id="22_jscy8"]
 [ext_resource type="PackedScene" uid="uid://dkr8mhyl84egj" path="res://objects/Obstacles/spike_block_2.tscn" id="22_og1vs"]
 [ext_resource type="PackedScene" uid="uid://b5mhmde28541f" path="res://objects/BasicMarble.tscn" id="23_pm3ni"]
@@ -315,6 +316,16 @@ offset_right = 368.0
 offset_bottom = 123.0
 text = "0"
 label_settings = SubResource("LabelSettings_38ys3")
+
+[node name="Ring" type="Control" parent="UI Control/GridContainer/SubViewportContainer/SubViewport/HUD1"]
+layout_mode = 3
+anchors_preset = 0
+offset_left = 119.0
+offset_top = -53.0
+offset_right = 319.0
+offset_bottom = 147.0
+script = ExtResource("21_2wyq8")
+stamina = 1.0
 
 [node name="View" type="Node3D" parent="UI Control/GridContainer/SubViewportContainer/SubViewport" node_paths=PackedStringArray("target", "sub_viewport")]
 transform = Transform3D(0.707107, -0.298836, 0.640856, 0, 0.906308, 0.422618, -0.707107, -0.298836, 0.640856, 0, 0, 0)
