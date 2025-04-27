@@ -1,7 +1,8 @@
-[gd_scene load_steps=37 format=3 uid="uid://bqqgyqafm7xwp"]
+[gd_scene load_steps=38 format=3 uid="uid://bqqgyqafm7xwp"]
 
 [ext_resource type="Environment" uid="uid://bqnqgflivjvue" path="res://scenes/main-environment.tres" id="1_ahusb"]
 [ext_resource type="PackedScene" uid="uid://dl2ed4gkybggf" path="res://objects/Base/player.tscn" id="2_onms2"]
+[ext_resource type="PackedScene" uid="uid://l05a2g6khn0s" path="res://scenes/SlamButton.tscn" id="2_tel4y"]
 [ext_resource type="Script" uid="uid://cphtlo6ned6yp" path="res://scripts/view.gd" id="5_bg0fr"]
 [ext_resource type="PackedScene" uid="uid://cnymdajj1vsqm" path="res://objects/Base/platform.tscn" id="6_sdmev"]
 [ext_resource type="PackedScene" uid="uid://rjh4ifidqrfp" path="res://objects/Base/platform_medium.tscn" id="7_ixpj3"]
@@ -60,6 +61,10 @@ colors = PackedColorArray(0.996094, 0.910156, 0.351563, 1, 1, 1, 1, 1)
 
 [node name="Environment" type="WorldEnvironment" parent="."]
 environment = ExtResource("1_ahusb")
+
+[node name="SlamButton" parent="." instance=ExtResource("2_tel4y")]
+transform = Transform3D(2.16202, 0, 0, 0, 1, 0, 0, 0, 2.16202, 0, -0.208408, -15.8055)
+is_toggle_button = false
 
 [node name="Player" parent="." node_paths=PackedStringArray("view", "hud") groups=["players"] instance=ExtResource("2_onms2")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.62126, 7.92305, -20.7055)

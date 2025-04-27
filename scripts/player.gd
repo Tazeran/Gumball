@@ -11,8 +11,6 @@ signal coin_collected(coins: int)
 @export var jump_strength := 7
 @export var hud: Node
 
-
-
 var movement_velocity: Vector3
 var rotation_direction: float
 var gravity := 0.0
@@ -21,7 +19,13 @@ var previously_floored := false
 var jump_single := true
 var jump_double := true
 var coins := 0
+var stamina := 64;
 var spawn_position: Vector3
+
+# Ground Pound variables
+var is_ground_pounding = false
+var ground_pound_started = false
+var ground_pound_gravity_multiplier = 4.0
 
 @onready var particles_trail = $ParticlesTrail
 @onready var sound_footsteps = $SoundFootsteps
@@ -31,14 +35,9 @@ var spawn_position: Vector3
 func _ready():
 	spawn_position = global_transform.origin
 	if hud:
-		#print("hudding ", hud.name, " player ", self.name)
-		#hud.connect_to_player(self)
 		connect("coin_collected", Callable(hud, "_on_coin_collected"))
-	#else:
-		#print("Player ID ", player_id, " has no HUD assigned!")
 	print("Player ", name, " has HUD: ", hud.name, " (ref: ", hud, ")")
 
-# Called every physics frame
 func _physics_process(delta):
 	handle_controls(delta)
 	handle_gravity(delta)
@@ -49,21 +48,18 @@ func _physics_process(delta):
 	applied_velocity.y = -gravity
 	velocity = applied_velocity
 	move_and_slide()
-	
+
 	# Check collisions and push RigidBody3Ds (e.g., marbles)
 	for i in range(get_slide_collision_count()):
 		var collision = get_slide_collision(i)
 		var body = collision.get_collider()
-
 		if body is RigidBody3D:
-			var push_force = velocity.normalized() * 3.0  # Tune the multiplier
+			var push_force = velocity.normalized() * 3.0
 			body.apply_impulse(Vector3.ZERO, push_force)
-
 
 	# Rotation
 	if Vector2(velocity.z, velocity.x).length() > 0:
 		rotation_direction = Vector2(velocity.z, velocity.x).angle()
-
 	rotation.y = lerp_angle(rotation.y, rotation_direction, delta * 10)
 
 	# Respawn if fallen
@@ -79,7 +75,68 @@ func _physics_process(delta):
 
 	previously_floored = is_on_floor()
 
-# Handle walking animation and effects
+func handle_controls(delta):
+	var input := Vector3.ZERO
+
+	var left = "move_left_p" + str(player_id)
+	var right = "move_right_p" + str(player_id)
+	var forward = "move_forward_p" + str(player_id)
+	var back = "move_back_p" + str(player_id)
+	var jump = "jump_p" + str(player_id)
+	var ground_pound = "right_bumper_p" + str(player_id)
+
+	input.x = Input.get_action_strength(right) - Input.get_action_strength(left)
+	input.z = Input.get_action_strength(back) - Input.get_action_strength(forward)
+	input = input.rotated(Vector3.UP, view.rotation.y)
+
+	if input.length() > 1:
+		input = input.normalized()
+
+	movement_velocity = input * movement_speed * delta
+
+	# Jumping
+	if Input.is_action_just_pressed(jump):
+		if jump_single or jump_double:
+			jump_action()
+
+	# Ground Pound
+	if !is_on_floor() and !is_ground_pounding and Input.is_action_just_pressed(ground_pound):
+		start_ground_pound()
+
+func handle_gravity(delta):
+	if is_ground_pounding:
+		gravity += 25 * ground_pound_gravity_multiplier * delta
+	else:
+		gravity += 25 * delta
+
+	if gravity > 0 and is_on_floor():
+		if is_ground_pounding:
+			land_ground_pound()
+		jump_single = true
+		gravity = 0
+
+func jump_action():
+	Audio.play("res://sounds/jump.ogg")
+	gravity = -jump_strength
+	model.scale = Vector3(0.5, 1.5, 0.5)
+
+	if jump_single:
+		jump_single = false
+		jump_double = true
+	else:
+		jump_double = false
+
+func start_ground_pound():
+	is_ground_pounding = true
+	ground_pound_started = true
+	gravity = 0
+	#animation.play("ground_pound_spin")  # Make sure you have this animation!
+
+func land_ground_pound():
+	is_ground_pounding = false
+	Audio.play("res://sounds/land.ogg")
+	model.scale = Vector3(1.5, 0.5, 1.5)
+
 func handle_effects(delta):
 	particles_trail.emitting = false
 	sound_footsteps.stream_paused = true
@@ -100,54 +157,9 @@ func handle_effects(delta):
 				particles_trail.emitting = true
 		elif animation.current_animation != "idle":
 			animation.play("idle", 0.1)
-	elif animation.current_animation != "jump":
+	elif animation.current_animation != "jump" and !is_ground_pounding:
 		animation.play("jump", 0.1)
 
-# Handle input for movement and jumping
-func handle_controls(delta):
-	var input := Vector3.ZERO
-
-	var left = "move_left_p" + str(player_id)
-	var right = "move_right_p" + str(player_id)
-	var forward = "move_forward_p" + str(player_id)
-	var back = "move_back_p" + str(player_id)
-	var jump = "jump_p" + str(player_id)
-
-	input.x = Input.get_action_strength(right) - Input.get_action_strength(left)
-	input.z = Input.get_action_strength(back) - Input.get_action_strength(forward)
-
-	input = input.rotated(Vector3.UP, view.rotation.y)
-
-	if input.length() > 1:
-		input = input.normalized()
-
-	movement_velocity = input * movement_speed * delta
-
-	if Input.is_action_just_pressed(jump):
-		if jump_single or jump_double:
-			jump_action()
-
-# Gravity and jumping logic
-func handle_gravity(delta):
-	gravity += 25 * delta
-
-	if gravity > 0 and is_on_floor():
-		jump_single = true
-		gravity = 0
-
-func jump_action():
-	Audio.play("res://sounds/jump.ogg")
-
-	gravity = -jump_strength
-	model.scale = Vector3(0.5, 1.5, 0.5)
-
-	if jump_single:
-		jump_single = false
-		jump_double = true
-	else:
-		jump_double = false
-
-# Coin collection
 func collect_coin():
 	coins += 1
 	coin_collected.emit(coins)
