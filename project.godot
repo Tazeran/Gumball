@@ -13,7 +13,7 @@ config_version=5
 config/name="Starter Kit 3D Platformer"
 config/tags=PackedStringArray("starterkit")
 run/main_scene="res://scenes/main.tscn"
-config/features=PackedStringArray("4.4", "Forward Plus")
+config/features=PackedStringArray("4.4", "C#", "Forward Plus")
 boot_splash/bg_color=Color(0.92549, 0.92549, 0.960784, 1)
 boot_splash/image="res://splash-screen.png"
 config/icon="res://icon.png"
@@ -37,7 +37,7 @@ movie_writer/movie_file="C:/Users/Kenney/Desktop/video-footage.avi"
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/AIHelp/plugin.cfg")
+enabled=PackedStringArray("res://addons/AIHelp/plugin.cfg", "res://addons/snappy/plugin.cfg")
 
 [filesystem]
 

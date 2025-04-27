@@ -1,0 +1,7 @@
+[gd_scene load_steps=3 format=3 uid="uid://ch5h1be8dqft0"]
+
+[ext_resource type="PackedScene" uid="uid://bxf1bnse14x1c" path="res://models/Cards/PlayingCard.glb" id="1_yy2wv"]
+[ext_resource type="Script" uid="uid://byl5qmoak6ad5" path="res://playing_card.gd" id="2_sb5rw"]
+
+[node name="PlayingCard" instance=ExtResource("1_yy2wv")]
+script = ExtResource("2_sb5rw")

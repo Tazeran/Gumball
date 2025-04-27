@@ -19,3 +19,6 @@ gdscript_dump.txt
 
 # Kenney ignores
 build/
+
+#Visual Studio
+.vs/

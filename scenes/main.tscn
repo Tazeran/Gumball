@@ -1,4 +1,4 @@
-[gd_scene load_steps=29 format=3 uid="uid://bqqgyqafm7xwp"]
+[gd_scene load_steps=31 format=3 uid="uid://bqqgyqafm7xwp"]
 
 [ext_resource type="Environment" uid="uid://bqnqgflivjvue" path="res://scenes/main-environment.tres" id="1_ahusb"]
 [ext_resource type="PackedScene" uid="uid://dl2ed4gkybggf" path="res://objects/Base/player.tscn" id="2_onms2"]
@@ -26,6 +26,8 @@
 [ext_resource type="PackedScene" uid="uid://dkr8mhyl84egj" path="res://objects/Obstacles/spike_block_2.tscn" id="22_og1vs"]
 [ext_resource type="PackedScene" uid="uid://b5mhmde28541f" path="res://objects/BasicMarble.tscn" id="23_pm3ni"]
 [ext_resource type="PackedScene" uid="uid://ch3drcnblts8h" path="res://objects/MarbleRun/helix_large_left_2.tscn" id="24_y6deb"]
+[ext_resource type="PackedScene" uid="uid://dn4gidqq52u4s" path="res://card_spin_and_bob.tscn" id="29_fv21b"]
+[ext_resource type="Script" uid="uid://jria1kdta648" path="res://scenes/spawn_flull_deck.gd" id="30_fv21b"]
 
 [sub_resource type="GDScript" id="GDScript_jscy8"]
 
@@ -40,12 +42,12 @@ shadow_offset = Vector2(2, 2)
 [node name="Environment" type="WorldEnvironment" parent="."]
 environment = ExtResource("1_ahusb")
 
-[node name="Player" parent="." node_paths=PackedStringArray("view", "hud") instance=ExtResource("2_onms2")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19.7015, 7.92305, -3.52558)
+[node name="Player" parent="." node_paths=PackedStringArray("view", "hud") groups=["players"] instance=ExtResource("2_onms2")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.62126, 7.92305, -20.7055)
 view = NodePath("../UI Control/GridContainer/SubViewportContainer/SubViewport/View")
 hud = NodePath("../UI Control/GridContainer/SubViewportContainer/SubViewport/HUD1")
 
-[node name="Player2" parent="." node_paths=PackedStringArray("view", "hud") instance=ExtResource("2_onms2")]
+[node name="Player2" parent="." node_paths=PackedStringArray("view", "hud") groups=["players"] instance=ExtResource("2_onms2")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19.9953, 7.91033, -1.22254)
 view = NodePath("../UI Control/GridContainer/SubViewportContainer2/SubViewport/View2")
 player_id = 2
@@ -91,6 +93,9 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -21.6809, 1, 0.731792)
 
 [node name="platform-grass-large-round2" parent="World" instance=ExtResource("8_4oh1e")]
 transform = Transform3D(2, 0, 0, 0, 1, 0, 0, 0, 2, 0.250786, -0.696861, 3.98764)
+
+[node name="platform-grass-large-round6" parent="World" instance=ExtResource("8_4oh1e")]
+transform = Transform3D(9.10171, 0, 0, 0, 1, 0, 0, 0, 9.43056, 0.250786, -0.696861, -24.4569)
 
 [node name="platform-grass-large-round4" parent="World" instance=ExtResource("8_4oh1e")]
 transform = Transform3D(2, 0, 0, 0, 1, 0, 0, 0, 2, 15.022, 1.50007, 3.09652)
@@ -214,6 +219,12 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.440959, -0.893764, 9.28455)
 
 [node name="block-grass-large-tall4" parent="World" instance=ExtResource("12_muem4")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.440959, -0.3253, 11.1621)
+
+[node name="block-grass-large-tall5" parent="World" instance=ExtResource("12_muem4")]
+transform = Transform3D(3.61837, 0, 0, 0, 1, 0, 0, 0, 4.75874, 12.9455, -0.3253, -21.361)
+
+[node name="block-grass-large-tall6" parent="World" instance=ExtResource("12_muem4")]
+transform = Transform3D(3.61837, 0, 0, 0, 1, 0, 0, 0, 4.75874, -12.0041, -0.3253, -21.361)
 
 [node name="tree2" parent="World" instance=ExtResource("13_0ld40")]
 transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, -1.86593, -0.251381, 3.4074)
@@ -397,3 +408,10 @@ marble_scene = ExtResource("23_pm3ni")
 
 [node name="helix-large-left2" parent="." instance=ExtResource("24_y6deb")]
 transform = Transform3D(2.45, 0, 0, 0, 2.45, 0, 0, 0, 2.45, 19.3077, 1.57618, -3.1543)
+
+[node name="SpawnFlullDeck" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.01, -18.864)
+visible = false
+script = ExtResource("30_fv21b")
+card_scene = ExtResource("29_fv21b")
+spacing = Vector3(1, 0, 1)

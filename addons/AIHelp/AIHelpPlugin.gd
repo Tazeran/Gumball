@@ -7,14 +7,7 @@ extends EditorPlugin
 var dock: Control
 
 func _enter_tree() -> void:
-	# Optional: Add a dock panel (uncomment if you're using one)
-	# dock = preload("res://addons/AIHelperPlugin/plugin_dock.tscn").instantiate()
-	# add_control_to_dock(EditorPlugin.DOCK_SLOT_RIGHT_UL, dock)
-	# dock.get_node("VBoxContainer/Button").pressed.connect(_on_button_pressed)
-
-	# Add to the top menu
-	#add_tool_menu_item("Run My Command", _on_run_command)
-	
+	_create_dialog()
 	# Register with the EditorCommandPalette
 	var palette = get_editor_interface().get_command_palette()
 	if palette:
@@ -23,12 +16,20 @@ func _enter_tree() -> void:
 			"exportdumpscripts",
 			Callable(self, "_dump_all_gd_scripts_to_file"),       # Binded Callable (target + method)
 		)
+		palette.add_command(
+			"Arrange Selected Nodes in Grid",
+			"arrangeselectednodesgrid",
+			Callable(self, "_show_arrange_dialog"),
+		)
 
 func _exit_tree() -> void:
-	#remove_tool_menu_item("Run My Command")
+	if dialog:
+		dialog.queue_free()
+		dialog = null
 	var palette := get_editor_interface().get_command_palette()
 	if palette:
 		palette.remove_command("exportdumpscripts")
+		palette.remove_command("arrangeselectednodesgrid")
 
 func _on_button_pressed() -> void:
 	print("Button clicked! You can do anything here.")
@@ -79,3 +80,83 @@ func process_dir(path: String) -> void:
 					printerr("Failed to read file: %s" % full_path)
 		file_name = dir.get_next()
 	dir.list_dir_end()
+
+
+var dialog: AcceptDialog
+var spacing_x_field: SpinBox
+var spacing_y_field: SpinBox
+var columns_field: SpinBox
+
+func _create_dialog() -> void:
+	dialog = AcceptDialog.new()
+	dialog.dialog_text = "Grid Settings"
+	dialog.ok_button_text = "Apply"
+
+	var vbox = VBoxContainer.new()
+
+	var spacing_x_label = Label.new()
+	spacing_x_label.text = "Spacing X:"
+	vbox.add_child(spacing_x_label)
+
+	spacing_x_field = SpinBox.new()
+	spacing_x_field.min_value = 0.1
+	spacing_x_field.value = 2.0
+	spacing_x_field.step = 0.1
+	vbox.add_child(spacing_x_field)
+
+	var spacing_y_label = Label.new()
+	spacing_y_label.text = "Spacing Y (Z axis spacing!):"
+	vbox.add_child(spacing_y_label)
+
+	spacing_y_field = SpinBox.new()
+	spacing_y_field.min_value = 0.1
+	spacing_y_field.value = 2.0
+	spacing_y_field.step = 0.1
+	vbox.add_child(spacing_y_field)
+
+	var columns_label = Label.new()
+	columns_label.text = "Columns:"
+	vbox.add_child(columns_label)
+
+	columns_field = SpinBox.new()
+	columns_field.min_value = 1
+	columns_field.value = 5
+	vbox.add_child(columns_field)
+
+	dialog.add_child(vbox)
+	dialog.confirmed.connect(_on_dialog_ok_pressed) # <-- use confirmed signal
+	get_editor_interface().get_base_control().add_child(dialog)
+
+
+
+
+func _show_arrange_dialog() -> void:
+	dialog.popup_centered(Vector2(300, 200))
+
+func _on_dialog_ok_pressed() -> void:
+	_arrange_selected_nodes_grid(
+		spacing_x_field.value,
+		spacing_y_field.value,
+		columns_field.value
+	)
+	dialog.hide()
+
+func _arrange_selected_nodes_grid(spacing_x: float, spacing_y: float, columns: int) -> void:
+	var selection = get_editor_interface().get_selection()
+	var selected_nodes = selection.get_selected_nodes()
+
+	if selected_nodes.is_empty():
+		push_warning("No nodes selected to arrange.")
+		return
+
+	selected_nodes.sort_custom(func(a, b): return a.name.naturalnocasecmp_to(b.name) < 0)
+
+	for i in range(selected_nodes.size()):
+		var node = selected_nodes[i]
+		if node is Node3D:
+			var x = (i % columns) * spacing_x
+			var z = (i / columns) * spacing_y
+			var position = Vector3(x, node.transform.origin.y, z) # Keep original Y
+			node.transform.origin = position
+		else:
+			push_warning("Node '%s' is not a Node3D, skipped." % node.name)
