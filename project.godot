@@ -39,10 +39,6 @@ movie_writer/movie_file="C:/Users/Kenney/Desktop/video-footage.avi"
 
 enabled=PackedStringArray("res://addons/AIHelp/plugin.cfg", "res://addons/snappy/plugin.cfg")
 
-[filesystem]
-
-import/blender/enabled=false
-
 [input]
 
 move_right_p1={

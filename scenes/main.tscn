@@ -1,4 +1,4 @@
-[gd_scene load_steps=31 format=3 uid="uid://bqqgyqafm7xwp"]
+[gd_scene load_steps=37 format=3 uid="uid://bqqgyqafm7xwp"]
 
 [ext_resource type="Environment" uid="uid://bqnqgflivjvue" path="res://scenes/main-environment.tres" id="1_ahusb"]
 [ext_resource type="PackedScene" uid="uid://dl2ed4gkybggf" path="res://objects/Base/player.tscn" id="2_onms2"]
@@ -27,7 +27,9 @@
 [ext_resource type="PackedScene" uid="uid://b5mhmde28541f" path="res://objects/BasicMarble.tscn" id="23_pm3ni"]
 [ext_resource type="PackedScene" uid="uid://ch3drcnblts8h" path="res://objects/MarbleRun/helix_large_left_2.tscn" id="24_y6deb"]
 [ext_resource type="PackedScene" uid="uid://dn4gidqq52u4s" path="res://card_spin_and_bob.tscn" id="29_fv21b"]
+[ext_resource type="Script" uid="uid://bo1jabc1aurbh" path="res://scenes/suit_rank_bobber.gd" id="29_yq6so"]
 [ext_resource type="Script" uid="uid://jria1kdta648" path="res://scenes/spawn_flull_deck.gd" id="30_fv21b"]
+[ext_resource type="Texture2D" uid="uid://bs6puxrivhkk2" path="res://sprites/particle.png" id="30_tel4y"]
 
 [sub_resource type="GDScript" id="GDScript_jscy8"]
 
@@ -36,6 +38,23 @@ font = ExtResource("17_tk810")
 font_size = 48
 shadow_color = Color(0, 0, 0, 0.376471)
 shadow_offset = Vector2(2, 2)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_qkpxi"]
+transparency = 1
+vertex_color_use_as_albedo = true
+albedo_texture = ExtResource("30_tel4y")
+billboard_mode = 1
+billboard_keep_scale = true
+proximity_fade_enabled = true
+
+[sub_resource type="QuadMesh" id="QuadMesh_5q0nq"]
+
+[sub_resource type="Curve" id="Curve_dgi5k"]
+_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(0.504298, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="Gradient" id="Gradient_j8jky"]
+colors = PackedColorArray(0.996094, 0.910156, 0.351563, 1, 1, 1, 1, 1)
 
 [node name="Main" type="Node3D"]
 
@@ -415,3 +434,23 @@ visible = false
 script = ExtResource("30_fv21b")
 card_scene = ExtResource("29_fv21b")
 spacing = Vector3(1, 0, 1)
+
+[node name="SuitRankBobber" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.864479, 0.271953, -23.2978)
+script = ExtResource("29_yq6so")
+
+[node name="Particles" type="CPUParticles3D" parent="SuitRankBobber"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.447834, 0)
+visible = false
+material_override = SubResource("StandardMaterial3D_qkpxi")
+mesh = SubResource("QuadMesh_5q0nq")
+direction = Vector3(1, 1, 1)
+spread = 180.0
+gravity = Vector3(0, 0, 0)
+initial_velocity_max = 1.0
+damping_min = 0.5
+damping_max = 0.5
+scale_amount_min = 0.15
+scale_amount_max = 0.15
+scale_amount_curve = SubResource("Curve_dgi5k")
+color_ramp = SubResource("Gradient_j8jky")
