@@ -1,6 +1,6 @@
 [gd_resource type="ShaderMaterial" load_steps=2 format=3 uid="uid://dqoaewwg2evym"]
 
-[ext_resource type="Shader" uid="uid://dofaea7s7ic3c" path="res://card_adjustment.gdshader" id="1_td1qy"]
+[ext_resource type="Shader" uid="uid://dofaea7s7ic3c" path="res://scenes/card_adjustment.gdshader" id="1_td1qy"]
 
 [resource]
 render_priority = 0

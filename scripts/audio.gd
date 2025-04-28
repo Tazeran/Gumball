@@ -1,7 +1,5 @@
 extends Node
 
-# Code adapted from KidsCanCode
-
 var num_players = 12
 var bus = "master"
 

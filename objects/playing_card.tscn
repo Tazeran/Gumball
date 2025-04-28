@@ -1,7 +1,9 @@
-[gd_scene load_steps=3 format=3 uid="uid://ch5h1be8dqft0"]
+[gd_scene load_steps=4 format=3 uid="uid://ch5h1be8dqft0"]
 
 [ext_resource type="PackedScene" uid="uid://bxf1bnse14x1c" path="res://models/Cards/PlayingCard.glb" id="1_yy2wv"]
 [ext_resource type="Script" uid="uid://byl5qmoak6ad5" path="res://scripts/playing_card.gd" id="2_sb5rw"]
+[ext_resource type="Material" uid="uid://dqoaewwg2evym" path="res://scenes/card_adjustment.tres" id="3_sb5rw"]
 
 [node name="PlayingCard" instance=ExtResource("1_yy2wv")]
 script = ExtResource("2_sb5rw")
+card_front_shader_material = ExtResource("3_sb5rw")

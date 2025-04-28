@@ -69,10 +69,12 @@ point_count = 3
 colors = PackedColorArray(0.996094, 0.910156, 0.351563, 1, 1, 1, 1, 1)
 
 [node name="coin" type="Area3D"]
+collision_mask = 5
 script = ExtResource("2_gaakh")
 
 [node name="Mesh" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.25, 0)
+layers = 2
 mesh = SubResource("ArrayMesh_t08aw")
 skeleton = NodePath("")
 surface_material_override/0 = SubResource("StandardMaterial3D_xkafy")

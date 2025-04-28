@@ -1,7 +1,8 @@
-[gd_scene load_steps=50 format=3 uid="uid://bqqgyqafm7xwp"]
+[gd_scene load_steps=51 format=3 uid="uid://bqqgyqafm7xwp"]
 
 [ext_resource type="Environment" uid="uid://bqnqgflivjvue" path="res://scenes/main-environment.tres" id="1_ahusb"]
-[ext_resource type="Script" uid="uid://c7ygroxpgne1x" path="res://scenes/solitaire_path.gd" id="2_5poiv"]
+[ext_resource type="Script" uid="uid://c7ygroxpgne1x" path="res://scripts/solitaire_path.gd" id="2_5poiv"]
+[ext_resource type="PackedScene" uid="uid://01w0ora8c1bp" path="res://scenes/p_card.tscn" id="2_chjal"]
 [ext_resource type="PackedScene" uid="uid://dl2ed4gkybggf" path="res://objects/Base/player.tscn" id="2_onms2"]
 [ext_resource type="PackedScene" uid="uid://l05a2g6khn0s" path="res://scenes/SlamButton.tscn" id="2_tel4y"]
 [ext_resource type="PackedScene" uid="uid://bybivwvlelklc" path="res://scenes/solitaire_rune.tscn" id="3_2cjbq"]
@@ -24,20 +25,20 @@
 [ext_resource type="PackedScene" uid="uid://dpu2usku1kyvk" path="res://objects/TerrainGreen/barrel_2.tscn" id="16_jbj1t"]
 [ext_resource type="PackedScene" uid="uid://ckh16odrt7i00" path="res://objects/TerrainGreen/block_grass_overhang_edge_2.tscn" id="17_gqmmt"]
 [ext_resource type="FontFile" uid="uid://d0cxd77jybrcn" path="res://fonts/lilita_one_regular.ttf" id="17_tk810"]
-[ext_resource type="Script" uid="uid://ssthegxvlm2c" path="res://scenes/sub_viewport_container.gd" id="17_yc10j"]
+[ext_resource type="Script" uid="uid://ssthegxvlm2c" path="res://scripts/sub_viewport_container.gd" id="17_yc10j"]
 [ext_resource type="PackedScene" uid="uid://cqjh213dnlg0l" path="res://objects/TerrainGreen/door_large_open_2.tscn" id="19_gqmmt"]
-[ext_resource type="Script" uid="uid://do2yn7w5n6yq7" path="res://scenes/RingUI.gd" id="21_2wyq8"]
+[ext_resource type="Script" uid="uid://do2yn7w5n6yq7" path="res://scripts/RingUI.gd" id="21_2wyq8"]
 [ext_resource type="Script" uid="uid://cs0q2hrbc1qw3" path="res://objects/marble_spawner.gd" id="22_jscy8"]
 [ext_resource type="PackedScene" uid="uid://dkr8mhyl84egj" path="res://objects/Obstacles/spike_block_2.tscn" id="22_og1vs"]
 [ext_resource type="PackedScene" uid="uid://b5mhmde28541f" path="res://objects/BasicMarble.tscn" id="23_pm3ni"]
-[ext_resource type="Script" uid="uid://rw8uphfcpk25" path="res://scenes/heart_bar.gd" id="23_qkpxi"]
+[ext_resource type="Script" uid="uid://rw8uphfcpk25" path="res://scripts/heart_bar.gd" id="23_qkpxi"]
 [ext_resource type="Texture2D" uid="uid://by7n7afd5qyi2" path="res://Images/Heart_Empty.png" id="24_j8jky"]
 [ext_resource type="PackedScene" uid="uid://ch3drcnblts8h" path="res://objects/MarbleRun/helix_large_left_2.tscn" id="24_y6deb"]
 [ext_resource type="Texture2D" uid="uid://o3t2bebi2kag" path="res://Images/Heart_Half.png" id="25_kmb1v"]
 [ext_resource type="Texture2D" uid="uid://bg2ufnkhal2xn" path="res://Images/Heart_Full.png" id="26_fuf3a"]
-[ext_resource type="PackedScene" uid="uid://dn4gidqq52u4s" path="res://card_spin_and_bob.tscn" id="29_fv21b"]
-[ext_resource type="Script" uid="uid://bo1jabc1aurbh" path="res://scenes/suit_rank_bobber.gd" id="29_yq6so"]
-[ext_resource type="Script" uid="uid://jria1kdta648" path="res://scenes/spawn_flull_deck.gd" id="30_fv21b"]
+[ext_resource type="PackedScene" uid="uid://dn4gidqq52u4s" path="res://scenes/card_spin_and_bob.tscn" id="29_fv21b"]
+[ext_resource type="Script" uid="uid://bo1jabc1aurbh" path="res://scripts/suit_rank_bobber.gd" id="29_yq6so"]
+[ext_resource type="Script" uid="uid://jria1kdta648" path="res://scripts/spawn_flull_deck.gd" id="30_fv21b"]
 [ext_resource type="Texture2D" uid="uid://bs6puxrivhkk2" path="res://sprites/particle.png" id="30_tel4y"]
 [ext_resource type="PackedScene" uid="uid://6j2m4nt14t5t" path="res://objects/Base/heart.tscn" id="36_kmb1v"]
 [ext_resource type="Texture2D" uid="uid://dey8c81sr5e1" path="res://sprites/runeGrey_slab_032.png" id="37_pibwh"]
@@ -80,6 +81,9 @@ colors = PackedColorArray(0.996094, 0.910156, 0.351563, 1, 1, 1, 1, 1)
 
 [node name="Environment" type="WorldEnvironment" parent="."]
 environment = ExtResource("1_ahusb")
+
+[node name="PCard" parent="." instance=ExtResource("2_chjal")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.43929, 1.595, -2.71276)
 
 [node name="SolitairePath" type="Node3D" parent="." node_paths=PackedStringArray("path")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.105163, 0.0576778, -11.882)
@@ -140,7 +144,7 @@ lower_fade = 0.01
 cull_mask = 1047553
 
 [node name="Player" parent="." node_paths=PackedStringArray("view", "hud") groups=["players"] instance=ExtResource("2_onms2")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.62126, 7.92305, -20.7055)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.41626, 0.176348, -3.15304)
 view = NodePath("../UI Control/GridContainer/SubViewportContainer/SubViewport/View")
 hud = NodePath("../UI Control/GridContainer/SubViewportContainer/SubViewport/HUD1")
 
@@ -223,6 +227,21 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14.5685, 2.03849, 7.05883)
 
 [node name="coin15" parent="World" instance=ExtResource("10_fwhys")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13.7634, 2.03849, 7.05883)
+
+[node name="coin26" parent="World" instance=ExtResource("10_fwhys")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.26278, -0.0296758, -6.28351)
+
+[node name="coin27" parent="World" instance=ExtResource("10_fwhys")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.61168, -0.0296758, -6.28351)
+
+[node name="coin28" parent="World" instance=ExtResource("10_fwhys")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.83178, -0.0296758, -6.28351)
+
+[node name="coin29" parent="World" instance=ExtResource("10_fwhys")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.98888, -0.0296758, -6.28351)
+
+[node name="coin30" parent="World" instance=ExtResource("10_fwhys")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.18378, -0.0296758, -6.28351)
 
 [node name="coin16" parent="World" instance=ExtResource("10_fwhys")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20.7538, 7.70616, 0.952179)
@@ -599,5 +618,8 @@ scale_amount_max = 0.15
 scale_amount_curve = SubResource("Curve_dgi5k")
 color_ramp = SubResource("Gradient_j8jky")
 
-[node name="coin" parent="." instance=ExtResource("36_kmb1v")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.37457, -0.196861, -16.0085)
+[node name="heart" parent="." instance=ExtResource("36_kmb1v")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.9655, -0.196861, -16.0048)
+
+[node name="heart2" parent="." instance=ExtResource("36_kmb1v")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.97055, -0.196861, -16.0048)

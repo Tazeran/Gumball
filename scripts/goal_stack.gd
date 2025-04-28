@@ -1,0 +1,2 @@
+# GoalStack.gd
+extends DeckStack

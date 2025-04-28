@@ -10,6 +10,7 @@ size = Vector3(0.397949, 0.215153, 0.396118)
 script = ExtResource("2_u2ejs")
 
 [node name="Area3D" type="Area3D" parent="." index="0"]
+collision_mask = 5
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D" index="0"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.000244141, 0.16651, 0.00128174)

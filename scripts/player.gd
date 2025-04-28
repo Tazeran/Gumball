@@ -11,6 +11,26 @@ signal coin_collected(coins: int)
 @export var jump_strength := 7
 @export var hud: Node
 
+# --- Card Carry System
+var carried_card: Node3D = null
+var nearby_card: Node3D = null  # Closest interactable card
+var card_hold_offset: Vector3 = Vector3(0, 1.0, 0)
+var interaction_radius: float = 2.0
+
+@onready var pickup_area = $PickupArea
+var nearby_cards: Array[Node3D] = []
+
+# Cached input action names
+var input_left: String
+var input_right: String
+var input_forward: String
+var input_back: String
+var input_jump: String
+var input_ground_pound: String
+var input_interact: String
+var input_crouch: String
+
+
 var movement_velocity: Vector3
 var rotation_direction: float
 var gravity := 0.0
@@ -43,12 +63,72 @@ var ground_pound_gravity_multiplier = 4.0
 @onready var animation = $Character/AnimationPlayer
 
 func _ready():
+	# Setup input strings
+	input_left = "move_left_p" + str(player_id)
+	input_right = "move_right_p" + str(player_id)
+	input_forward = "move_forward_p" + str(player_id)
+	input_back = "move_back_p" + str(player_id)
+	input_jump = "jump_p" + str(player_id)
+	input_ground_pound = "right_bumper_p" + str(player_id)
+	input_interact = "interact_p" + str(player_id)
+	input_crouch = "crouch_p" + str(player_id)
+	
 	spawn_position = global_transform.origin
+	pickup_area.area_entered.connect(_on_pickup_area_body_entered)
+	pickup_area.area_exited.connect(_on_pickup_area_body_exited)
+
 	if hud:
 		connect("coin_collected", Callable(hud, "_on_coin_collected"))
 		#connect("heart_collected", Callable(hud, "_on_heart_collected"))
 		hud.set_health(health, health_max)
 	print("Player ", name, " has HUD: ", hud.name, " (ref: ", hud, ")")
+
+func _on_pickup_area_body_entered(area):
+	print("_on_pickup_area_body_entered", area)
+	
+	var card_node = area.get_parent()  # Go up from the Area3D to the Card Node3D
+	if card_node.is_in_group("cards"):
+		print("card added:", card_node)
+		nearby_cards.append(card_node)
+		# HUD could show "Press [A] to pick up"
+
+func _on_pickup_area_body_exited(area):
+	print("_on_pickup_area_body_exited", area)
+	
+	var card_node = area.get_parent()
+	if card_node.is_in_group("cards"):
+		print("card removed:", card_node)
+		nearby_cards.erase(card_node)
+		# HUD could hide prompt if nearby_cards.is_empty()
+
+
+func handle_card_interactions(delta):
+	if carried_card == null:
+		if not nearby_cards.is_empty():
+			# Show [A] prompt if not already showing (handled by HUD maybe)
+
+			if Input.is_action_just_pressed(input_interact):
+				print(input_interact)
+				var closest_card = get_closest_card()
+				if closest_card:
+					pick_up_card(closest_card)
+	else:
+		# Holding a card
+		if Input.is_action_just_pressed(input_interact):
+			print(input_interact)
+			drop_card()
+
+func get_closest_card() -> Node3D:
+	var closest = null
+	var closest_dist = INF
+	for card in nearby_cards:
+		if card and card.state == card.CardState.FREE_FLOATING and not card.locked:
+			var dist = global_position.distance_to(card.global_position)
+			if dist < closest_dist:
+				closest = card
+				closest_dist = dist
+	return closest
+
 
 func _physics_process(delta):
 	handle_controls(delta)
@@ -91,20 +171,14 @@ func _physics_process(delta):
 		Audio.play("res://sounds/land.ogg")
 
 	previously_floored = is_on_floor()
+	handle_card_interactions(delta)
+
 
 func handle_controls(delta):
 	var input := Vector3.ZERO
 
-	var left = "move_left_p" + str(player_id)
-	var right = "move_right_p" + str(player_id)
-	var forward = "move_forward_p" + str(player_id)
-	var back = "move_back_p" + str(player_id)
-	var jump = "jump_p" + str(player_id)
-	var ground_pound = "right_bumper_p" + str(player_id)
-	var crouch = "crouch_p" + str(player_id)  # You'll need to define this in Input Map!
-
-	input.x = Input.get_action_strength(right) - Input.get_action_strength(left)
-	input.z = Input.get_action_strength(back) - Input.get_action_strength(forward)
+	input.x = Input.get_action_strength(input_right) - Input.get_action_strength(input_left)
+	input.z = Input.get_action_strength(input_back) - Input.get_action_strength(input_forward)
 	input = input.rotated(Vector3.UP, view.rotation.y)
 
 	if input.length() > 1:
@@ -113,15 +187,15 @@ func handle_controls(delta):
 	movement_velocity = input * movement_speed * delta
 
 	# Crouching
-	is_crouching = Input.is_action_pressed(crouch)
+	is_crouching = Input.is_action_pressed(input_crouch)
 
 	# Jumping
-	if Input.is_action_just_pressed(jump):
+	if Input.is_action_just_pressed(input_jump):
 		if jump_single or jump_double:
 			jump_action()
 
 	# Ground Pound
-	if !is_on_floor() and !is_ground_pounding and Input.is_action_just_pressed(ground_pound):
+	if !is_on_floor() and !is_ground_pounding and Input.is_action_just_pressed(input_ground_pound):
 		start_ground_pound()
 
 
@@ -210,3 +284,30 @@ func collect_coin():
 func collect_heart():
 	health = min(health + 2, health_max)
 	hud.set_health(health, health_max)
+
+
+func find_nearby_card() -> Node3D:
+	var cards = get_tree().get_nodes_in_group("cards")  # We'll add "cards" group to cards
+	var closest_card = null
+	var closest_distance = interaction_radius
+
+	for card in cards:
+		if card and card.state == card.CardState.FREE_FLOATING and not card.locked:
+			var dist = global_position.distance_to(card.global_position)
+			if dist < closest_distance:
+				closest_distance = dist
+				closest_card = card
+	return closest_card
+
+func pick_up_card(card: Node3D):
+	carried_card = card
+	#card.pick_up(self)  # Calls the Card.gd function
+	card.pick_up(self, $Character/character/root/torso/antenna) # Pass the Antenna as mount point
+	Audio.play("res://sounds/card-place-2.ogg")
+	print("Picked up", card.rank, "of", card.suit)
+
+func drop_card():
+	if carried_card:
+		carried_card.drop_to_ground()
+		carried_card = null
+		Audio.play("res://sounds/card-place-3.ogg")

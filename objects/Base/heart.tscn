@@ -64,10 +64,12 @@ point_count = 3
 colors = PackedColorArray(0.996094, 0.910156, 0.351563, 1, 1, 1, 1, 1)
 
 [node name="heart" type="Area3D"]
+collision_mask = 5
 script = ExtResource("1_rcjm2")
 
 [node name="heart" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.216085, 0)
+layers = 2
 mesh = SubResource("ArrayMesh_w53te")
 skeleton = NodePath("")
 

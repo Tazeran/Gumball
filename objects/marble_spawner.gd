@@ -24,12 +24,12 @@ func spawn_marble():
 	get_tree().current_scene.add_child(marble)
 	marble.global_transform.origin = global_transform.origin
 	_marble_count += 1
-	print("MCC: ", _marble_count)
+	#print("MCC: ", _marble_count)
 
 
 func _on_marble_deleted():
 	_marble_count -= 1
-	print("MCD: ", _marble_count)
+	#print("MCD: ", _marble_count)
 
 #func _notification(what):
 	#if Engine.is_editor_hint():

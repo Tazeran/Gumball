@@ -1,8 +1,8 @@
 [gd_scene load_steps=4 format=3 uid="uid://dn4gidqq52u4s"]
 
-[ext_resource type="Script" uid="uid://yxqp8a2f6qfr" path="res://scenes/spin_and_bob.gd" id="1_dmj7t"]
+[ext_resource type="Script" uid="uid://yxqp8a2f6qfr" path="res://scripts/spin_and_bob.gd" id="1_dmj7t"]
 [ext_resource type="PackedScene" uid="uid://ch5h1be8dqft0" path="res://objects/playing_card.tscn" id="2_iby3h"]
-[ext_resource type="Material" uid="uid://dqoaewwg2evym" path="res://card_adjustment.tres" id="3_rpvgu"]
+[ext_resource type="Material" uid="uid://dqoaewwg2evym" path="res://scenes/card_adjustment.tres" id="3_rpvgu"]
 
 [node name="SpinAndBob" type="Node3D"]
 script = ExtResource("1_dmj7t")
