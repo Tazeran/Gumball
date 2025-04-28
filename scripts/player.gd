@@ -22,11 +22,15 @@ var spawn_position: Vector3
 
 var is_crouching = false
 var double_jump_stamina_cost = 4
+var ground_pound_stamina_cost = 8
 var crouch_jump_strength = 12  # More powerful than normal jump
 var crouch_jump_stamina_cost = 30
 var stamina_max :float = 64
-var stamina :float = 64;
+var stamina :float = 64
 var stamina_regen_rate :float = 3  # Stamina per second
+
+var health: int = 5
+var health_max: int = 8
 
 # Ground Pound variables
 var is_ground_pounding = false
@@ -42,6 +46,8 @@ func _ready():
 	spawn_position = global_transform.origin
 	if hud:
 		connect("coin_collected", Callable(hud, "_on_coin_collected"))
+		#connect("heart_collected", Callable(hud, "_on_heart_collected"))
+		hud.set_health(health, health_max)
 	print("Player ", name, " has HUD: ", hud.name, " (ref: ", hud, ")")
 
 func _physics_process(delta):
@@ -159,10 +165,15 @@ func jump_action():
 
 
 func start_ground_pound():
-	is_ground_pounding = true
-	ground_pound_started = true
-	gravity = 0
-	#animation.play("ground_pound_spin")  # Make sure you have this animation!
+	if stamina >= ground_pound_stamina_cost:
+		is_ground_pounding = true
+		ground_pound_started = true
+		gravity = 0
+		stamina -= ground_pound_stamina_cost
+		#animation.play("ground_pound_spin")  # if you want an animation
+	else:
+		# Not enough stamina to ground pound
+		print("Not enough stamina to ground pound")
 
 func land_ground_pound():
 	is_ground_pounding = false
@@ -195,3 +206,7 @@ func handle_effects(delta):
 func collect_coin():
 	coins += 1
 	coin_collected.emit(coins)
+
+func collect_heart():
+	health = min(health + 2, health_max)
+	hud.set_health(health, health_max)

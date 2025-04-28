@@ -1,4 +1,4 @@
-[gd_scene load_steps=38 format=3 uid="uid://bqqgyqafm7xwp"]
+[gd_scene load_steps=43 format=3 uid="uid://bqqgyqafm7xwp"]
 
 [ext_resource type="Environment" uid="uid://bqnqgflivjvue" path="res://scenes/main-environment.tres" id="1_ahusb"]
 [ext_resource type="PackedScene" uid="uid://dl2ed4gkybggf" path="res://objects/Base/player.tscn" id="2_onms2"]
@@ -26,11 +26,16 @@
 [ext_resource type="Script" uid="uid://cs0q2hrbc1qw3" path="res://objects/marble_spawner.gd" id="22_jscy8"]
 [ext_resource type="PackedScene" uid="uid://dkr8mhyl84egj" path="res://objects/Obstacles/spike_block_2.tscn" id="22_og1vs"]
 [ext_resource type="PackedScene" uid="uid://b5mhmde28541f" path="res://objects/BasicMarble.tscn" id="23_pm3ni"]
+[ext_resource type="Script" uid="uid://rw8uphfcpk25" path="res://scenes/heart_bar.gd" id="23_qkpxi"]
+[ext_resource type="Texture2D" uid="uid://by7n7afd5qyi2" path="res://Images/Heart_Empty.png" id="24_j8jky"]
 [ext_resource type="PackedScene" uid="uid://ch3drcnblts8h" path="res://objects/MarbleRun/helix_large_left_2.tscn" id="24_y6deb"]
+[ext_resource type="Texture2D" uid="uid://o3t2bebi2kag" path="res://Images/Heart_Half.png" id="25_kmb1v"]
+[ext_resource type="Texture2D" uid="uid://bg2ufnkhal2xn" path="res://Images/Heart_Full.png" id="26_fuf3a"]
 [ext_resource type="PackedScene" uid="uid://dn4gidqq52u4s" path="res://card_spin_and_bob.tscn" id="29_fv21b"]
 [ext_resource type="Script" uid="uid://bo1jabc1aurbh" path="res://scenes/suit_rank_bobber.gd" id="29_yq6so"]
 [ext_resource type="Script" uid="uid://jria1kdta648" path="res://scenes/spawn_flull_deck.gd" id="30_fv21b"]
 [ext_resource type="Texture2D" uid="uid://bs6puxrivhkk2" path="res://sprites/particle.png" id="30_tel4y"]
+[ext_resource type="PackedScene" uid="uid://6j2m4nt14t5t" path="res://objects/Base/heart.tscn" id="36_kmb1v"]
 
 [sub_resource type="GDScript" id="GDScript_jscy8"]
 
@@ -329,38 +334,66 @@ script = SubResource("GDScript_jscy8")
 script = ExtResource("11_apvpm")
 
 [node name="Icon" type="TextureRect" parent="UI Control/GridContainer/SubViewportContainer/SubViewport/HUD1"]
-offset_left = 57.0
-offset_top = 67.0
-offset_right = 313.0
-offset_bottom = 323.0
+offset_left = 81.0
+offset_top = 76.0
+offset_right = 337.0
+offset_bottom = 332.0
 scale = Vector2(0.2, 0.2)
 texture = ExtResource("13_jfda3")
 
 [node name="x" type="Label" parent="UI Control/GridContainer/SubViewportContainer/SubViewport/HUD1"]
-offset_left = 112.0
-offset_top = 64.0
-offset_right = 144.0
-offset_bottom = 123.0
+offset_left = 136.0
+offset_top = 73.0
+offset_right = 168.0
+offset_bottom = 132.0
 text = "×"
 label_settings = SubResource("LabelSettings_38ys3")
 
 [node name="Coins" type="Label" parent="UI Control/GridContainer/SubViewportContainer/SubViewport/HUD1"]
-offset_left = 144.0
-offset_top = 64.0
-offset_right = 368.0
-offset_bottom = 123.0
+offset_left = 168.0
+offset_top = 73.0
+offset_right = 392.0
+offset_bottom = 132.0
 text = "0"
 label_settings = SubResource("LabelSettings_38ys3")
 
 [node name="Ring" type="Control" parent="UI Control/GridContainer/SubViewportContainer/SubViewport/HUD1"]
 layout_mode = 3
 anchors_preset = 0
-offset_left = 119.0
-offset_top = -53.0
-offset_right = 319.0
-offset_bottom = 147.0
+offset_left = -54.0
+offset_top = 18.0
+offset_right = 146.0
+offset_bottom = 218.0
 script = ExtResource("21_2wyq8")
-percent = null
+
+[node name="HeartBar" type="Control" parent="UI Control/GridContainer/SubViewportContainer/SubViewport/HUD1"]
+layout_mode = 3
+anchors_preset = 0
+offset_left = 10.0
+offset_top = 11.0
+offset_right = 50.0
+offset_bottom = 51.0
+script = ExtResource("23_qkpxi")
+heart_empty_texture = ExtResource("24_j8jky")
+heart_half_texture = ExtResource("25_kmb1v")
+heart_full_texture = ExtResource("26_fuf3a")
+
+[node name="Hearts" type="HFlowContainer" parent="UI Control/GridContainer/SubViewportContainer/SubViewport/HUD1/HeartBar"]
+layout_mode = 1
+offset_right = 512.0
+offset_bottom = 260.0
+
+[node name="Icon" type="TextureRect" parent="UI Control/GridContainer/SubViewportContainer/SubViewport/HUD1/HeartBar/Hearts"]
+layout_mode = 2
+texture = ExtResource("26_fuf3a")
+
+[node name="Icon3" type="TextureRect" parent="UI Control/GridContainer/SubViewportContainer/SubViewport/HUD1/HeartBar/Hearts"]
+layout_mode = 2
+texture = ExtResource("25_kmb1v")
+
+[node name="Icon2" type="TextureRect" parent="UI Control/GridContainer/SubViewportContainer/SubViewport/HUD1/HeartBar/Hearts"]
+layout_mode = 2
+texture = ExtResource("24_j8jky")
 
 [node name="View" type="Node3D" parent="UI Control/GridContainer/SubViewportContainer/SubViewport" node_paths=PackedStringArray("target", "sub_viewport")]
 transform = Transform3D(0.707107, -0.298836, 0.640856, 0, 0.906308, 0.422618, -0.707107, -0.298836, 0.640856, 0, 0, 0)
@@ -387,37 +420,66 @@ render_target_update_mode = 4
 script = ExtResource("11_apvpm")
 
 [node name="Icon" type="TextureRect" parent="UI Control/GridContainer/SubViewportContainer2/SubViewport/HUD2"]
-offset_left = 57.0
-offset_top = 67.0
-offset_right = 313.0
-offset_bottom = 323.0
+offset_left = 81.0
+offset_top = 76.0
+offset_right = 337.0
+offset_bottom = 332.0
 scale = Vector2(0.2, 0.2)
 texture = ExtResource("13_jfda3")
 
 [node name="x" type="Label" parent="UI Control/GridContainer/SubViewportContainer2/SubViewport/HUD2"]
-offset_left = 112.0
-offset_top = 64.0
-offset_right = 144.0
-offset_bottom = 123.0
+offset_left = 136.0
+offset_top = 73.0
+offset_right = 168.0
+offset_bottom = 132.0
 text = "×"
 label_settings = SubResource("LabelSettings_38ys3")
 
 [node name="Coins" type="Label" parent="UI Control/GridContainer/SubViewportContainer2/SubViewport/HUD2"]
-offset_left = 144.0
-offset_top = 64.0
-offset_right = 368.0
-offset_bottom = 123.0
+offset_left = 168.0
+offset_top = 73.0
+offset_right = 392.0
+offset_bottom = 132.0
 text = "0"
 label_settings = SubResource("LabelSettings_38ys3")
 
 [node name="Ring" type="Control" parent="UI Control/GridContainer/SubViewportContainer2/SubViewport/HUD2"]
 layout_mode = 3
 anchors_preset = 0
-offset_left = 119.0
-offset_top = -53.0
-offset_right = 319.0
-offset_bottom = 147.0
+offset_left = -54.0
+offset_top = 18.0
+offset_right = 146.0
+offset_bottom = 218.0
 script = ExtResource("21_2wyq8")
+
+[node name="HeartBar" type="Control" parent="UI Control/GridContainer/SubViewportContainer2/SubViewport/HUD2"]
+layout_mode = 3
+anchors_preset = 0
+offset_left = 10.0
+offset_top = 11.0
+offset_right = 50.0
+offset_bottom = 51.0
+script = ExtResource("23_qkpxi")
+heart_empty_texture = ExtResource("24_j8jky")
+heart_half_texture = ExtResource("25_kmb1v")
+heart_full_texture = ExtResource("26_fuf3a")
+
+[node name="Hearts" type="HFlowContainer" parent="UI Control/GridContainer/SubViewportContainer2/SubViewport/HUD2/HeartBar"]
+layout_mode = 1
+offset_right = 512.0
+offset_bottom = 260.0
+
+[node name="Icon" type="TextureRect" parent="UI Control/GridContainer/SubViewportContainer2/SubViewport/HUD2/HeartBar/Hearts"]
+layout_mode = 2
+texture = ExtResource("26_fuf3a")
+
+[node name="Icon3" type="TextureRect" parent="UI Control/GridContainer/SubViewportContainer2/SubViewport/HUD2/HeartBar/Hearts"]
+layout_mode = 2
+texture = ExtResource("25_kmb1v")
+
+[node name="Icon2" type="TextureRect" parent="UI Control/GridContainer/SubViewportContainer2/SubViewport/HUD2/HeartBar/Hearts"]
+layout_mode = 2
+texture = ExtResource("24_j8jky")
 
 [node name="View2" type="Node3D" parent="UI Control/GridContainer/SubViewportContainer2/SubViewport" node_paths=PackedStringArray("target", "sub_viewport")]
 transform = Transform3D(0.707107, -0.298836, 0.640856, 0, 0.906308, 0.422618, -0.707107, -0.298836, 0.640856, 0, 0, 0)
@@ -468,3 +530,6 @@ scale_amount_min = 0.15
 scale_amount_max = 0.15
 scale_amount_curve = SubResource("Curve_dgi5k")
 color_ramp = SubResource("Gradient_j8jky")
+
+[node name="coin" parent="." instance=ExtResource("36_kmb1v")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.37457, -0.196861, -16.0085)

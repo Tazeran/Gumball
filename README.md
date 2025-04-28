@@ -3,21 +3,18 @@
 # My Notes:
 
 Health System
-Stamina System
 
 
-Jump (no stamina)
-Double Jump (1/8 stamina)
-Dash (all Stamina)
-Ground Pound (Half Stamina)
+
+
 
 Play Slot awaiting Ace and built up to King
-    Fireworks when you place a king, spawns things around Table Arena
+	Fireworks when you place a king, spawns things around Table Arena
 
 Team Play-Mat
-    A single 13-Deck slot
-    4 array slots to play downward on
-        Could be a thin stack, could be train tracks that move away from the base like tentacles and may be different based on the Table Arena layout.
+	A single 13-Deck slot
+	4 array slots to play downward on
+		Could be a thin stack, could be train tracks that move away from the base like tentacles and may be different based on the Table Arena layout.
 
 
 Stamina Pickups
@@ -25,13 +22,13 @@ Health Pickups
 
 
 MiniMap:
-    Possibly so you can monitor cards
+	Possibly so you can monitor cards
 
 
 Coins spent on map specials.
-    Maybe you can rotate a platform that has 4 of the Play Slots on it so the one your watching is closer, cooldown before someone else can do it again.
-    Move obstacles or monster spawners
-    Curse certain suits or cards for whole map, run slower or stamina drain
+	Maybe you can rotate a platform that has 4 of the Play Slots on it so the one your watching is closer, cooldown before someone else can do it again.
+	Move obstacles or monster spawners
+	Curse certain suits or cards for whole map, run slower or stamina drain
 
 
 

@@ -14,6 +14,11 @@ func set_stamina_percent(val: float):
 		if ring:
 			ring.percent = val
 
+func set_health(val: int, val_max: int):
+	if has_node("HeartBar"):
+		var heartbar = $HeartBar
+		if heartbar:
+			heartbar.set_health(val, val_max)
 
 func _on_coin_collected(coins):
 	print(">>> ", name, " got coin update: ", coins)
