@@ -1,10 +1,14 @@
-[gd_scene load_steps=43 format=3 uid="uid://bqqgyqafm7xwp"]
+[gd_scene load_steps=50 format=3 uid="uid://bqqgyqafm7xwp"]
 
 [ext_resource type="Environment" uid="uid://bqnqgflivjvue" path="res://scenes/main-environment.tres" id="1_ahusb"]
+[ext_resource type="Script" uid="uid://c7ygroxpgne1x" path="res://scenes/solitaire_path.gd" id="2_5poiv"]
 [ext_resource type="PackedScene" uid="uid://dl2ed4gkybggf" path="res://objects/Base/player.tscn" id="2_onms2"]
 [ext_resource type="PackedScene" uid="uid://l05a2g6khn0s" path="res://scenes/SlamButton.tscn" id="2_tel4y"]
+[ext_resource type="PackedScene" uid="uid://bybivwvlelklc" path="res://scenes/solitaire_rune.tscn" id="3_2cjbq"]
 [ext_resource type="Script" uid="uid://cphtlo6ned6yp" path="res://scripts/view.gd" id="5_bg0fr"]
+[ext_resource type="Texture2D" uid="uid://qfmnal45k0wp" path="res://sprites/runeBlue_slab_030.png" id="6_2cjbq"]
 [ext_resource type="PackedScene" uid="uid://cnymdajj1vsqm" path="res://objects/Base/platform.tscn" id="6_sdmev"]
+[ext_resource type="Texture2D" uid="uid://ddxvkffkp3d8e" path="res://sprites/runeGrey_slab_028.png" id="7_chjal"]
 [ext_resource type="PackedScene" uid="uid://rjh4ifidqrfp" path="res://objects/Base/platform_medium.tscn" id="7_ixpj3"]
 [ext_resource type="PackedScene" uid="uid://uqr4hswv6d2g" path="res://objects/Base/platform_grass_large_round.tscn" id="8_4oh1e"]
 [ext_resource type="PackedScene" uid="uid://c8up71en5djgm" path="res://objects/Base/platform_falling.tscn" id="9_2fnpo"]
@@ -36,6 +40,16 @@
 [ext_resource type="Script" uid="uid://jria1kdta648" path="res://scenes/spawn_flull_deck.gd" id="30_fv21b"]
 [ext_resource type="Texture2D" uid="uid://bs6puxrivhkk2" path="res://sprites/particle.png" id="30_tel4y"]
 [ext_resource type="PackedScene" uid="uid://6j2m4nt14t5t" path="res://objects/Base/heart.tscn" id="36_kmb1v"]
+[ext_resource type="Texture2D" uid="uid://dey8c81sr5e1" path="res://sprites/runeGrey_slab_032.png" id="37_pibwh"]
+[ext_resource type="Texture2D" uid="uid://ccfsvrdui83xb" path="res://sprites/runeGrey_slab_007.png" id="38_c6pm6"]
+
+[sub_resource type="Curve3D" id="Curve3D_kmb1v"]
+bake_interval = 0.1
+_data = {
+"points": PackedVector3Array(-0.720226, 0.00602593, -0.724752, 0.720226, -0.00602593, 0.724752, -0.80291, 0.038333, -6.28229, 0.570203, 0.0190758, -1.43633, -0.570203, -0.0190758, 1.43633, 1.06941, 0.0637782, -2.09026, 0.482456, 0.033527, -1.91169, -0.482456, -0.033527, 1.91169, -1.9655, -0.0998476, 0.958, -0.934622, 0.0401931, 0.16964, 0.934622, -0.0401931, -0.16964, 0.510653, -0.0116501, 4.63642),
+"tilts": PackedFloat32Array(0, 0, 0, 0)
+}
+point_count = 4
 
 [sub_resource type="GDScript" id="GDScript_jscy8"]
 
@@ -67,9 +81,63 @@ colors = PackedColorArray(0.996094, 0.910156, 0.351563, 1, 1, 1, 1, 1)
 [node name="Environment" type="WorldEnvironment" parent="."]
 environment = ExtResource("1_ahusb")
 
+[node name="SolitairePath" type="Node3D" parent="." node_paths=PackedStringArray("path")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.105163, 0.0576778, -11.882)
+script = ExtResource("2_5poiv")
+path = NodePath("Path3D")
+decal_scene = ExtResource("3_2cjbq")
+
+[node name="Path3D" type="Path3D" parent="SolitairePath"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0602333, -0.007321, 0)
+curve = SubResource("Curve3D_kmb1v")
+
 [node name="SlamButton" parent="." instance=ExtResource("2_tel4y")]
-transform = Transform3D(2.16202, 0, 0, 0, 1, 0, 0, 0, 2.16202, 0, -0.208408, -15.8055)
+transform = Transform3D(2.16202, 0, 0, 0, 1, 0, 0, 0, 2.16202, 6.176, -0.208408, -11.6927)
 is_toggle_button = false
+
+[node name="CycleDeck" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.16558, 0.446, -14.5491)
+
+[node name="Decal" type="Decal" parent="CycleDeck"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.0592926, 0)
+size = Vector3(1.5, 2, 1)
+texture_albedo = ExtResource("38_c6pm6")
+upper_fade = 1e-05
+lower_fade = 0.01
+cull_mask = 1047553
+
+[node name="CycleStack" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.16558, 0.446, -13.295)
+
+[node name="Decal" type="Decal" parent="CycleStack"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.0592926, 0)
+size = Vector3(1.5, 2, 1)
+texture_albedo = ExtResource("37_pibwh")
+upper_fade = 1e-05
+lower_fade = 0.01
+cull_mask = 1047553
+
+[node name="FieldStack" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.81064, 0.446, -13.295)
+
+[node name="Decal" type="Decal" parent="FieldStack"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.0592926, 0)
+size = Vector3(1.5, 2, 1)
+texture_albedo = ExtResource("6_2cjbq")
+upper_fade = 1e-05
+lower_fade = 0.01
+cull_mask = 1047553
+
+[node name="GoalStack" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.81064, 0.446, -14.6719)
+
+[node name="Decal" type="Decal" parent="GoalStack"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.0592926, 0)
+size = Vector3(1.5, 2, 1)
+texture_albedo = ExtResource("7_chjal")
+upper_fade = 1e-05
+lower_fade = 0.01
+cull_mask = 1047553
 
 [node name="Player" parent="." node_paths=PackedStringArray("view", "hud") groups=["players"] instance=ExtResource("2_onms2")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.62126, 7.92305, -20.7055)

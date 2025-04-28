@@ -1,6 +1,6 @@
 [gd_scene load_steps=12 format=4 uid="uid://6j2m4nt14t5t"]
 
-[ext_resource type="Script" uid="uid://wqbvny1v77yx" path="res://heart.gd" id="1_rcjm2"]
+[ext_resource type="Script" uid="uid://wqbvny1v77yx" path="res://scripts/heart.gd" id="1_rcjm2"]
 [ext_resource type="Texture2D" uid="uid://bnty6oqhxv0kn" path="res://models/Textures/colormap.png" id="2_rcjm2"]
 [ext_resource type="Texture2D" uid="uid://bs6puxrivhkk2" path="res://sprites/particle.png" id="3_de8ym"]
 

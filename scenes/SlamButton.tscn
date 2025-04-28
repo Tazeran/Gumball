@@ -1,7 +1,7 @@
 [gd_scene load_steps=4 format=3 uid="uid://l05a2g6khn0s"]
 
 [ext_resource type="PackedScene" uid="uid://c8shjc827766r" path="res://models/button-square.glb" id="1_ostwv"]
-[ext_resource type="Script" uid="uid://b4f1eaigq5cbx" path="res://button_square.gd" id="2_u2ejs"]
+[ext_resource type="Script" uid="uid://b4f1eaigq5cbx" path="res://scripts/button_square.gd" id="2_u2ejs"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_ostwv"]
 size = Vector3(0.397949, 0.215153, 0.396118)

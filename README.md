@@ -2,11 +2,53 @@
 
 # My Notes:
 
-Health System
+
+### MVP Goals
+Card can be:
+	dropped on ground
+		In which it's either laying flat (probably like a physics object), or doing the hoverbob floating?
+	on a player (remembering the last place it was, to return if dropped)
+	on a Goal Stack (13 pile, empty to win, must touch flag)
+	on a Cycle Stack (3 at time, ground pound button to cycle)
+	on a Solitaire Path (4x, Building down alternating, can be empty)
+	on a Field Stack (out in middle)
+
+Goal Stack, Cycle Stack, and Table Stack can probably be derivations (if that's possible) of some Deck type component
+	Maybe even Solitaire Path can too, data wise, but display wise in the world the cards lay out along a path instead of stack.
+
+each team of players has a 52 card playing deck and their own "Home Base" with the following:
+starting setup that is shuffled and "dealt" randomly for each team:
+	Goal stack of 13 (all face down, top can be flipped over with a ground pound only once round starts, if top is face up, it can be grabbed)
+	Cycle stack of 35
+	1 card face down (till game start) for each of the four Solitaire Paths
+
+Grab will just be like, player is within the collision sphere, and is prompted with "[A] Grab Card" as long as they aren't holding anything presently, and A will grab the item, putting the card flat over the characters head, and maybe showing the 2d card on HUD. (Lock will show over the deck/stack it was taken from maybe, as you can't grab the card below if any, till that card is legally played or returned)
+If player has a card, then going in collision spheres of places that it can be dropped will show like a hologram and prompt "[A] Place Card"
+
+Cards legally played on Field Stacks are done, those are positive points at end of round.
+
+Picking up a card from the Goal, Cycle, or any of 4 solitaire paths, locks the next available card on that stack till player returns card in some manner or it is legally played somewhere else
+So we need to indicate visually where to place cards
+	Goal (starts with 13, top card face up once game has begun, player of that decks team can grab top card)
+	Cycle (the left over 35 cards after we dealt the starting setup)
+	Solitaire
+	Table
+
+Assets to make:
+	Hologram Shader on a card to show where it goes down maybe when your near and A (activate) shows up for player
+	Hologram animation emanating up kind of deal rectangle glow
+	Stone Card Altar shapes
+		Goal
+		Cycle
+		Table
+		Solitaire? (Rounded puzzly so you can make curved path out of them?)
 
 
+Glider Purchase with coins? Other abilities?
+	LOL, actually if your holding a card, you can glide down, however it costs stamina? Might be slower, might be a wind direction that changes at times or ceases that will help or not, maybe bribes to change it.
 
-
+Game Reset Controller:
+	Shuffle and Deal 13, 1, 1, 1, 1, 35
 
 Play Slot awaiting Ace and built up to King
 	Fireworks when you place a king, spawns things around Table Arena
@@ -16,19 +58,30 @@ Team Play-Mat
 	4 array slots to play downward on
 		Could be a thin stack, could be train tracks that move away from the base like tentacles and may be different based on the Table Arena layout.
 
+Goal stacks could have effects, maybe rewards for each card placed there, some addition decision possibility.
 
-Stamina Pickups
-Health Pickups
+Bribe the cannons to launch randomly at teams hills.
+
+LOL, players have to run around and sort the cards afterwards. Just run around and tag them.
+
+### Strech Goals
+Stamina Pickups?
 
 
-MiniMap:
-	Possibly so you can monitor cards
-
+MiniMap / Global HUD: Play Slot
+	Possibly so you can monitor Play Slots
+	Each Team Jail-Cards
+	Points in Play
 
 Coins spent on map specials.
 	Maybe you can rotate a platform that has 4 of the Play Slots on it so the one your watching is closer, cooldown before someone else can do it again.
 	Move obstacles or monster spawners
 	Curse certain suits or cards for whole map, run slower or stamina drain
+
+
+
+
+
 
 
 
