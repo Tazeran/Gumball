@@ -360,7 +360,7 @@ offset_top = -53.0
 offset_right = 319.0
 offset_bottom = 147.0
 script = ExtResource("21_2wyq8")
-stamina = 1.0
+percent = null
 
 [node name="View" type="Node3D" parent="UI Control/GridContainer/SubViewportContainer/SubViewport" node_paths=PackedStringArray("target", "sub_viewport")]
 transform = Transform3D(0.707107, -0.298836, 0.640856, 0, 0.906308, 0.422618, -0.707107, -0.298836, 0.640856, 0, 0, 0)
@@ -409,6 +409,15 @@ offset_right = 368.0
 offset_bottom = 123.0
 text = "0"
 label_settings = SubResource("LabelSettings_38ys3")
+
+[node name="Ring" type="Control" parent="UI Control/GridContainer/SubViewportContainer2/SubViewport/HUD2"]
+layout_mode = 3
+anchors_preset = 0
+offset_left = 119.0
+offset_top = -53.0
+offset_right = 319.0
+offset_bottom = 147.0
+script = ExtResource("21_2wyq8")
 
 [node name="View2" type="Node3D" parent="UI Control/GridContainer/SubViewportContainer2/SubViewport" node_paths=PackedStringArray("target", "sub_viewport")]
 transform = Transform3D(0.707107, -0.298836, 0.640856, 0, 0.906308, 0.422618, -0.707107, -0.298836, 0.640856, 0, 0, 0)

@@ -4,9 +4,9 @@ extends Control
 
 
 @export_range(0.0, 1.0)
-var stamina: float = 0.6:
+var percent: float = 0:
 	set(value):
-		stamina = value
+		percent = value
 		queue_redraw()
 		
 @export
@@ -30,7 +30,7 @@ func _draw():
 	# Draw stamina arc
 	var center = size / 2
 	var start_angle = deg_to_rad(0)
-	var angle_length = deg_to_rad(360.0 * stamina)
+	var angle_length = deg_to_rad(360.0 * percent)
 
 	draw_arc(center, radius, start_angle, angle_length, 100, Color.GREEN, 10)
 

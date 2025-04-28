@@ -14,13 +14,19 @@ signal coin_collected(coins: int)
 var movement_velocity: Vector3
 var rotation_direction: float
 var gravity := 0.0
-
 var previously_floored := false
 var jump_single := true
 var jump_double := true
 var coins := 0
-var stamina := 64;
 var spawn_position: Vector3
+
+var is_crouching = false
+var double_jump_stamina_cost = 4
+var crouch_jump_strength = 12  # More powerful than normal jump
+var crouch_jump_stamina_cost = 30
+var stamina_max :float = 64
+var stamina :float = 64;
+var stamina_regen_rate :float = 3  # Stamina per second
 
 # Ground Pound variables
 var is_ground_pounding = false
@@ -42,6 +48,11 @@ func _physics_process(delta):
 	handle_controls(delta)
 	handle_gravity(delta)
 	handle_effects(delta)
+	
+	# Regenerate stamina slowly
+	stamina += stamina_regen_rate * delta
+	stamina = clamp(stamina, 0, stamina_max)
+	hud.set_stamina_percent(stamina / stamina_max)
 
 	# Movement
 	var applied_velocity: Vector3 = velocity.lerp(movement_velocity, delta * 10)
@@ -84,6 +95,7 @@ func handle_controls(delta):
 	var back = "move_back_p" + str(player_id)
 	var jump = "jump_p" + str(player_id)
 	var ground_pound = "right_bumper_p" + str(player_id)
+	var crouch = "crouch_p" + str(player_id)  # You'll need to define this in Input Map!
 
 	input.x = Input.get_action_strength(right) - Input.get_action_strength(left)
 	input.z = Input.get_action_strength(back) - Input.get_action_strength(forward)
@@ -94,6 +106,9 @@ func handle_controls(delta):
 
 	movement_velocity = input * movement_speed * delta
 
+	# Crouching
+	is_crouching = Input.is_action_pressed(crouch)
+
 	# Jumping
 	if Input.is_action_just_pressed(jump):
 		if jump_single or jump_double:
@@ -102,6 +117,7 @@ func handle_controls(delta):
 	# Ground Pound
 	if !is_on_floor() and !is_ground_pounding and Input.is_action_just_pressed(ground_pound):
 		start_ground_pound()
+
 
 func handle_gravity(delta):
 	if is_ground_pounding:
@@ -117,14 +133,30 @@ func handle_gravity(delta):
 
 func jump_action():
 	Audio.play("res://sounds/jump.ogg")
-	gravity = -jump_strength
-	model.scale = Vector3(0.5, 1.5, 0.5)
+
+	if is_crouching and stamina >= crouch_jump_stamina_cost:
+		# Do a crouch super jump
+		stamina -= crouch_jump_stamina_cost
+		gravity = -crouch_jump_strength
+		model.scale = Vector3(0.4, 1.6, 0.4)  # Bigger squash/stretch
+	else:
+		# Normal jump
+		gravity = -jump_strength
+		model.scale = Vector3(0.5, 1.5, 0.5)
 
 	if jump_single:
 		jump_single = false
 		jump_double = true
 	else:
-		jump_double = false
+		# Player is using the double jump
+		if stamina >= double_jump_stamina_cost:
+			stamina -= double_jump_stamina_cost
+			jump_double = false  # Consumes the double jump
+		else:
+			# Not enough stamina, cancel the double jump
+			return
+
+
 
 func start_ground_pound():
 	is_ground_pounding = true

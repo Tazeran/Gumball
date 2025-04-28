@@ -42,8 +42,8 @@ func _ready() -> void:
 		add_child(rank_mesh)
 		
 		# Start spinning / bobbing
-		if $AnimationPlayer:
-			$AnimationPlayer.play("SpinBob")
+		#if $AnimationPlayer:
+			#$AnimationPlayer.play("SpinBob")
 
 func _process(delta: float) -> void:
 	rotate_y(delta * 0.5)  # Spin smoothly
