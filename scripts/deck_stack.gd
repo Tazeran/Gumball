@@ -1,7 +1,7 @@
 # DeckStack.gd (base class)
 class_name DeckStack
 extends Node3D
-
+# OLD FILE PROLLY DELETE? WHAT? theres another file same name in scenes
 @export var cards: Array[Node3D] = []
 
 func push_card(card: Node3D):

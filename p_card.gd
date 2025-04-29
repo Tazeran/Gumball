@@ -34,7 +34,7 @@ var state: CardState = CardState.FREE_FLOATING
 var mount_target: Node3D = null
 var mount_offset: Transform3D = Transform3D.IDENTITY
 var carrier_player: Node3D = null
-var locked: bool = false
+
 
 var carrier_target: Node3D = null  # NEW
 
@@ -57,6 +57,7 @@ func _ready():
 		push_error("pickup_area not found!")
 		print("asdf asdf asd f asready")
 	base_position = global_position
+	add_to_group("interactables")
 	add_to_group("cards")
 	if mesh == null:
 		push_error("CardMesh not found!")
@@ -211,12 +212,9 @@ func set_edge_color(color: Color) -> void:
 	if edge_material:
 		edge_material.albedo_color = edge_color
 
-# -- Attachments / Mounting Logic
-#func pick_up(player: Node3D):
-	#carrier_player = player
-	#mount_target = null
-	#state = CardState.CARRIED_BY_PLAYER
-	#locked = false
+func interact(player):
+	if state == CardState.FREE_FLOATING:
+		player.pick_up_card(self)
 
 func pick_up(player: Node3D, target_mount: Node3D = null):
 	print("card/pick_up: ", target_mount)
@@ -225,7 +223,6 @@ func pick_up(player: Node3D, target_mount: Node3D = null):
 	has_flattened = false
 	carrier_target = target_mount if target_mount != null else player
 	change_state(CardState.CARRIED_BY_PLAYER)
-	locked = false
 	physics_off()
 
 func drop_to_ground():
@@ -238,7 +235,6 @@ func drop_to_ground():
 	carrier_target = null
 	mount_target = null
 	change_state(CardState.FREE_FLOATING)
-	locked = false
 	physics_on()
 	self.linear_velocity = Vector3(0, -2.5, 0)  # Small down speed
 	self.angular_velocity = Vector3(-2.5, 0, 0)
@@ -263,4 +259,3 @@ func mount_to(target: Node3D, offset: Transform3D = Transform3D.IDENTITY):
 	mount_target = target
 	mount_offset = offset
 	change_state(CardState.ON_STACK)
-	locked = false

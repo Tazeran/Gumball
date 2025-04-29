@@ -3,12 +3,39 @@ extends Node3D
 @onready var pickup_area = $Area3D
 @export var stack_position_offset: Vector3 = Vector3(0, 0.02, 0)  # Vertical gap between cards
 var cards: Array = []
+var vertical_spacing: float = 0.015
 
+func _ready():
+	add_to_group("interactables")
+	add_to_group("decks")
 
 func add_card(card: Node3D):
 	cards.append(card)
 	card.global_position = global_position + (stack_position_offset * cards.size())
 	card.global_rotation = Vector3.ZERO  # Optional: straighten rotation if needed
+	
+	card.mount_target = self
+	var offset_y = vertical_spacing * (cards.size() - 1)  # -1 because we just added the new one
+	card.mount_offset = Transform3D(Basis(), Vector3(0, offset_y, 0))
+	card.change_state(card.CardState.ON_STACK)
+
+func interact(player):
+	print("deck stack interact: ", self, player)
+
+	if player.is_holding_card():
+		print("Dropping card onto stack:", player.carried_card)
+		player.drop_card_onto_stack(self)
+
+	else:
+		var top_card = remove_top_card()
+		print("Picking up top card:", top_card)
+		if top_card:
+			player.pick_up_card(top_card)
+
+func get_top_card() -> Node3D:
+	if cards.is_empty():
+		return null
+	return cards[-1]
 
 func remove_top_card() -> Node3D:
 	if cards.is_empty():

@@ -18,7 +18,8 @@ var card_hold_offset: Vector3 = Vector3(0, 1.0, 0)
 var interaction_radius: float = 2.0
 
 @onready var pickup_area = $PickupArea
-var nearby_cards: Array[Node3D] = []
+var nearby_interactables: Array[Node3D] = []
+
 
 # Cached input action names
 var input_left: String
@@ -62,6 +63,8 @@ var ground_pound_gravity_multiplier = 4.0
 @onready var model = $Character
 @onready var animation = $Character/AnimationPlayer
 
+func is_holding_card():
+	return carried_card != null
 
 func _ready():
 	# Setup input strings
@@ -84,51 +87,76 @@ func _ready():
 		hud.set_health(health, health_max)
 	print("Player ", name, " has HUD: ", hud.name, " (ref: ", hud, ")")
 
+
 func _on_pickup_area_body_entered(area):
-	print("_on_pickup_area_body_entered", area)
-	
-	var card_node = area.get_parent()  # Go up from the Area3D to the Card Node3D
-	if card_node.is_in_group("cards"):
-		print("card added:", card_node)
-		nearby_cards.append(card_node)
-		# HUD could show "Press [A] to pick up"
+	#print("_on_pickup_area_body_entered", area)
+	var node = area.get_parent()
+	if node.is_in_group("interactables"):
+		#print("Interactable entered:", node)
+		nearby_interactables.append(node)
 
 func _on_pickup_area_body_exited(area):
-	print("_on_pickup_area_body_exited", area)
-	
-	var card_node = area.get_parent()
-	if card_node.is_in_group("cards"):
-		print("card removed:", card_node)
-		nearby_cards.erase(card_node)
-		# HUD could hide prompt if nearby_cards.is_empty()
+	#print("_on_pickup_area_body_exited", area)
+	var node = area.get_parent()
+	if node.is_in_group("interactables"):
+		#print("Interactable exited:", node)
+		nearby_interactables.erase(node)
 
+#func try_interact():
+	#if nearby_interactables.is_empty():
+		#return
+#
+	#var best = get_closest_interactable()
+	#if best and best.has_method("interact"):
+		#best.interact(self)
+		
+func handle_interactables(delta):
+	if not Input.is_action_just_pressed(input_interact):
+		return
 
-func handle_card_interactions(delta):
+	var closest = get_closest_interactable()
+	print(input_interact, " closest: ", closest, "  ", carried_card)
+
 	if carried_card == null:
-		if not nearby_cards.is_empty():
-			# Show [A] prompt if not already showing (handled by HUD maybe)
-
-			if Input.is_action_just_pressed(input_interact):
-				print(input_interact)
-				var closest_card = get_closest_card()
-				if closest_card:
-					pick_up_card(closest_card)
+		# Not holding a card — try interacting normally
+		print("carried_card == null: ", carried_card)
+		if closest and closest.has_method("interact"):
+			closest.interact(self)
 	else:
-		# Holding a card
-		if Input.is_action_just_pressed(input_interact):
-			print(input_interact)
+		print("Holding a card ")
+		# Holding a card — try to drop onto something valid
+		if closest:
+			if closest.is_in_group("deck_stacks"):
+				print("drop_card_onto_stack")
+				drop_card_onto_stack(closest)
+			elif closest.is_in_group("cards"):
+				print("pass-drop")
+				drop_card()
+				pass  # Already holding a card — maybe deny
+			elif closest.has_method("interact"):
+				print("interact")
+				closest.interact(self)
+		else:
+			print("drop_card ")
+			# No valid target — drop to world
 			drop_card()
 
-func get_closest_card() -> Node3D:
+
+#!!!! Could also have some kind of event for anything close to returns it's like HUD info, or more generic than that
+
+func get_closest_interactable() -> Node3D:
 	var closest = null
 	var closest_dist = INF
-	for card in nearby_cards:
-		if card and card.state == card.CardState.FREE_FLOATING and not card.locked:
-			var dist = global_position.distance_to(card.global_position)
+
+	for interactable in nearby_interactables:
+		if interactable and interactable != carried_card:
+			var dist = global_position.distance_to(interactable.global_position)
 			if dist < closest_dist:
-				closest = card
+				closest = interactable
 				closest_dist = dist
+
 	return closest
+
 
 func _physics_process(delta):
 	handle_controls(delta)
@@ -171,7 +199,7 @@ func _physics_process(delta):
 		Audio.play("res://sounds/land.ogg")
 
 	previously_floored = is_on_floor()
-	handle_card_interactions(delta)
+	handle_interactables(delta)
 
 
 func handle_controls(delta):
@@ -286,18 +314,19 @@ func collect_heart():
 	hud.set_health(health, health_max)
 
 
-func find_nearby_card() -> Node3D:
-	var cards = get_tree().get_nodes_in_group("cards")  # We'll add "cards" group to cards
-	var closest_card = null
-	var closest_distance = interaction_radius
+#func find_nearby_card() -> Node3D:
+	#var cards = get_tree().get_nodes_in_group("cards")  # We'll add "cards" group to cards
+	#var closest_card = null
+	#var closest_distance = interaction_radius
+#
+	#for card in cards:
+		#if card and card.state == card.CardState.FREE_FLOATING and not card.locked:
+			#var dist = global_position.distance_to(card.global_position)
+			#if dist < closest_distance:
+				#closest_distance = dist
+				#closest_card = card
+	#return closest_card
 
-	for card in cards:
-		if card and card.state == card.CardState.FREE_FLOATING and not card.locked:
-			var dist = global_position.distance_to(card.global_position)
-			if dist < closest_distance:
-				closest_distance = dist
-				closest_card = card
-	return closest_card
 
 func pick_up_card(card: Node3D):
 	carried_card = card
@@ -311,3 +340,13 @@ func drop_card():
 		carried_card.drop_to_ground()
 		carried_card = null
 		Audio.play("res://sounds/card-place-3.ogg")
+
+func drop_card_onto_stack(stack):
+	if !is_holding_card():
+		return
+	stack.add_card(carried_card)
+	
+	# Step 1: Detach from player
+	carried_card.carrier_player = null
+	carried_card.carrier_target = null
+	carried_card = null

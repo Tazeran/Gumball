@@ -31,15 +31,20 @@ func deal_starting_cards():
 			if card_data:
 				var card_node = card_scene.instantiate()
 				add_child(card_node)
-				card_node.change_state(card_node.CardState.ON_STACK)
+				#!!!! init or ready it, research
+				#!!!! then stack function and it holds info about itself
+				
 				card_node.set_card(card_data.suit, card_data.rank)
-				card_node.mount_target = stack
-				
-				print ("AAAAAAAAAAAAAA: ", (stack.global_position.y - deck_pos.y))
-				# Space cards vertically based on how many are already stacked
-				var vertical_spacing = 0.015  # spacing per card
-				var card_index = stack.get_card_count()  # <-- you'll need to add get_card_count() in DeckStack
-				card_node.mount_offset = Transform3D(Basis(), Vector3(0, vertical_spacing * card_index - (stack.global_position.y - deck_pos.y), 0))
-				#card_node.global_position = deck_pos + Vector3(0, vertical_spacing * card_index, 0)
-				
 				stack.add_card(card_node)
+				
+				#card_node.change_state(card_node.CardState.ON_STACK)
+				#card_node.mount_target = stack
+				
+				#print ("AAAAAAAAAAAAAA: ", (stack.global_position.y - deck_pos.y))
+				## Space cards vertically based on how many are already stacked
+				#var vertical_spacing = 0.015  # spacing per card
+				#var card_index = stack.get_card_count()  # <-- you'll need to add get_card_count() in DeckStack
+				#card_node.mount_offset = Transform3D(Basis(), Vector3(0, vertical_spacing * card_index - (stack.global_position.y - deck_pos.y), 0))
+				##card_node.global_position = deck_pos + Vector3(0, vertical_spacing * card_index, 0)
+				
+				#stack.add_card(card_node)
