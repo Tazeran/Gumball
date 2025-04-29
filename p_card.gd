@@ -15,13 +15,15 @@ enum CardState {
 signal player_entered_area(player)
 signal player_exited_area(player)
 # Nodes
-@onready var mesh = $Cube
+@export var mesh : MeshInstance3D
 
 # Editable properties
 @export var card_front_shader_material: ShaderMaterial
 @export var edge_color : Color = Color.WHITE
 @export var suit : String = "hearts"
 @export var rank : String = "K"
+
+@onready var pickup_area = $Area3D
 
 var low_speed_timer = 0.0
 var flattening = false
@@ -50,6 +52,10 @@ var bob_speed := 1.0
 var base_position: Vector3
 
 func _ready():
+	print("ready pickup_area", pickup_area)
+	if pickup_area == null:
+		push_error("pickup_area not found!")
+		print("asdf asdf asd f asready")
 	base_position = global_position
 	add_to_group("cards")
 	if mesh == null:
@@ -79,7 +85,29 @@ func update_flattening(delta):
 		rotation.z = 0
 		flattening = false
 		has_flattened = true
-		print("Card fully flattened!")
+		#print("Card fully flattened!")
+
+
+func change_state(new_state: int) -> void:
+	#if state == new_state:
+		#return  # No need to change to same state
+	state = new_state
+	match state:
+		CardState.ON_STACK:
+			print("pickup_area", self, pickup_area)
+			if pickup_area:
+				pickup_area.monitorable = false
+			physics_off()
+
+		CardState.FREE_FLOATING:
+			if pickup_area:
+				pickup_area.monitorable = true
+			physics_on()
+
+		CardState.CARRIED_BY_PLAYER:
+			if pickup_area:
+				pickup_area.monitorable = false
+			physics_off()
 
 func _physics_process(delta):
 	if global_transform.origin.y < -20:
@@ -92,11 +120,11 @@ func _physics_process(delta):
 			#_handle_free_float(delta)
 			if !flattening and !has_flattened:
 				# Check if card is nearly stopped
-				print(self.linear_velocity.length(), "   ", self.angular_velocity.length())
+				#print(self.linear_velocity.length(), "   ", self.angular_velocity.length())
 				if self.linear_velocity.length() < 0.36 and self.angular_velocity.length() < 1.79:
 					low_speed_timer += delta
 					if low_speed_timer > 0.5:  # been slow for half a second
-						print("Starting flattening!")
+						#print("Starting flattening!")
 						start_flattening()
 				else:
 					low_speed_timer = 0.0
@@ -157,6 +185,7 @@ func set_card(new_suit: String, new_rank: String) -> void:
 			"uv_scale",
 			Vector2((42.0 - (margin * 2)) / 64.0, (60.0 - (margin * 2)) / 64.0)
 		)
+		
 		mesh.set_surface_override_material(front_material_index, front_material)
 
 		var back_material = card_front_shader_material.duplicate()
@@ -195,7 +224,7 @@ func pick_up(player: Node3D, target_mount: Node3D = null):
 	mount_target = null
 	has_flattened = false
 	carrier_target = target_mount if target_mount != null else player
-	state = CardState.CARRIED_BY_PLAYER
+	change_state(CardState.CARRIED_BY_PLAYER)
 	locked = false
 	physics_off()
 
@@ -208,10 +237,11 @@ func drop_to_ground():
 	carrier_player = null
 	carrier_target = null
 	mount_target = null
-	state = CardState.FREE_FLOATING
+	change_state(CardState.FREE_FLOATING)
 	locked = false
 	physics_on()
 	self.linear_velocity = Vector3(0, -2.5, 0)  # Small down speed
+	self.angular_velocity = Vector3(-2.5, 0, 0)
 	#self.angular_velocity = Vector3(randf_range(-2, 2), randf_range(-1, 1), randf_range(-2, 2))
 
 func physics_on():
@@ -232,5 +262,5 @@ func mount_to(target: Node3D, offset: Transform3D = Transform3D.IDENTITY):
 	carrier_player = null
 	mount_target = target
 	mount_offset = offset
-	state = CardState.ON_STACK
+	change_state(CardState.ON_STACK)
 	locked = false

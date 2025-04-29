@@ -1,10 +1,11 @@
-[gd_scene load_steps=51 format=3 uid="uid://bqqgyqafm7xwp"]
+[gd_scene load_steps=54 format=3 uid="uid://bqqgyqafm7xwp"]
 
 [ext_resource type="Environment" uid="uid://bqnqgflivjvue" path="res://scenes/main-environment.tres" id="1_ahusb"]
 [ext_resource type="Script" uid="uid://c7ygroxpgne1x" path="res://scripts/solitaire_path.gd" id="2_5poiv"]
 [ext_resource type="PackedScene" uid="uid://01w0ora8c1bp" path="res://scenes/p_card.tscn" id="2_chjal"]
 [ext_resource type="PackedScene" uid="uid://dl2ed4gkybggf" path="res://objects/Base/player.tscn" id="2_onms2"]
 [ext_resource type="PackedScene" uid="uid://l05a2g6khn0s" path="res://scenes/SlamButton.tscn" id="2_tel4y"]
+[ext_resource type="Script" uid="uid://c3roj5bsj7si0" path="res://scenes/game_master.gd" id="2_vchkt"]
 [ext_resource type="PackedScene" uid="uid://bybivwvlelklc" path="res://scenes/solitaire_rune.tscn" id="3_2cjbq"]
 [ext_resource type="Script" uid="uid://cphtlo6ned6yp" path="res://scripts/view.gd" id="5_bg0fr"]
 [ext_resource type="Texture2D" uid="uid://qfmnal45k0wp" path="res://sprites/runeBlue_slab_030.png" id="6_2cjbq"]
@@ -13,6 +14,7 @@
 [ext_resource type="PackedScene" uid="uid://rjh4ifidqrfp" path="res://objects/Base/platform_medium.tscn" id="7_ixpj3"]
 [ext_resource type="PackedScene" uid="uid://uqr4hswv6d2g" path="res://objects/Base/platform_grass_large_round.tscn" id="8_4oh1e"]
 [ext_resource type="PackedScene" uid="uid://c8up71en5djgm" path="res://objects/Base/platform_falling.tscn" id="9_2fnpo"]
+[ext_resource type="Script" uid="uid://xw7gweso178a" path="res://scenes/deck_stack.gd" id="10_cjqg0"]
 [ext_resource type="PackedScene" uid="uid://dfpisimsgf5ce" path="res://objects/Base/coin.tscn" id="10_fwhys"]
 [ext_resource type="PackedScene" uid="uid://de8jxuvworkou" path="res://objects/Base/flag.tscn" id="10_trceg"]
 [ext_resource type="Script" uid="uid://cv2hyc71eithw" path="res://scripts/hud.gd" id="11_apvpm"]
@@ -43,6 +45,9 @@
 [ext_resource type="PackedScene" uid="uid://6j2m4nt14t5t" path="res://objects/Base/heart.tscn" id="36_kmb1v"]
 [ext_resource type="Texture2D" uid="uid://dey8c81sr5e1" path="res://sprites/runeGrey_slab_032.png" id="37_pibwh"]
 [ext_resource type="Texture2D" uid="uid://ccfsvrdui83xb" path="res://sprites/runeGrey_slab_007.png" id="38_c6pm6"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_vchkt"]
+size = Vector3(0.774551, 1, 1.24182)
 
 [sub_resource type="Curve3D" id="Curve3D_kmb1v"]
 bake_interval = 0.1
@@ -81,6 +86,30 @@ colors = PackedColorArray(0.996094, 0.910156, 0.351563, 1, 1, 1, 1, 1)
 
 [node name="Environment" type="WorldEnvironment" parent="."]
 environment = ExtResource("1_ahusb")
+
+[node name="GameMaster" type="Node3D" parent="." node_paths=PackedStringArray("deck_stacks")]
+script = ExtResource("2_vchkt")
+deck_stacks = [NodePath("../DeckStack")]
+card_scene = ExtResource("2_chjal")
+
+[node name="DeckStack" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.16753, 0, -2.22162)
+script = ExtResource("10_cjqg0")
+
+[node name="Decal" type="Decal" parent="DeckStack"]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0, -0.0592926, -0.485831)
+size = Vector3(1.5, 2, 1)
+texture_albedo = ExtResource("7_chjal")
+upper_fade = 1e-05
+lower_fade = 0.01
+cull_mask = 1047553
+
+[node name="Area3D" type="Area3D" parent="DeckStack"]
+monitoring = false
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="DeckStack/Area3D"]
+transform = Transform3D(0.999992, 0, 0, 0, 1, 0, 0, 0, 0.999992, -0.0192642, 0, -0.503732)
+shape = SubResource("BoxShape3D_vchkt")
 
 [node name="PCard" parent="." instance=ExtResource("2_chjal")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.43929, 1.595, -2.71276)

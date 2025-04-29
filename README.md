@@ -1,6 +1,7 @@
 <p align="center"><img src="icon.png"/></p>
 
 # My Notes:
+Rethink Controls some, probably triggers need to not be zoom. Maybe push in right stick to toggle between 3 zoom levels.
 
 
 ### MVP Goals

@@ -62,6 +62,7 @@ var ground_pound_gravity_multiplier = 4.0
 @onready var model = $Character
 @onready var animation = $Character/AnimationPlayer
 
+
 func _ready():
 	# Setup input strings
 	input_left = "move_left_p" + str(player_id)
@@ -128,7 +129,6 @@ func get_closest_card() -> Node3D:
 				closest = card
 				closest_dist = dist
 	return closest
-
 
 func _physics_process(delta):
 	handle_controls(delta)

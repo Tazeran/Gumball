@@ -1,0 +1,45 @@
+extends Node3D
+
+@export var deck_stacks: Array[Node3D]  # Later can separate Team A and Team B
+@export var card_scene: PackedScene  # Your Card.tscn
+
+var team_a_deck: Deck
+var team_b_deck: Deck
+
+func _ready():
+	# Initialize decks
+	team_a_deck = Deck.new()
+	team_a_deck.create_full_deck()
+	team_a_deck.shuffle()
+
+	team_b_deck = Deck.new()
+	team_b_deck.create_full_deck()
+	team_b_deck.shuffle()
+
+	# Debug: print how many cards
+	print("Team A deck cards:", team_a_deck.cards_remaining())
+	print("Team B deck cards:", team_b_deck.cards_remaining())
+
+	# (Example) Deal cards to stacks
+	deal_starting_cards()
+	
+func deal_starting_cards():
+	for stack in deck_stacks:
+		var deck_pos = stack.get_ground_position()
+		for i in range(52):  # Deal 15 cards per stack (for example)
+			var card_data = team_a_deck.draw_card()
+			if card_data:
+				var card_node = card_scene.instantiate()
+				add_child(card_node)
+				card_node.change_state(card_node.CardState.ON_STACK)
+				card_node.set_card(card_data.suit, card_data.rank)
+				card_node.mount_target = stack
+				
+				print ("AAAAAAAAAAAAAA: ", (stack.global_position.y - deck_pos.y))
+				# Space cards vertically based on how many are already stacked
+				var vertical_spacing = 0.015  # spacing per card
+				var card_index = stack.get_card_count()  # <-- you'll need to add get_card_count() in DeckStack
+				card_node.mount_offset = Transform3D(Basis(), Vector3(0, vertical_spacing * card_index - (stack.global_position.y - deck_pos.y), 0))
+				#card_node.global_position = deck_pos + Vector3(0, vertical_spacing * card_index, 0)
+				
+				stack.add_card(card_node)
