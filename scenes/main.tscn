@@ -32,7 +32,6 @@
 [ext_resource type="PackedScene" uid="uid://cqjh213dnlg0l" path="res://objects/TerrainGreen/door_large_open_2.tscn" id="19_gqmmt"]
 [ext_resource type="Script" uid="uid://do2yn7w5n6yq7" path="res://scripts/RingUI.gd" id="21_2wyq8"]
 [ext_resource type="Script" uid="uid://cs0q2hrbc1qw3" path="res://objects/marble_spawner.gd" id="22_jscy8"]
-[ext_resource type="PackedScene" uid="uid://dkr8mhyl84egj" path="res://objects/Obstacles/spike_block_2.tscn" id="22_og1vs"]
 [ext_resource type="PackedScene" uid="uid://b5mhmde28541f" path="res://objects/BasicMarble.tscn" id="23_pm3ni"]
 [ext_resource type="Script" uid="uid://rw8uphfcpk25" path="res://scripts/heart_bar.gd" id="23_qkpxi"]
 [ext_resource type="Texture2D" uid="uid://by7n7afd5qyi2" path="res://Images/Heart_Empty.png" id="24_j8jky"]
@@ -47,6 +46,7 @@
 [ext_resource type="PackedScene" uid="uid://6j2m4nt14t5t" path="res://objects/Base/heart.tscn" id="36_kmb1v"]
 [ext_resource type="Texture2D" uid="uid://dey8c81sr5e1" path="res://sprites/runeGrey_slab_032.png" id="37_pibwh"]
 [ext_resource type="Texture2D" uid="uid://ccfsvrdui83xb" path="res://sprites/runeGrey_slab_007.png" id="38_c6pm6"]
+[ext_resource type="PackedScene" uid="uid://c40geiwcn2460" path="res://objects/Obstacles/spike_block.tscn" id="47_vc5cj"]
 
 [sub_resource type="CylinderShape3D" id="CylinderShape3D_nvyfr"]
 height = 1.0
@@ -726,8 +726,8 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 10)
 current = true
 fov = 40.0
 
-[node name="spike-block2" parent="." instance=ExtResource("22_og1vs")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.50782, -0.0512385, -4.52624)
+[node name="Node3D" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.13464, -0.178302, -4.52624)
 
 [node name="MarbleSpawner" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18.3832, 8.35181, 2.94188)
@@ -772,3 +772,8 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.97055, -0.196861, -16.0048)
 
 [node name="heart3" parent="." instance=ExtResource("36_kmb1v")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.97083, -0.196861, -7.11596)
+
+[node name="SpikeBlock" parent="." instance=ExtResource("47_vc5cj")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.3148, -0.196861, -6.81245)
+point_a = Vector3(1.315, -0.197, -4.127)
+point_b = Vector3(1.315, -0.197, -6.812)

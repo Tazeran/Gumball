@@ -21,6 +21,8 @@ var interaction_radius: float = 2.0
 var nearby_interactables: Array[Node3D] = []
 var active_hold_target: Node = null
 
+@onready var mesh_parts: Array[MeshInstance3D] = get_meshes_in_children($Character/character/root)
+#@onready var shared_mat: StandardMaterial3D = $Character/character/root/torso.mesh.surface_get_material(0) as StandardMaterial3D
 
 # Cached input action names
 var input_left: String
@@ -77,7 +79,25 @@ func _ready():
 	input_ground_pound = "right_bumper_p" + str(player_id)
 	input_interact = "interact_p" + str(player_id)
 	input_crouch = "crouch_p" + str(player_id)
-	
+
+	var playerTexture = null
+	if player_id == 1:
+		playerTexture = load("res://models/MarbleRun/Textures/colormap.png")
+	else:
+		playerTexture = load("res://models/Textures/colormapStarter.png")
+
+	print("player ", player_id, playerTexture)
+
+	for mesh in mesh_parts:
+		var material = mesh.material_override
+		if material == null:
+			material = StandardMaterial3D.new()
+		else:
+			material = material.duplicate() # Create a unique copy
+		mesh.material_override = material
+		material.albedo_texture = playerTexture
+
+
 	spawn_position = global_transform.origin
 	pickup_area.area_entered.connect(_on_pickup_area_body_entered)
 	pickup_area.area_exited.connect(_on_pickup_area_body_exited)
@@ -216,7 +236,7 @@ func _physics_process(delta):
 
 	# Respawn if fallen
 	if position.y < -10:
-		global_transform.origin = spawn_position
+		respawn()
 
 	# Animation scaling on landing
 	model.scale = model.scale.lerp(Vector3(1, 1, 1), delta * 10)
@@ -377,3 +397,76 @@ func drop_card_onto_stack(stack):
 	carried_card.carrier_player = null
 	carried_card.carrier_target = null
 	carried_card = null
+
+func respawn():
+	if health <= 0:
+		health = 4
+	global_transform.origin = spawn_position
+
+var invincible = false
+var invincibility_duration := 0.6
+func take_damage(amount: int, source_pos: Vector3):
+	print("tage_damage ", amount, source_pos)
+	if invincible:
+		return
+	
+	health = max(0, health - amount)
+	if health <= 0:
+		respawn()
+	hud.set_health(health, health_max)
+
+	# Flash white and apply knockback
+	flash_white()
+	apply_knockback(source_pos)
+
+	# Begin invincibility
+	invincible = true
+	await get_tree().create_timer(invincibility_duration).timeout
+	invincible = false
+
+func apply_knockback(source_pos: Vector3):
+	var direction = (global_position - source_pos).normalized()
+	direction.y = 0  # Flatten to horizontal
+	velocity += direction * 20.0  # Knockback away from source
+	velocity.y = 6.0  # Add upward launch directly
+
+
+
+func get_meshes_in_children(node: Node) -> Array[MeshInstance3D]:
+	var result: Array[MeshInstance3D] = []
+	for child in node.get_children():
+		if child is MeshInstance3D:
+			result.append(child)
+		if child is Node:
+			result += get_meshes_in_children(child)
+	return result
+
+#maybe: turn into shader
+func flash_white():
+	var flash_mat := StandardMaterial3D.new()
+	flash_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	flash_mat.albedo_color = Color.from_rgba8(200, 200, 200, 200)
+	flash_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	flash_mat.albedo_texture = null
+	flash_mat.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
+
+	for mesh in mesh_parts:
+		mesh.material_overlay = flash_mat
+	await get_tree().create_timer(0.05).timeout
+	for mesh in mesh_parts:
+		mesh.material_overlay = null
+	await get_tree().create_timer(0.05).timeout
+	
+	for mesh in mesh_parts:
+		mesh.material_overlay = flash_mat
+	await get_tree().create_timer(0.05).timeout
+	for mesh in mesh_parts:
+		mesh.material_overlay = null
+	await get_tree().create_timer(0.05).timeout
+	
+	for mesh in mesh_parts:
+		mesh.material_overlay = flash_mat
+	await get_tree().create_timer(0.05).timeout
+	for mesh in mesh_parts:
+		mesh.material_overlay = null
+	await get_tree().create_timer(0.05).timeout

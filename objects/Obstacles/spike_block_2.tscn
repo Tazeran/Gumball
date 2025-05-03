@@ -1,5 +1,0 @@
-[gd_scene load_steps=2 format=3 uid="uid://dkr8mhyl84egj"]
-
-[ext_resource type="PackedScene" uid="uid://mjgdj0k7s38m" path="res://models/spike-block.glb" id="1_ph6hm"]
-
-[node name="spike-block2" instance=ExtResource("1_ph6hm")]

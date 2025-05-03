@@ -1,0 +1,28 @@
+[gd_scene load_steps=5 format=3 uid="uid://c40geiwcn2460"]
+
+[ext_resource type="Script" uid="uid://bqt2hs6ys06kt" path="res://objects/Obstacles/spike_block.gd" id="1_2271j"]
+[ext_resource type="PackedScene" uid="uid://mjgdj0k7s38m" path="res://models/spike-block.glb" id="2_seg7i"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_51jxc"]
+size = Vector3(0.47, 0.47, 0.47)
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_etrbj"]
+radius = 0.39378
+
+[node name="SpikeBlock" type="CharacterBody3D"]
+script = ExtResource("1_2271j")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+shape = SubResource("BoxShape3D_51jxc")
+debug_color = Color(0.890577, 0.279389, 0.434208, 0.42)
+
+[node name="Area3D" type="Area3D" parent="."]
+collision_mask = 4
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+shape = SubResource("SphereShape3D_etrbj")
+debug_color = Color(0.890577, 0.279389, 0.434208, 0.42)
+
+[node name="spike-block2" parent="." instance=ExtResource("2_seg7i")]
