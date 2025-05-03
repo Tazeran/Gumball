@@ -1,0 +1,7 @@
+[gd_resource type="AtlasTexture" load_steps=2 format=3 uid="uid://b03lo65xcsw5d"]
+
+[ext_resource type="Texture2D" uid="uid://um8ie3il1xid" path="res://sprites/xbox-series_sheet_default.png" id="1_7x0jc"]
+
+[resource]
+atlas = ExtResource("1_7x0jc")
+region = Rect2(256, 576, 64, 64)

@@ -19,6 +19,7 @@ var interaction_radius: float = 2.0
 
 @onready var pickup_area = $PickupArea
 var nearby_interactables: Array[Node3D] = []
+var active_hold_target: Node = null
 
 
 # Cached input action names
@@ -90,17 +91,19 @@ func _ready():
 
 func _on_pickup_area_body_entered(area):
 	#print("_on_pickup_area_body_entered", area)
-	var node = area.get_parent()
-	if node.is_in_group("interactables"):
-		#print("Interactable entered:", node)
-		nearby_interactables.append(node)
+	if area.is_in_group("interactables"):
+		nearby_interactables.append(area)
+	elif area.get_parent().is_in_group("interactables"):
+		nearby_interactables.append(area.get_parent())
 
 func _on_pickup_area_body_exited(area):
 	#print("_on_pickup_area_body_exited", area)
-	var node = area.get_parent()
-	if node.is_in_group("interactables"):
-		#print("Interactable exited:", node)
-		nearby_interactables.erase(node)
+	if area.is_in_group("interactables"):
+		nearby_interactables.erase(area)
+	elif area.get_parent().is_in_group("interactables"):
+		nearby_interactables.erase(area.get_parent())
+
+
 
 #func try_interact():
 	#if nearby_interactables.is_empty():
@@ -109,12 +112,35 @@ func _on_pickup_area_body_exited(area):
 	#var best = get_closest_interactable()
 	#if best and best.has_method("interact"):
 		#best.interact(self)
-		
+
 func handle_interactables(delta):
+	var closest = get_closest_interactable()
+	
+	if closest != null:
+		if closest is HoldInteractable :
+			hud.interact.visible = true
+			hud.interact_prompt.text = closest.prompt_text
+		#find out if it has a prompt and what type
+		#display prompt
+	else:
+		hud.interact.visible = false
+		#disable all prompt
+	
+	if active_hold_target != null && Input.is_action_pressed(input_interact) && nearby_interactables.has(active_hold_target):
+		hud.set_aring_percent(active_hold_target.get_hold_progress(player_id))
+		#print("holding ", active_hold_target.get_hold_progress(player_id), "  ", active_hold_target)
+	elif carried_card == null and closest:
+		if closest.has_method("start_holding"):
+			if Input.is_action_pressed(input_interact):
+				closest.start_holding(player_id, self)
+				active_hold_target = closest
+			elif Input.is_action_just_released(input_interact):
+				closest.stop_holding(player_id)
+				active_hold_target = null
+				
 	if not Input.is_action_just_pressed(input_interact):
 		return
-
-	var closest = get_closest_interactable()
+	print(nearby_interactables)
 	print(input_interact, " closest: ", closest, "  ", carried_card)
 
 	if carried_card == null:
@@ -140,6 +166,7 @@ func handle_interactables(delta):
 			print("drop_card ")
 			# No valid target — drop to world
 			drop_card()
+
 
 
 #!!!! Could also have some kind of event for anything close to returns it's like HUD info, or more generic than that
