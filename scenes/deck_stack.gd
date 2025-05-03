@@ -1,32 +1,58 @@
+class_name DeckStack
 extends Node3D
 
 @onready var pickup_area = $Area3D
-@export var stack_position_offset: Vector3 = Vector3(0, 0.02, 0)  # Vertical gap between cards
+var stack_position_offset: Vector3 = Vector3(0, 0.014, 0)  # Vertical gap between cards
 var cards: Array = []
-var vertical_spacing: float = 0.015
+var groundPosition = null;
+@export var top_face_down := false  # toggle per stack
+@export var allow_dig := false  # can pick below top?
+@export var face_up_on_add := true  # default behavior
+@export var team = "N"
+var team_only := true
 
 func _ready():
+	groundPosition = get_ground_position()
 	add_to_group("interactables")
 	add_to_group("decks")
 
 func add_card(card: Node3D):
+	if !can_accept_card(card):
+		return
+
 	cards.append(card)
-	card.global_position = global_position + (stack_position_offset * cards.size())
-	card.global_rotation = Vector3.ZERO  # Optional: straighten rotation if needed
-	
+
+	card.global_position = get_card_position(cards.size() - 1)
+	card.global_rotation = Vector3.ZERO
+
 	card.mount_target = self
-	var offset_y = vertical_spacing * (cards.size() - 1)  # -1 because we just added the new one
-	card.mount_offset = Transform3D(Basis(), Vector3(0, offset_y, 0))
+	card.mount_offset = Transform3D(Basis(), Vector3.ZERO)
 	card.change_state(card.CardState.ON_STACK)
+
+	if face_up_on_add:
+		card.set_face_up(true)
+
+func can_accept_card(card: Node3D) -> bool:
+	# Base stack accepts anything — override in subclasses
+	return true
 
 func interact(player):
 	print("deck stack interact: ", self, player)
 
+	
+	if !can_accept_card(player.carried_card):
+		return
+
 	if player.is_holding_card():
+		if team_only && player.team != player.carried_card.team:
+			return
 		print("Dropping card onto stack:", player.carried_card)
 		player.drop_card_onto_stack(self)
 
 	else:
+		var peek_top_card = get_top_card()
+		if team_only && player.team != peek_top_card.team:
+			return
 		var top_card = remove_top_card()
 		print("Picking up top card:", top_card)
 		if top_card:
@@ -46,8 +72,14 @@ func remove_top_card() -> Node3D:
 func get_card_count() -> int:
 	return cards.size()
 
+func get_card_position(index: int) -> Vector3:
+	if groundPosition == null:
+		groundPosition = get_ground_position()
+	return groundPosition + (stack_position_offset * float(index))
+	
 func get_ground_position(max_distance: float = 10.0) -> Vector3:
 	var start = global_position
+
 	var end = start - Vector3.UP * max_distance
 	
 	var space_state = get_world_3d().direct_space_state

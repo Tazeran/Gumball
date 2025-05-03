@@ -1,5 +1,9 @@
 extends Node3D
 
+static var texture_cache: Dictionary = {}
+static var material_cache: Dictionary = {}
+static var edge_material_cache := {}
+
 const front_material_index := 0
 const back_material_index := 1
 const edge_material_index := 2
@@ -19,9 +23,20 @@ signal player_exited_area(player)
 
 # Editable properties
 @export var card_front_shader_material: ShaderMaterial
-@export var edge_color : Color = Color.WHITE
+@export var edge_color : Color = Color.BLACK
 @export var suit : String = "hearts"
 @export var rank : String = "K"
+var rank_value: int = 13  # Set in set_card
+var color: String = "red"  # "red" or "black"
+var team: String = "N"  # Assigned during dealing
+
+const RANKS := {
+	"A": 1, "2": 2, "3": 3, "4": 4, "5": 5, "6": 6, "7": 7,
+	"8": 8, "9": 9, "10": 10, "J": 11, "Q": 12, "K": 13
+}
+const RED_SUITS := ["hearts", "diamonds"]
+const BLACK_SUITS := ["spades", "clubs"]
+
 
 @onready var pickup_area = $Area3D
 
@@ -34,22 +49,52 @@ var state: CardState = CardState.FREE_FLOATING
 var mount_target: Node3D = null
 var mount_offset: Transform3D = Transform3D.IDENTITY
 var carrier_player: Node3D = null
-
-
-var carrier_target: Node3D = null  # NEW
-
+var carrier_target: Node3D = null
 
 # Base paths
 const TEXTURE_PATH = "res://models/cards/textures/"
 const FRONT_TEXTURE_FORMAT = "%s_%s.png" # example: "card_hearts_A.png"
 const BACK_TEXTURE_NAME = "card_back.png"
-
+const back_texture_path = TEXTURE_PATH + BACK_TEXTURE_NAME
 
 # Bobbing behavior (only when floating freely)
 var bob_timer := 0.0
 var bob_height := 0.2
 var bob_speed := 1.0
 var base_position: Vector3
+
+func get_rank_value() -> int:
+	return rank_value
+
+func get_color() -> String:
+	return color
+
+const TEAM_COLORS := {
+	"A": Color(0.4, 0.6, 1.0),  # Soft blue
+	"B": Color(1.0, 0.5, 0.5)   # Soft red
+}
+func set_team(teamStr: String):
+	team = teamStr
+	set_edge_color(TEAM_COLORS.get(team, Color.GRAY))
+
+
+var is_face_up: bool = true
+func set_face_up(face_up: bool = true):
+	is_face_up = face_up
+	# Assumes card front is "up" when Y rotation is 0, back is 180
+	var angle = 0.0 
+	if face_up:
+		angle = 180.0 * PI / 180.0  # or just PI
+	rotation.y = angle
+	# Optional: if you're hiding/showing with material switching instead:
+	# Just set which material shows up on top surface via shader param, or surface order
+	if face_up:
+		# Restore front material
+		var key := "%s_%s" % [suit, rank]
+		mesh.set_surface_override_material(front_material_index, material_cache.get(key))  # Or however you store the proper front
+	else:
+		# Show back on both sides
+		mesh.set_surface_override_material(front_material_index, material_cache["back"])
 
 func _ready():
 	print("ready pickup_area", pickup_area)
@@ -62,7 +107,7 @@ func _ready():
 	if mesh == null:
 		push_error("CardMesh not found!")
 	else:
-		set_edge_color(edge_color)
+		#set_edge_color(edge_color)
 		set_card(suit, rank)
 
 var flatten_speed = 3.0  # How fast to rotate to flat
@@ -155,62 +200,73 @@ func _physics_process(delta):
 				offset.origin = Vector3(0, 1, 0.5)
 				global_transform = carrier_player.global_transform * offset
 		
-		CardState.ON_STACK:
-			if mount_target:
-				global_transform = mount_target.global_transform * mount_offset
+		#CardState.ON_STACK:
+			#if mount_target:
+				#global_transform = mount_target.global_transform * mount_offset
 
 func _handle_free_float(delta):
 	bob_timer += delta * bob_speed
 	var offset_y = (sin(bob_timer) * 0.5 + 0.5) * bob_height
 	#global_position = base_position + Vector3(0, offset_y, 0)
 
-# -- Card Visual Setup
 func set_card(new_suit: String, new_rank: String) -> void:
 	suit = new_suit
 	rank = new_rank
 
-	var front_texture_path = TEXTURE_PATH + FRONT_TEXTURE_FORMAT % [ "card_" + suit, rank ]
-	var back_texture_path = TEXTURE_PATH + BACK_TEXTURE_NAME
+	rank_value = RANKS.get(rank, 0)
+	if RED_SUITS.has(suit):
+		color = "red"
+	else: 
+		color = "black"
 
-	var front_texture = load(front_texture_path)
-	var back_texture = load(back_texture_path)
+	var key := "%s_%s" % [suit, rank]
+	var front_texture_path = TEXTURE_PATH + FRONT_TEXTURE_FORMAT % ["card_" + suit, rank]
 
-	if front_texture and back_texture:
-		var front_material = card_front_shader_material.duplicate()
-		front_material.set_shader_parameter("albedo_texture", front_texture)
-		front_material.set_shader_parameter(
-			"uv_offset",
-			Vector2((11.0 + margin) / 64.0, (2.0 + margin) / 64.0)
-		)
-		front_material.set_shader_parameter(
-			"uv_scale",
-			Vector2((42.0 - (margin * 2)) / 64.0, (60.0 - (margin * 2)) / 64.0)
-		)
-		
-		mesh.set_surface_override_material(front_material_index, front_material)
+	# --- Texture loading with caching ---
+	if !texture_cache.has(key):
+		texture_cache[key] = load(front_texture_path)
+	var front_texture = texture_cache[key]
 
-		var back_material = card_front_shader_material.duplicate()
-		back_material.set_shader_parameter("albedo_texture", back_texture)
-		back_material.set_shader_parameter(
-			"uv_offset",
-			Vector2((11.0 + margin) / 64.0, (2.0 + margin) / 64.0)
-		)
-		back_material.set_shader_parameter(
-			"uv_scale",
-			Vector2((42.0 - (margin * 2)) / 64.0, (60.0 - (margin * 2)) / 64.0)
-		)
-		mesh.set_surface_override_material(back_material_index, back_material)
-	else:
-		push_error("Card textures not found for %s %s" % [suit, rank])
+	if !texture_cache.has("back"):
+		texture_cache["back"] = load(TEXTURE_PATH + BACK_TEXTURE_NAME)
+	var back_texture = texture_cache["back"]
+
+	# --- Material caching ---
+	if !material_cache.has(key):
+		var mat = card_front_shader_material.duplicate()
+		mat.set_shader_parameter("albedo_texture", front_texture)
+		mat.set_shader_parameter("uv_offset", Vector2((11.0 + margin) / 64.0, (2.0 + margin) / 64.0))
+		mat.set_shader_parameter("uv_scale", Vector2((42.0 - margin * 2) / 64.0, (60.0 - margin * 2) / 64.0))
+		material_cache[key] = mat
+
+	if !material_cache.has("back"):
+		var back_mat = card_front_shader_material.duplicate()
+		back_mat.set_shader_parameter("albedo_texture", back_texture)
+		back_mat.set_shader_parameter("uv_offset", Vector2((11.0 + margin) / 64.0, (2.0 + margin) / 64.0))
+		back_mat.set_shader_parameter("uv_scale", Vector2((42.0 - margin * 2) / 64.0, (60.0 - margin * 2) / 64.0))
+		material_cache["back"] = back_mat
+
+	# --- Assign materials ---
+	mesh.set_surface_override_material(front_material_index, material_cache[key])
+	mesh.set_surface_override_material(back_material_index, material_cache["back"])
+
 
 func set_edge_color(color: Color) -> void:
 	edge_color = color
-	var edge_material = mesh.get_surface_override_material(edge_material_index)
-	if edge_material == null:
-		edge_material = mesh.mesh.surface_get_material(edge_material_index).duplicate()
-		mesh.set_surface_override_material(edge_material_index, edge_material)
-	if edge_material:
-		edge_material.albedo_color = edge_color
+	# Use color as the cache key (to_hex or direct Color object)
+	var key = color.to_html(false)  # e.g., "#FF0000"
+	if not edge_material_cache.has(key):
+		var base_mat = mesh.mesh.surface_get_material(edge_material_index)
+		if base_mat:
+			var mat = base_mat.duplicate()
+			mat.albedo_color = color
+			edge_material_cache[key] = mat
+	else:
+		# Material already cached for this color
+		pass
+
+	# Apply material from cache
+	mesh.set_surface_override_material(edge_material_index, edge_material_cache[key])
 
 func interact(player):
 	if state == CardState.FREE_FLOATING:

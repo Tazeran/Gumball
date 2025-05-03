@@ -10,6 +10,7 @@ signal coin_collected(coins: int)
 @export var movement_speed := 250
 @export var jump_strength := 7
 @export var hud: Node
+@export var team: String
 
 # --- Card Carry System
 var carried_card: Node3D = null
@@ -82,9 +83,9 @@ func _ready():
 
 	var playerTexture = null
 	if player_id == 1:
-		playerTexture = load("res://models/MarbleRun/Textures/colormap.png")
-	else:
 		playerTexture = load("res://models/Textures/colormapStarter.png")
+	else:
+		playerTexture = load("res://models/MarbleRun/Textures/colormap.png")
 
 	print("player ", player_id, playerTexture)
 
@@ -409,7 +410,9 @@ func take_damage(amount: int, source_pos: Vector3):
 	print("tage_damage ", amount, source_pos)
 	if invincible:
 		return
-	
+
+	Audio.play("res://sounds/fall.ogg")
+
 	health = max(0, health - amount)
 	if health <= 0:
 		respawn()

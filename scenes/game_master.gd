@@ -1,7 +1,10 @@
 extends Node3D
 
-@export var deck_stacks: Array[Node3D]  # Later can separate Team A and Team B
 @export var card_scene: PackedScene  # Your Card.tscn
+
+@export var A_DeckStack: DeckStack
+@export var B_DeckStack: DeckStack
+#each the other piles as well
 
 var team_a_deck: Deck
 var team_b_deck: Deck
@@ -20,23 +23,25 @@ func _ready():
 	print("Team A deck cards:", team_a_deck.cards_remaining())
 	print("Team B deck cards:", team_b_deck.cards_remaining())
 
-	# (Example) Deal cards to stacks
-	deal_starting_cards()
+	A_DeckStack.team = "A"
+	B_DeckStack.team = "B"
 	
-func deal_starting_cards():
-	for stack in deck_stacks:
-		var deck_pos = stack.get_ground_position()
-		for i in range(52):  # Deal 15 cards per stack (for example)
-			var card_data = team_a_deck.draw_card()
+	# Deal cards to stacks
+	dealDeckStack(team_a_deck, A_DeckStack, "A")
+	dealDeckStack(team_b_deck, B_DeckStack, "B")
+
+func dealDeckStack(deck : Deck, stack : DeckStack, teamStr : String):
+	for i in range(52):  # Deal 15 cards per stack (for example)
+			var card_data = deck.draw_card()
 			if card_data:
 				var card_node = card_scene.instantiate()
 				add_child(card_node)
 				#!!!! init or ready it, research
 				#!!!! then stack function and it holds info about itself
 				
+				card_node.set_team(teamStr)
 				card_node.set_card(card_data.suit, card_data.rank)
 				stack.add_card(card_node)
-				
 				#card_node.change_state(card_node.CardState.ON_STACK)
 				#card_node.mount_target = stack
 				

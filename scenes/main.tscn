@@ -97,10 +97,11 @@ colors = PackedColorArray(0.996094, 0.910156, 0.351563, 1, 1, 1, 1, 1)
 [node name="Environment" type="WorldEnvironment" parent="."]
 environment = ExtResource("1_ahusb")
 
-[node name="GameMaster" type="Node3D" parent="." node_paths=PackedStringArray("deck_stacks")]
+[node name="GameMaster" type="Node3D" parent="." node_paths=PackedStringArray("A_DeckStack", "B_DeckStack")]
 script = ExtResource("2_vchkt")
-deck_stacks = [NodePath("../DeckStack")]
 card_scene = ExtResource("2_chjal")
+A_DeckStack = NodePath("../DeckStack")
+B_DeckStack = NodePath("../DeckStack2")
 
 [node name="HoldInteractArea" type="Area3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.49322, 2.38419e-07, -11.6115)
@@ -111,11 +112,11 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.175474, 0)
 shape = SubResource("CylinderShape3D_nvyfr")
 
 [node name="DeckStack" type="Node3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.16753, 0, -2.22162)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.16753, 0, -3.76884)
 script = ExtResource("10_cjqg0")
 
 [node name="Decal" type="Decal" parent="DeckStack"]
-transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0, -0.0592926, -0.485831)
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0, -0.0592926, 0.400215)
 size = Vector3(1.5, 2, 1)
 texture_albedo = ExtResource("7_chjal")
 upper_fade = 1e-05
@@ -126,6 +127,25 @@ cull_mask = 1047553
 monitoring = false
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="DeckStack/Area3D"]
+transform = Transform3D(0.999992, 0, 0, 0, 1, 0, 0, 0, 0.999992, -0.0192642, 0, -0.503732)
+shape = SubResource("BoxShape3D_vchkt")
+
+[node name="DeckStack2" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.85579, 0, -3.76884)
+script = ExtResource("10_cjqg0")
+
+[node name="Decal" type="Decal" parent="DeckStack2"]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0, -0.0592926, 0.400215)
+size = Vector3(1.5, 2, 1)
+texture_albedo = ExtResource("7_chjal")
+upper_fade = 1e-05
+lower_fade = 0.01
+cull_mask = 1047553
+
+[node name="Area3D" type="Area3D" parent="DeckStack2"]
+monitoring = false
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="DeckStack2/Area3D"]
 transform = Transform3D(0.999992, 0, 0, 0, 1, 0, 0, 0, 0.999992, -0.0192642, 0, -0.503732)
 shape = SubResource("BoxShape3D_vchkt")
 
@@ -194,12 +214,14 @@ cull_mask = 1047553
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.41626, 0.176348, -3.15304)
 view = NodePath("../UI Control/GridContainer/SubViewportContainer/SubViewport/View")
 hud = NodePath("../UI Control/GridContainer/SubViewportContainer/SubViewport/HUD1")
+team = "A"
 
 [node name="Player2" parent="." node_paths=PackedStringArray("view", "hud") groups=["players"] instance=ExtResource("2_onms2")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19.9953, 7.91033, -1.22254)
 view = NodePath("../UI Control/GridContainer/SubViewportContainer2/SubViewport/View2")
 player_id = 2
 hud = NodePath("../UI Control/GridContainer/SubViewportContainer2/SubViewport/HUD2")
+team = "B"
 
 [node name="World" type="Node3D" parent="."]
 

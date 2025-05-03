@@ -1,7 +1,46 @@
 <p align="center"><img src="icon.png"/></p>
 
 # My Notes:
-Rethink Controls some, probably triggers need to not be zoom. Maybe push in right stick to toggle between 3 zoom levels.
+
+### TODO:
+
+Extend Deck behavior:
+	TopFaceDown flag
+	Dig Function (candig?)
+	GameMaster Partial-Reshuffle after a timecountdown?
+
+	There should also be some kind of positioning function, cause the Solitaire will use path3d, like the cards are laying partly on each other, but the other deck types will just be a stack.
+
+	Each deck needs to remember what the player took, locking any further grabs, unless they drop that same card back.
+		Or maybe some other drop of that card in field teleports the card back to its place.
+		Otherwise if a legal placement is made somewhere, then deck is unlocked to be grabbed from
+
+	SolitaireDeck
+		gets 1 card at start of game, Face down untill game starts
+		Empty can accept any card
+		After than has to be opposite color and 1 rank lower
+		Always face up cards
+	FieldDeck
+		Empty at start
+		Empty can accept any Ace
+		After that, only same suit and 1 rank higher
+		Face down once completed with King
+	GoalDeck
+		dealt 13 cards at start
+		all face down, Top card Face down untill game starts
+	CycleDeck
+		dealt 35 cards at start
+		It's two decks and maybe a fast Press A action, something to signal it
+		One deck is all facedown
+		Other is all faceup
+		We take set of 3 and place face up on other
+		We can take whatever is top of faceup
+
+	
+
+### Polish:
+Music
+Better SFX
 
 
 ### MVP Goals
@@ -10,7 +49,7 @@ Card can be:
 		In which it's either laying flat (probably like a physics object), or doing the hoverbob floating?
 	on a player (remembering the last place it was, to return if dropped)
 	on a Goal Stack (13 pile, empty to win, must touch flag)
-	on a Cycle Stack (3 at time, ground pound button to cycle)
+	on a Cycle Deck/Stack (3 at time, ground pound button to cycle)
 	on a Solitaire Path (4x, Building down alternating, can be empty)
 	on a Field Stack (out in middle)
 
@@ -26,7 +65,10 @@ starting setup that is shuffled and "dealt" randomly for each team:
 Grab will just be like, player is within the collision sphere, and is prompted with "[A] Grab Card" as long as they aren't holding anything presently, and A will grab the item, putting the card flat over the characters head, and maybe showing the 2d card on HUD. (Lock will show over the deck/stack it was taken from maybe, as you can't grab the card below if any, till that card is legally played or returned)
 If player has a card, then going in collision spheres of places that it can be dropped will show like a hologram and prompt "[A] Place Card"
 
-Cards legally played on Field Stacks are done, those are positive points at end of round.
+Cards legally played on Field Stacks are done, Field Stacks start empty, await an Ace, and must then be built up in Rank order for that Suit (by any team), and then are locked once the final rank, a King is played. those are positive points at end of round.
+Cards played on a "Teams Home Base" Solitaire Paths can start with any Card of that teams, but must rank down and alternate color just like in solitaire. These are not worth points and just acts as a card storage to move the game, the player can pick up the top most card from any Solitaire Path (furthest on path as they lay out flat following the curve), and play that card legally on another solitaire path or take it to a legal field stack.
+Cycle deck/stack is a face down deck of the 35 at start, a ground pound on a nearby button will take 3 off the top and put them face up stacked. the player can take the top and play it, or ground pound the button to deal another 3 on top of that, taking that top if he likes, and if he's able to play that card in field stacks or on solitaire paths, the next card below is now available to take off the cycle stack. Once the Deck is empty, ground pounding the button will flip that cycle stack, in it's order, face down to the deck, and deal 3 more cards just as before.
+
 
 Picking up a card from the Goal, Cycle, or any of 4 solitaire paths, locks the next available card on that stack till player returns card in some manner or it is legally played somewhere else
 So we need to indicate visually where to place cards
