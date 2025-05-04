@@ -136,7 +136,7 @@ func update_flattening(delta):
 		has_flattened = true
 		#print("Card fully flattened!")
 
-func get_marker_position():
+func get_marker_position(player: Player):
 	return global_position
 
 func interaction_available(player: Player) -> bool:

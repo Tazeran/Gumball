@@ -8,6 +8,18 @@ extends DeckStack
 func set_area_to_end():
 	pickup_area.global_transform = visualizer.get_card_transform(cards.size() - 1)
 
+func get_marker_position(player: Player) -> Vector3:
+	if player.carried_card == null:
+		return visualizer.get_card_transform(cards.size()-1).origin
+	else:
+		return visualizer.get_card_transform(cards.size()).origin
+
+func interaction_available(player: Player) -> bool:
+	if player.carried_card == null:
+		return !cards.is_empty()
+	else:
+		return can_accept_card(player.carried_card)
+
 func add_card(card: Node3D) -> void:
 	super.add_card(card)
 	set_area_to_end()

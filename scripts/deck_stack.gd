@@ -16,7 +16,7 @@ func _ready():
 	add_to_group("interactables")
 	add_to_group("decks")
 
-func get_marker_position() -> Vector3:
+func get_marker_position(player: Player) -> Vector3:
 	return global_position
 
 func interaction_available(player: Player) -> bool:

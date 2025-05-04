@@ -134,7 +134,7 @@ func update_interaction_marker():
 	if closest:
 		#var pos = get_marker_position();
 		if closest.interaction_available(self):
-			marker.global_transform.origin = closest.get_marker_position()
+			marker.global_transform.origin = closest.get_marker_position(self)
 			#marker.global_transform.origin = closest.global_transform.origin
 			marker.visible = true
 
