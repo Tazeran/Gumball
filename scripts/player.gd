@@ -1,5 +1,5 @@
 extends CharacterBody3D
-
+class_name Player
 signal coin_collected(coins: int)
 
 @export_subgroup("Components")
@@ -130,11 +130,13 @@ func _on_pickup_area_body_exited(area):
 
 func update_interaction_marker():
 	var closest = get_closest_interactable()
+	marker.visible = false
 	if closest:
-		marker.global_transform.origin = closest.global_transform.origin
-		marker.visible = true
-	else:
-		marker.visible = false
+		#var pos = get_marker_position();
+		if closest.interaction_available(self):
+			marker.global_transform.origin = closest.get_marker_position()
+			#marker.global_transform.origin = closest.global_transform.origin
+			marker.visible = true
 
 
 #func try_interact():
@@ -391,6 +393,7 @@ func pick_up_card(card: Node3D):
 	carried_card = card
 	#card.pick_up(self)  # Calls the Card.gd function
 	card.pick_up(self, $Character/character/root/torso/antenna) # Pass the Antenna as mount point
+	update_interaction_marker()
 	Audio.play("res://sounds/card-place-2.ogg")
 	print("Picked up", card.rank, "of", card.suit)
 
@@ -399,6 +402,7 @@ func drop_card():
 		carried_card.drop_to_ground()
 		carried_card = null
 		Audio.play("res://sounds/card-place-3.ogg")
+		update_interaction_marker()
 
 func drop_card_onto_stack(stack):
 	if !is_holding_card():

@@ -13,6 +13,13 @@ var has_triggered := false
 func _ready():
 	add_to_group("interactables")
 
+#TODO Could be a whole interact information, text, type, position, visible, etcc
+func get_marker_position():
+	return global_position
+
+func interaction_available(player: Player) -> bool:
+	return true
+
 func _process(delta):
 	if one_shot and has_triggered:
 		return

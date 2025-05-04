@@ -136,6 +136,14 @@ func update_flattening(delta):
 		has_flattened = true
 		#print("Card fully flattened!")
 
+func get_marker_position():
+	return global_position
+
+func interaction_available(player: Player) -> bool:
+	if state != CardState.FREE_FLOATING:
+		return false
+	return player.carried_card == null
+
 
 func change_state(new_state: int) -> void:
 	#if state == new_state:

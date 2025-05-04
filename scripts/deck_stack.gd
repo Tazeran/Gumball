@@ -16,6 +16,15 @@ func _ready():
 	add_to_group("interactables")
 	add_to_group("decks")
 
+func get_marker_position() -> Vector3:
+	return global_position
+
+func interaction_available(player: Player) -> bool:
+	if player.carried_card != null:
+		return true
+	else:
+		return !cards.is_empty()
+
 func add_card(card: Node3D):
 	#print("add_card ", self)
 	if !can_accept_card(card):
