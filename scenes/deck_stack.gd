@@ -17,13 +17,24 @@ func _ready():
 	add_to_group("decks")
 
 func add_card(card: Node3D):
+	print("add_card ", self)
 	if !can_accept_card(card):
 		return
 
 	cards.append(card)
+	card.physics_off()
+	#var card_transform = get_card_transform(cards.size() - 1)
+	#card.global_position = card_transform.origin
+	#card.global_rotation = card_transform.basis.get_euler()
+	#card.global_transform = get_card_transform(cards.size() - 1)
 
-	card.global_position = get_card_position(cards.size() - 1)
-	card.global_rotation = Vector3.ZERO
+	var t := get_card_transform(cards.size() - 1)
+	#t.basis = Basis().rotated(Vector3.UP, deg_to_rad(30 * cards.size()))
+	card.global_transform = t
+	print("Card transform set to:", card.global_transform)
+	
+	#card.global_position = get_card_position(cards.size() - 1)
+	#card.global_rotation = Vector3.ZERO
 
 	card.mount_target = self
 	card.mount_offset = Transform3D(Basis(), Vector3.ZERO)
@@ -39,19 +50,17 @@ func can_accept_card(card: Node3D) -> bool:
 func interact(player):
 	print("deck stack interact: ", self, player)
 
-	
-	if !can_accept_card(player.carried_card):
-		return
-
 	if player.is_holding_card():
-		if team_only && player.team != player.carried_card.team:
+		if !can_accept_card(player.carried_card):
+			return
+		if team_only && team != player.carried_card.team:
 			return
 		print("Dropping card onto stack:", player.carried_card)
 		player.drop_card_onto_stack(self)
 
 	else:
 		var peek_top_card = get_top_card()
-		if team_only && player.team != peek_top_card.team:
+		if team_only && player.team != team:
 			return
 		var top_card = remove_top_card()
 		print("Picking up top card:", top_card)
@@ -71,12 +80,26 @@ func remove_top_card() -> Node3D:
 
 func get_card_count() -> int:
 	return cards.size()
-
-func get_card_position(index: int) -> Vector3:
+#
+#func get_card_position(index: int) -> Vector3:
+	#print("normal card pos")
+	#if groundPosition == null:
+		#groundPosition = get_ground_position()
+	#return groundPosition + (stack_position_offset * float(index))
+#
+func get_card_transform(index: int) -> Transform3D:
 	if groundPosition == null:
 		groundPosition = get_ground_position()
-	return groundPosition + (stack_position_offset * float(index))
-	
+
+	var up := global_transform.basis.y.normalized()
+	var offset := up * stack_position_offset.y * float(index)
+	var pos : Vector3 = groundPosition + offset
+
+	var basis := global_transform.basis.orthonormalized()
+	return Transform3D(basis, pos)
+
+
+
 func get_ground_position(max_distance: float = 10.0) -> Vector3:
 	var start = global_position
 

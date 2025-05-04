@@ -1,4 +1,4 @@
-[gd_scene load_steps=58 format=3 uid="uid://bqqgyqafm7xwp"]
+[gd_scene load_steps=59 format=3 uid="uid://bqqgyqafm7xwp"]
 
 [ext_resource type="Environment" uid="uid://bqnqgflivjvue" path="res://scenes/main-environment.tres" id="1_ahusb"]
 [ext_resource type="Script" uid="uid://c7ygroxpgne1x" path="res://scripts/solitaire_path.gd" id="2_5poiv"]
@@ -13,6 +13,7 @@
 [ext_resource type="PackedScene" uid="uid://cnymdajj1vsqm" path="res://objects/Base/platform.tscn" id="6_sdmev"]
 [ext_resource type="Texture2D" uid="uid://ddxvkffkp3d8e" path="res://sprites/runeGrey_slab_028.png" id="7_chjal"]
 [ext_resource type="PackedScene" uid="uid://rjh4ifidqrfp" path="res://objects/Base/platform_medium.tscn" id="7_ixpj3"]
+[ext_resource type="Script" uid="uid://bts6yd18ed053" path="res://scripts/SolitairePathStack.gd" id="7_nvyfr"]
 [ext_resource type="PackedScene" uid="uid://uqr4hswv6d2g" path="res://objects/Base/platform_grass_large_round.tscn" id="8_4oh1e"]
 [ext_resource type="PackedScene" uid="uid://c8up71en5djgm" path="res://objects/Base/platform_falling.tscn" id="9_2fnpo"]
 [ext_resource type="Script" uid="uid://xw7gweso178a" path="res://scenes/deck_stack.gd" id="10_cjqg0"]
@@ -48,20 +49,20 @@
 [ext_resource type="Texture2D" uid="uid://ccfsvrdui83xb" path="res://sprites/runeGrey_slab_007.png" id="38_c6pm6"]
 [ext_resource type="PackedScene" uid="uid://c40geiwcn2460" path="res://objects/Obstacles/spike_block.tscn" id="47_vc5cj"]
 
-[sub_resource type="CylinderShape3D" id="CylinderShape3D_nvyfr"]
-height = 1.0
-radius = 0.733398
+[sub_resource type="Curve3D" id="Curve3D_kmb1v"]
+bake_interval = 0.1
+_data = {
+"points": PackedVector3Array(-0.615952, -0.0254051, -0.56464, 0.615952, 0.0254051, 0.56464, -0.80291, -0.0675405, -6.28229, 0.407811, -0.0188382, -0.688156, -0.407811, 0.0188382, 0.688156, -0.366438, -0.0364143, -4.41936, 0.310241, 0.00657167, -0.972501, -0.310241, -0.00657167, 0.972501, -1.98663, -0.0998476, -2.87745, -0.977528, 0.0128757, -0.70595, 0.977528, -0.0128757, 0.70595, -0.783492, -0.0904814, -0.315803),
+"tilts": PackedFloat32Array(0, 0, 0, 0)
+}
+point_count = 4
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_vchkt"]
 size = Vector3(0.774551, 1, 1.24182)
 
-[sub_resource type="Curve3D" id="Curve3D_kmb1v"]
-bake_interval = 0.1
-_data = {
-"points": PackedVector3Array(-0.720226, 0.00602593, -0.724752, 0.720226, -0.00602593, 0.724752, -0.80291, 0.038333, -6.28229, 0.570203, 0.0190758, -1.43633, -0.570203, -0.0190758, 1.43633, 1.06941, 0.0637782, -2.09026, 0.482456, 0.033527, -1.91169, -0.482456, -0.033527, 1.91169, -1.9655, -0.0998476, 0.958, -0.934622, 0.0401931, 0.16964, 0.934622, -0.0401931, -0.16964, 0.510653, -0.0116501, 4.63642),
-"tilts": PackedFloat32Array(0, 0, 0, 0)
-}
-point_count = 4
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_nvyfr"]
+height = 1.0
+radius = 0.733398
 
 [sub_resource type="GDScript" id="GDScript_jscy8"]
 
@@ -97,11 +98,205 @@ colors = PackedColorArray(0.996094, 0.910156, 0.351563, 1, 1, 1, 1, 1)
 [node name="Environment" type="WorldEnvironment" parent="."]
 environment = ExtResource("1_ahusb")
 
-[node name="GameMaster" type="Node3D" parent="." node_paths=PackedStringArray("A_DeckStack", "B_DeckStack")]
+[node name="GameMaster" type="Node3D" parent="." node_paths=PackedStringArray("A_GoalStack", "A_CycleStack", "A_SolitaireStack1", "A_SolitaireStack2", "A_SolitaireStack3", "A_SolitaireStack4", "B_GoalStack", "B_CycleStack", "B_SolitaireStack1", "B_SolitaireStack2", "B_SolitaireStack3", "B_SolitaireStack4")]
 script = ExtResource("2_vchkt")
 card_scene = ExtResource("2_chjal")
-A_DeckStack = NodePath("../DeckStack")
-B_DeckStack = NodePath("../DeckStack2")
+A_GoalStack = NodePath("../DeckStackA")
+A_CycleStack = NodePath("../DeckStackA2")
+A_SolitaireStack1 = NodePath("../SolitaireDeckStackTeamA1")
+A_SolitaireStack2 = NodePath("../SolitaireDeckStackTeamA2")
+A_SolitaireStack3 = NodePath("../SolitaireDeckStackTeamA3")
+A_SolitaireStack4 = NodePath("../SolitaireDeckStackTeamA4")
+B_GoalStack = NodePath("../DeckStackB")
+B_CycleStack = NodePath("../DeckStackB2")
+B_SolitaireStack1 = NodePath("../SolitaireDeckStackTeamB1")
+B_SolitaireStack2 = NodePath("../SolitaireDeckStackTeamB2")
+B_SolitaireStack3 = NodePath("../SolitaireDeckStackTeamB3")
+B_SolitaireStack4 = NodePath("../SolitaireDeckStackTeamB4")
+
+[node name="SolitaireDeckStackTeamA1" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16.9468, 1.93516, -16.6801)
+script = ExtResource("7_nvyfr")
+
+[node name="DecalPath" type="Node3D" parent="SolitaireDeckStackTeamA1" node_paths=PackedStringArray("path")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.722587, 0, 6.55914)
+script = ExtResource("2_5poiv")
+path = NodePath("Path3D")
+decal_scene = ExtResource("3_2cjbq")
+
+[node name="Path3D" type="Path3D" parent="SolitaireDeckStackTeamA1/DecalPath"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0602333, -0.0867013, 0)
+curve = SubResource("Curve3D_kmb1v")
+
+[node name="Area3D" type="Area3D" parent="SolitaireDeckStackTeamA1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0679501, 0, 0.432591)
+monitoring = false
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="SolitaireDeckStackTeamA1/Area3D"]
+transform = Transform3D(0.999992, 0, 0, 0, 1, 0, 0, 0, 0.999992, -0.0192642, 0, 0.0200269)
+shape = SubResource("BoxShape3D_vchkt")
+debug_color = Color(0.906147, 0.000127643, 0.74223, 1)
+
+[node name="SolitaireDeckStackTeamA2" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14.4698, 1.93516, -16.6801)
+script = ExtResource("7_nvyfr")
+
+[node name="DecalPath" type="Node3D" parent="SolitaireDeckStackTeamA2" node_paths=PackedStringArray("path")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.722587, 0, 6.55914)
+script = ExtResource("2_5poiv")
+path = NodePath("Path3D")
+decal_scene = ExtResource("3_2cjbq")
+
+[node name="Path3D" type="Path3D" parent="SolitaireDeckStackTeamA2/DecalPath"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0602333, -0.0867013, 0)
+curve = SubResource("Curve3D_kmb1v")
+
+[node name="Area3D" type="Area3D" parent="SolitaireDeckStackTeamA2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0679501, 0, 0.432591)
+monitoring = false
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="SolitaireDeckStackTeamA2/Area3D"]
+transform = Transform3D(0.999992, 0, 0, 0, 1, 0, 0, 0, 0.999992, -0.0192642, 0, 0.0200269)
+shape = SubResource("BoxShape3D_vchkt")
+debug_color = Color(0.906147, 0.000127643, 0.74223, 1)
+
+[node name="SolitaireDeckStackTeamA3" type="Node3D" parent="."]
+transform = Transform3D(-1, 0, 8.74228e-08, 0, 1, 0, -8.74228e-08, 0, -1, 13.7831, 1.93516, -25.9018)
+script = ExtResource("7_nvyfr")
+
+[node name="DecalPath" type="Node3D" parent="SolitaireDeckStackTeamA3" node_paths=PackedStringArray("path")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.722587, 0, 6.55914)
+script = ExtResource("2_5poiv")
+path = NodePath("Path3D")
+decal_scene = ExtResource("3_2cjbq")
+
+[node name="Path3D" type="Path3D" parent="SolitaireDeckStackTeamA3/DecalPath"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0602333, -0.0867013, 0)
+curve = SubResource("Curve3D_kmb1v")
+
+[node name="Area3D" type="Area3D" parent="SolitaireDeckStackTeamA3"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0679501, 0, 0.432591)
+monitoring = false
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="SolitaireDeckStackTeamA3/Area3D"]
+transform = Transform3D(0.999992, 0, 0, 0, 1, 0, 0, 0, 0.999992, -0.0192642, 0, 0.0200269)
+shape = SubResource("BoxShape3D_vchkt")
+debug_color = Color(0.906147, 0.000127643, 0.74223, 1)
+
+[node name="SolitaireDeckStackTeamA4" type="Node3D" parent="."]
+transform = Transform3D(-1, 0, 8.74228e-08, 0, 1, 0, -8.74228e-08, 0, -1, 16.2601, 1.93516, -25.9018)
+script = ExtResource("7_nvyfr")
+
+[node name="DecalPath" type="Node3D" parent="SolitaireDeckStackTeamA4" node_paths=PackedStringArray("path")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.722587, 0, 6.55914)
+script = ExtResource("2_5poiv")
+path = NodePath("Path3D")
+decal_scene = ExtResource("3_2cjbq")
+
+[node name="Path3D" type="Path3D" parent="SolitaireDeckStackTeamA4/DecalPath"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0602333, -0.0867013, 0)
+curve = SubResource("Curve3D_kmb1v")
+
+[node name="Area3D" type="Area3D" parent="SolitaireDeckStackTeamA4"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0679501, 0, 0.432591)
+monitoring = false
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="SolitaireDeckStackTeamA4/Area3D"]
+transform = Transform3D(0.999992, 0, 0, 0, 1, 0, 0, 0, 0.999992, -0.0192642, 0, 0.0200269)
+shape = SubResource("BoxShape3D_vchkt")
+debug_color = Color(0.906147, 0.000127643, 0.74223, 1)
+
+[node name="SolitaireDeckStackTeamB1" type="Node3D" parent="."]
+transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, -14.0851, 1.93516, -25.9298)
+script = ExtResource("7_nvyfr")
+
+[node name="DecalPath" type="Node3D" parent="SolitaireDeckStackTeamB1" node_paths=PackedStringArray("path")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.722587, 0, 6.55914)
+script = ExtResource("2_5poiv")
+path = NodePath("Path3D")
+decal_scene = ExtResource("3_2cjbq")
+
+[node name="Path3D" type="Path3D" parent="SolitaireDeckStackTeamB1/DecalPath"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0602333, -0.0867013, 0)
+curve = SubResource("Curve3D_kmb1v")
+
+[node name="Area3D" type="Area3D" parent="SolitaireDeckStackTeamB1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0679501, 0, 0.432591)
+monitoring = false
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="SolitaireDeckStackTeamB1/Area3D"]
+transform = Transform3D(0.999992, 0, 0, 0, 1, 0, 0, 0, 0.999992, -0.0192642, 0, 0.0200269)
+shape = SubResource("BoxShape3D_vchkt")
+debug_color = Color(0.906147, 0.000127643, 0.74223, 1)
+
+[node name="SolitaireDeckStackTeamB2" type="Node3D" parent="."]
+transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, -11.608, 1.93516, -25.9298)
+script = ExtResource("7_nvyfr")
+
+[node name="DecalPath" type="Node3D" parent="SolitaireDeckStackTeamB2" node_paths=PackedStringArray("path")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.722587, 0, 6.55914)
+script = ExtResource("2_5poiv")
+path = NodePath("Path3D")
+decal_scene = ExtResource("3_2cjbq")
+
+[node name="Path3D" type="Path3D" parent="SolitaireDeckStackTeamB2/DecalPath"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0602333, -0.0867013, 0)
+curve = SubResource("Curve3D_kmb1v")
+
+[node name="Area3D" type="Area3D" parent="SolitaireDeckStackTeamB2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0679501, 0, 0.432591)
+monitoring = false
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="SolitaireDeckStackTeamB2/Area3D"]
+transform = Transform3D(0.999992, 0, 0, 0, 1, 0, 0, 0, 0.999992, -0.0192642, 0, 0.0200269)
+shape = SubResource("BoxShape3D_vchkt")
+debug_color = Color(0.906147, 0.000127643, 0.74223, 1)
+
+[node name="SolitaireDeckStackTeamB3" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.9213, 1.93516, -16.7081)
+script = ExtResource("7_nvyfr")
+
+[node name="DecalPath" type="Node3D" parent="SolitaireDeckStackTeamB3" node_paths=PackedStringArray("path")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.722587, 0, 6.55914)
+script = ExtResource("2_5poiv")
+path = NodePath("Path3D")
+decal_scene = ExtResource("3_2cjbq")
+
+[node name="Path3D" type="Path3D" parent="SolitaireDeckStackTeamB3/DecalPath"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0602333, -0.0867013, 0)
+curve = SubResource("Curve3D_kmb1v")
+
+[node name="Area3D" type="Area3D" parent="SolitaireDeckStackTeamB3"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0679501, 0, 0.432591)
+monitoring = false
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="SolitaireDeckStackTeamB3/Area3D"]
+transform = Transform3D(0.999992, 0, 0, 0, 1, 0, 0, 0, 0.999992, -0.0192642, 0, 0.0200269)
+shape = SubResource("BoxShape3D_vchkt")
+debug_color = Color(0.906147, 0.000127643, 0.74223, 1)
+
+[node name="SolitaireDeckStackTeamB4" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -13.3984, 1.93516, -16.7081)
+script = ExtResource("7_nvyfr")
+
+[node name="DecalPath" type="Node3D" parent="SolitaireDeckStackTeamB4" node_paths=PackedStringArray("path")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.722587, 0, 6.55914)
+script = ExtResource("2_5poiv")
+path = NodePath("Path3D")
+decal_scene = ExtResource("3_2cjbq")
+
+[node name="Path3D" type="Path3D" parent="SolitaireDeckStackTeamB4/DecalPath"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0602333, -0.0867013, 0)
+curve = SubResource("Curve3D_kmb1v")
+
+[node name="Area3D" type="Area3D" parent="SolitaireDeckStackTeamB4"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0679501, 0, 0.432591)
+monitoring = false
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="SolitaireDeckStackTeamB4/Area3D"]
+transform = Transform3D(0.999992, 0, 0, 0, 1, 0, 0, 0, 0.999992, -0.0192642, 0, 0.0200269)
+shape = SubResource("BoxShape3D_vchkt")
+debug_color = Color(0.906147, 0.000127643, 0.74223, 1)
 
 [node name="HoldInteractArea" type="Area3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.49322, 2.38419e-07, -11.6115)
@@ -111,11 +306,11 @@ script = ExtResource("4_vc5cj")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.175474, 0)
 shape = SubResource("CylinderShape3D_nvyfr")
 
-[node name="DeckStack" type="Node3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.16753, 0, -3.76884)
+[node name="DeckStackA" type="Node3D" parent="."]
+transform = Transform3D(0.999375, 0, 0.035353, 0, 1, 0, -0.035353, 0, 0.999375, 14.8102, 1.83345, -21.6913)
 script = ExtResource("10_cjqg0")
 
-[node name="Decal" type="Decal" parent="DeckStack"]
+[node name="Decal" type="Decal" parent="DeckStackA"]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0, -0.0592926, 0.400215)
 size = Vector3(1.5, 2, 1)
 texture_albedo = ExtResource("7_chjal")
@@ -123,18 +318,20 @@ upper_fade = 1e-05
 lower_fade = 0.01
 cull_mask = 1047553
 
-[node name="Area3D" type="Area3D" parent="DeckStack"]
+[node name="Area3D" type="Area3D" parent="DeckStackA"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.415338)
 monitoring = false
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="DeckStack/Area3D"]
-transform = Transform3D(0.999992, 0, 0, 0, 1, 0, 0, 0, 0.999992, -0.0192642, 0, -0.503732)
+[node name="CollisionShape3D" type="CollisionShape3D" parent="DeckStackA/Area3D"]
+transform = Transform3D(0.999992, 0, 0, 0, 1, 0, 0, 0, 0.999992, -0.0192642, 0, -0.0320156)
 shape = SubResource("BoxShape3D_vchkt")
+debug_color = Color(0.906147, 0.000127643, 0.74223, 1)
 
-[node name="DeckStack2" type="Node3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.85579, 0, -3.76884)
+[node name="DeckStackA2" type="Node3D" parent="."]
+transform = Transform3D(0.999375, 0, 0.035353, 0, 1, 0, -0.035353, 0, 0.999375, 16.2068, 1.83345, -21.7407)
 script = ExtResource("10_cjqg0")
 
-[node name="Decal" type="Decal" parent="DeckStack2"]
+[node name="Decal" type="Decal" parent="DeckStackA2"]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0, -0.0592926, 0.400215)
 size = Vector3(1.5, 2, 1)
 texture_albedo = ExtResource("7_chjal")
@@ -142,25 +339,59 @@ upper_fade = 1e-05
 lower_fade = 0.01
 cull_mask = 1047553
 
-[node name="Area3D" type="Area3D" parent="DeckStack2"]
+[node name="Area3D" type="Area3D" parent="DeckStackA2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.415338)
 monitoring = false
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="DeckStack2/Area3D"]
-transform = Transform3D(0.999992, 0, 0, 0, 1, 0, 0, 0, 0.999992, -0.0192642, 0, -0.503732)
+[node name="CollisionShape3D" type="CollisionShape3D" parent="DeckStackA2/Area3D"]
+transform = Transform3D(0.999992, 0, 0, 0, 1, 0, 0, 0, 0.999992, -0.0192642, 0, -0.0320156)
 shape = SubResource("BoxShape3D_vchkt")
+debug_color = Color(0.906147, 0.000127643, 0.74223, 1)
+
+[node name="DeckStackB" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11.4011, 1.86102, -21.855)
+script = ExtResource("10_cjqg0")
+
+[node name="Decal" type="Decal" parent="DeckStackB"]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0, -0.0592926, 0.400215)
+size = Vector3(1.5, 2, 1)
+texture_albedo = ExtResource("7_chjal")
+upper_fade = 1e-05
+lower_fade = 0.01
+cull_mask = 1047553
+
+[node name="Area3D" type="Area3D" parent="DeckStackB"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.380131)
+monitoring = false
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="DeckStackB/Area3D"]
+transform = Transform3D(0.999992, 0, 0, 0, 1, 0, 0, 0, 0.999992, -0.0192642, 0, 0.0200269)
+shape = SubResource("BoxShape3D_vchkt")
+debug_color = Color(0.906147, 0.000127643, 0.74223, 1)
+
+[node name="DeckStackB2" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.9107, 1.86102, -21.855)
+script = ExtResource("10_cjqg0")
+
+[node name="Decal" type="Decal" parent="DeckStackB2"]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0, -0.0592926, 0.400215)
+size = Vector3(1.5, 2, 1)
+texture_albedo = ExtResource("7_chjal")
+upper_fade = 1e-05
+lower_fade = 0.01
+cull_mask = 1047553
+
+[node name="Area3D" type="Area3D" parent="DeckStackB2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.380131)
+monitoring = false
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="DeckStackB2/Area3D"]
+transform = Transform3D(0.999992, 0, 0, 0, 1, 0, 0, 0, 0.999992, -0.0192642, 0, 0.0200269)
+shape = SubResource("BoxShape3D_vchkt")
+debug_color = Color(0.906147, 0.000127643, 0.74223, 1)
 
 [node name="PCard" parent="." instance=ExtResource("2_chjal")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.43929, 1.595, -2.71276)
-
-[node name="SolitairePath" type="Node3D" parent="." node_paths=PackedStringArray("path")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.105163, 0.0576778, -11.882)
-script = ExtResource("2_5poiv")
-path = NodePath("Path3D")
-decal_scene = ExtResource("3_2cjbq")
-
-[node name="Path3D" type="Path3D" parent="SolitairePath"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0602333, -0.007321, 0)
-curve = SubResource("Curve3D_kmb1v")
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14.5825, 2.31362, -0.305849)
 
 [node name="SlamButton" parent="." instance=ExtResource("2_tel4y")]
 transform = Transform3D(2.16202, 0, 0, 0, 1, 0, 0, 0, 2.16202, 6.176, -0.208408, -11.6927)
@@ -211,7 +442,7 @@ lower_fade = 0.01
 cull_mask = 1047553
 
 [node name="Player" parent="." node_paths=PackedStringArray("view", "hud") groups=["players"] instance=ExtResource("2_onms2")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.41626, 0.176348, -3.15304)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.258142, 0.176348, -19.8056)
 view = NodePath("../UI Control/GridContainer/SubViewportContainer/SubViewport/View")
 hud = NodePath("../UI Control/GridContainer/SubViewportContainer/SubViewport/HUD1")
 team = "A"
@@ -436,10 +667,13 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.440959, -0.893764, 9.28455)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.440959, -0.3253, 11.1621)
 
 [node name="block-grass-large-tall5" parent="World" instance=ExtResource("12_muem4")]
-transform = Transform3D(3.61837, 0, 0, 0, 1, 0, 0, 0, 4.75874, 12.9455, -0.3253, -21.361)
+transform = Transform3D(3.61837, 0, 0, 0, 1, 0, 0, 0, 11.6969, 15.5123, -0.3253, -21.361)
+
+[node name="block-grass-large-tall7" parent="World" instance=ExtResource("12_muem4")]
+transform = Transform3D(-3.61837, 0, -1.02258e-06, 0, 1, 0, 3.16328e-07, 0, -11.6969, -12.6506, -0.3253, -21.2489)
 
 [node name="block-grass-large-tall6" parent="World" instance=ExtResource("12_muem4")]
-transform = Transform3D(3.61837, 0, 0, 0, 1, 0, 0, 0, 4.75874, -12.0041, -0.3253, -21.361)
+transform = Transform3D(3.61837, 0, 0, 0, 1, 0, 0, 0, 4.75874, -12.0041, -0.3253, -56.1838)
 
 [node name="tree2" parent="World" instance=ExtResource("13_0ld40")]
 transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, -1.86593, -0.251381, 3.4074)
@@ -628,6 +862,7 @@ current = true
 fov = 40.0
 
 [node name="SubViewportContainer2" type="SubViewportContainer" parent="UI Control/GridContainer"]
+visible = false
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -635,7 +870,7 @@ script = ExtResource("17_yc10j")
 
 [node name="SubViewport" type="SubViewport" parent="UI Control/GridContainer/SubViewportContainer2"]
 handle_input_locally = false
-render_target_update_mode = 4
+render_target_update_mode = 0
 
 [node name="HUD2" type="CanvasLayer" parent="UI Control/GridContainer/SubViewportContainer2/SubViewport"]
 script = ExtResource("11_apvpm")
@@ -796,6 +1031,6 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.97055, -0.196861, -16.0048)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.97083, -0.196861, -7.11596)
 
 [node name="SpikeBlock" parent="." instance=ExtResource("47_vc5cj")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.3148, -0.196861, -6.81245)
-point_a = Vector3(1.315, -0.197, -4.127)
-point_b = Vector3(1.315, -0.197, -6.812)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.90279, -0.196861, -5.66806)
+point_a = Vector3(-7.903, -0.197, -4.127)
+point_b = Vector3(-7.903, -0.197, -6.812)

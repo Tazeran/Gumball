@@ -1,4 +1,4 @@
-extends Node3D
+extends RigidBody3D
 
 static var texture_cache: Dictionary = {}
 static var material_cache: Dictionary = {}
@@ -81,23 +81,26 @@ func set_team(teamStr: String):
 var is_face_up: bool = true
 func set_face_up(face_up: bool = true):
 	is_face_up = face_up
-	# Assumes card front is "up" when Y rotation is 0, back is 180
-	var angle = 0.0 
+
+	# Flip over the X axis (local pitch) without affecting Y rotation
+	#var current_rot = rotation
+	#if face_up:
+		#current_rot.x = 0.0
+	#else:
+		#current_rot.x = PI
+	#rotation = current_rot
+
+	# Swap material based on face
+	var key := "%s_%s" % [suit, rank]
 	if face_up:
-		angle = 180.0 * PI / 180.0  # or just PI
-	rotation.y = angle
-	# Optional: if you're hiding/showing with material switching instead:
-	# Just set which material shows up on top surface via shader param, or surface order
-	if face_up:
-		# Restore front material
-		var key := "%s_%s" % [suit, rank]
-		mesh.set_surface_override_material(front_material_index, material_cache.get(key))  # Or however you store the proper front
+		mesh.set_surface_override_material(front_material_index, material_cache.get(key))
 	else:
-		# Show back on both sides
 		mesh.set_surface_override_material(front_material_index, material_cache["back"])
 
+
 func _ready():
-	print("ready pickup_area", pickup_area)
+	self.set_freeze_mode(FreezeMode.FREEZE_MODE_KINEMATIC)
+	#print("ready pickup_area", pickup_area)
 	if pickup_area == null:
 		push_error("pickup_area not found!")
 		print("asdf asdf asd f asready")
@@ -140,7 +143,7 @@ func change_state(new_state: int) -> void:
 	state = new_state
 	match state:
 		CardState.ON_STACK:
-			print("pickup_area", self, pickup_area)
+			#print("pickup_area", self, pickup_area)
 			if pickup_area:
 				pickup_area.monitorable = false
 			physics_off()

@@ -23,6 +23,36 @@ func _enter_tree():
 func _exit_tree():
 	_disconnect_curve()
 
+func get_card_transform(index: int) -> Transform3D:
+	if not path or not path.curve or decal_count <= 1:
+		return Transform3D(Basis(), global_position)
+
+	var curve := path.curve
+	var path_length := curve.get_baked_length()
+
+	var t := float(index) / float(decal_count - 1)
+	var distance_along_path := t * path_length
+	var local_transform := curve.sample_baked_with_rotation(distance_along_path)
+	var global_transform := path.global_transform * local_transform
+
+	var position = global_transform.origin
+	var direction = global_transform.basis.x.normalized()
+
+	var basis = Basis()
+	basis.y = Vector3.UP
+	basis.x = direction
+	basis.z = basis.x.cross(basis.y).normalized()
+	basis.x = basis.y.cross(basis.z).normalized()
+
+	# Apply a small backward tilt (negative Z rotation in local space)
+	var tilt_angle = deg_to_rad(-3)  # adjust angle as needed
+	var tilt_axis = basis.x.normalized()  # tilt around the local X axis
+	basis = Basis(tilt_axis, tilt_angle) * basis
+
+	return Transform3D(basis, position)
+
+
+
 func _process(delta):
 	if not Engine.is_editor_hint():
 		return
@@ -88,6 +118,7 @@ func _rebuild_decals():
 			continue
 
 		decal_instance.visible = true
+		decal_instance.get_child(0).sorting_offset = -i
 
 		var t = i / float(decal_count - 1)
 		var distance_along_path = t * path_length
@@ -103,4 +134,5 @@ func _rebuild_decals():
 		basis.z = basis.x.cross(basis.y).normalized()
 		basis.x = basis.y.cross(basis.z).normalized()
 
-		decal_instance.global_transform = Transform3D(basis, position)
+		var flipped_basis = basis.rotated(Vector3.UP, PI)
+		decal_instance.global_transform = Transform3D(flipped_basis, position)
