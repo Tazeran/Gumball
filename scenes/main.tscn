@@ -16,7 +16,7 @@
 [ext_resource type="Script" uid="uid://bts6yd18ed053" path="res://scripts/SolitairePathStack.gd" id="7_nvyfr"]
 [ext_resource type="PackedScene" uid="uid://uqr4hswv6d2g" path="res://objects/Base/platform_grass_large_round.tscn" id="8_4oh1e"]
 [ext_resource type="PackedScene" uid="uid://c8up71en5djgm" path="res://objects/Base/platform_falling.tscn" id="9_2fnpo"]
-[ext_resource type="Script" uid="uid://xw7gweso178a" path="res://scenes/deck_stack.gd" id="10_cjqg0"]
+[ext_resource type="Script" uid="uid://xw7gweso178a" path="res://scripts/deck_stack.gd" id="10_cjqg0"]
 [ext_resource type="PackedScene" uid="uid://dfpisimsgf5ce" path="res://objects/Base/coin.tscn" id="10_fwhys"]
 [ext_resource type="PackedScene" uid="uid://de8jxuvworkou" path="res://objects/Base/flag.tscn" id="10_trceg"]
 [ext_resource type="Script" uid="uid://cv2hyc71eithw" path="res://scripts/hud.gd" id="11_apvpm"]

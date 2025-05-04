@@ -109,9 +109,9 @@ func _ready():
 	add_to_group("cards")
 	if mesh == null:
 		push_error("CardMesh not found!")
-	else:
+	#else:
 		#set_edge_color(edge_color)
-		set_card(suit, rank)
+		#set_card(suit, rank)
 
 var flatten_speed = 3.0  # How fast to rotate to flat
 
@@ -285,16 +285,20 @@ func pick_up(player: Node3D, target_mount: Node3D = null):
 	physics_off()
 
 func drop_to_ground():
-	# Snap card to character position immediately
-	global_position = carrier_player.global_position + Vector3(0, 0.5, 0)
+	# Determine starting position
+	if carrier_player and is_instance_valid(carrier_player):
+		global_position = carrier_player.global_position + Vector3(0, 0.5, 0)
+	# Otherwise keep current position or assume it's already positioned by caller
+
 	rotation_degrees.x += 60
-	
+
 	has_flattened = false
 	carrier_player = null
 	carrier_target = null
 	mount_target = null
 	change_state(CardState.FREE_FLOATING)
 	physics_on()
+
 	self.linear_velocity = Vector3(0, -2.5, 0)  # Small down speed
 	self.angular_velocity = Vector3(-2.5, 0, 0)
 	#self.angular_velocity = Vector3(randf_range(-2, 2), randf_range(-1, 1), randf_range(-2, 2))

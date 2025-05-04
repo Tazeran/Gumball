@@ -2,7 +2,7 @@
 class_name Deck
 
 const SUITS = ["hearts", "diamonds", "clubs", "spades"]
-const RANKS = ["A", "02", "03", "04", "05", "06", "07", "08", "09", "10", "J", "Q", "K"]
+const RANKS = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"]
 
 var cards: Array = []  # Array of CardData
 

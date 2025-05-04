@@ -23,6 +23,11 @@ func _ready():
 	await get_tree().process_frame
 	deal_team_hand("A", team_a_deck, A_GoalStack, A_CycleStack, A_SolitaireStack1, A_SolitaireStack2, A_SolitaireStack3, A_SolitaireStack4)
 	deal_team_hand("B", team_b_deck, B_GoalStack, B_CycleStack, B_SolitaireStack1, B_SolitaireStack2, B_SolitaireStack3, B_SolitaireStack4)
+	
+	#A_CycleStack.scatter_all_cards()
+	#A_GoalStack.scatter_all_cards()
+	
+	#verify_full_deck_for_team("A")
 
 func spawn_card(team: String, card_data, stack: DeckStack) -> void:
 	var card = card_scene.instantiate()
@@ -56,3 +61,21 @@ func deal_team_hand(team_str: String, deck: Deck, goal_stack: DeckStack, cycle_s
 		spawn_card(team_str, deck.draw_card(), goal_stack)
 	for i in range(35): # Deal 35 to cycle stack
 		spawn_card(team_str, deck.draw_card(), cycle_stack)
+
+
+func verify_full_deck_for_team(team: String) -> bool:
+	var found_cards := {}
+	print("verify_full_deck_for_team: ", team)
+	for card in get_tree().get_nodes_in_group("cards"):
+		if card.team == team:
+			var key = "%s_%s" % [card.suit, card.rank]
+			found_cards[key] = true
+
+	for suit in Deck.SUITS:
+		for rank in Deck.RANKS:
+			var key = "%s_%s" % [suit, rank]
+			if not found_cards.has(key):
+				print("Missing card for team %s: %s" % [team, key])
+				return false
+
+	return true

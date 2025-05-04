@@ -27,7 +27,7 @@ func can_accept_card(card: Node3D) -> bool:
 	var top = get_top_card()
 	var colors_different = card.get_color() != top.get_color()
 	var ranks_correct = card.get_rank_value() == top.get_rank_value() - 1
-
+	print(card.get_rank_value(), card.get_color(), " ", top.get_rank_value() , top.get_color())
 	#return true
 	return colors_different and ranks_correct
 
