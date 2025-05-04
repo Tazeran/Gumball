@@ -1,4 +1,4 @@
-[gd_scene load_steps=59 format=3 uid="uid://bqqgyqafm7xwp"]
+[gd_scene load_steps=63 format=3 uid="uid://bqqgyqafm7xwp"]
 
 [ext_resource type="Environment" uid="uid://bqnqgflivjvue" path="res://scenes/main-environment.tres" id="1_ahusb"]
 [ext_resource type="Script" uid="uid://c7ygroxpgne1x" path="res://scripts/solitaire_path.gd" id="2_5poiv"]
@@ -48,6 +48,10 @@
 [ext_resource type="Texture2D" uid="uid://dey8c81sr5e1" path="res://sprites/runeGrey_slab_032.png" id="37_pibwh"]
 [ext_resource type="Texture2D" uid="uid://ccfsvrdui83xb" path="res://sprites/runeGrey_slab_007.png" id="38_c6pm6"]
 [ext_resource type="PackedScene" uid="uid://c40geiwcn2460" path="res://objects/Obstacles/spike_block.tscn" id="47_vc5cj"]
+[ext_resource type="PackedScene" uid="uid://dtjvjdjl8cs6e" path="res://models/flagStarter.glb" id="49_bu4jf"]
+[ext_resource type="PackedScene" uid="uid://cetult4y0y74i" path="res://marker.tscn" id="52_bu4jf"]
+[ext_resource type="PackedScene" uid="uid://bas6o5gm1t2as" path="res://scenes/flag.tscn" id="52_ids8r"]
+[ext_resource type="PackedScene" uid="uid://ltrxr6l3f6ya" path="res://scenes/lock.tscn" id="53_o7ddy"]
 
 [sub_resource type="Curve3D" id="Curve3D_kmb1v"]
 bake_interval = 0.1
@@ -441,18 +445,26 @@ upper_fade = 1e-05
 lower_fade = 0.01
 cull_mask = 1047553
 
-[node name="Player" parent="." node_paths=PackedStringArray("view", "hud") groups=["players"] instance=ExtResource("2_onms2")]
+[node name="Player" parent="." node_paths=PackedStringArray("view", "hud", "marker") groups=["players"] instance=ExtResource("2_onms2")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.258142, 0.176348, -19.8056)
 view = NodePath("../UI Control/GridContainer/SubViewportContainer/SubViewport/View")
 hud = NodePath("../UI Control/GridContainer/SubViewportContainer/SubViewport/HUD1")
 team = "A"
+marker = NodePath("../Marker1")
 
-[node name="Player2" parent="." node_paths=PackedStringArray("view", "hud") groups=["players"] instance=ExtResource("2_onms2")]
+[node name="Marker1" parent="." instance=ExtResource("52_bu4jf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.258142, 0.176348, -19.8056)
+
+[node name="Player2" parent="." node_paths=PackedStringArray("view", "hud", "marker") groups=["players"] instance=ExtResource("2_onms2")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19.9953, 7.91033, -1.22254)
 view = NodePath("../UI Control/GridContainer/SubViewportContainer2/SubViewport/View2")
 player_id = 2
 hud = NodePath("../UI Control/GridContainer/SubViewportContainer2/SubViewport/HUD2")
 team = "B"
+marker = NodePath("../Marker2")
+
+[node name="Marker2" parent="." instance=ExtResource("52_bu4jf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19.9953, 7.91033, -1.22254)
 
 [node name="World" type="Node3D" parent="."]
 
@@ -1034,3 +1046,18 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.97083, -0.196861, -7.11596)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.90279, -0.196861, -5.66806)
 point_a = Vector3(-7.903, -0.197, -4.127)
 point_b = Vector3(-7.903, -0.197, -6.812)
+
+[node name="flag" parent="." instance=ExtResource("49_bu4jf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9.92718, 1.57547, -32.3574)
+
+[node name="flag2" parent="." instance=ExtResource("52_ids8r")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12.6274, 1.57481, -32.2964)
+
+[node name="flag3" parent="." instance=ExtResource("49_bu4jf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9.92718, 1.57547, -10.735)
+
+[node name="flag4" parent="." instance=ExtResource("52_ids8r")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12.6274, 1.57481, -10.674)
+
+[node name="lock4" parent="." instance=ExtResource("53_o7ddy")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.711957, -0.0332646, -32.904)

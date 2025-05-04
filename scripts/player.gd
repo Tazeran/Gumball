@@ -11,6 +11,7 @@ signal coin_collected(coins: int)
 @export var jump_strength := 7
 @export var hud: Node
 @export var team: String
+@export var marker: Node3D
 
 # --- Card Carry System
 var carried_card: Node3D = null
@@ -71,6 +72,7 @@ func is_holding_card():
 	return carried_card != null
 
 func _ready():
+	update_interaction_marker()
 	# Setup input strings
 	input_left = "move_left_p" + str(player_id)
 	input_right = "move_right_p" + str(player_id)
@@ -116,6 +118,7 @@ func _on_pickup_area_body_entered(area):
 		nearby_interactables.append(area)
 	elif area.get_parent().is_in_group("interactables"):
 		nearby_interactables.append(area.get_parent())
+	update_interaction_marker()
 
 func _on_pickup_area_body_exited(area):
 	#print("_on_pickup_area_body_exited", area)
@@ -123,7 +126,15 @@ func _on_pickup_area_body_exited(area):
 		nearby_interactables.erase(area)
 	elif area.get_parent().is_in_group("interactables"):
 		nearby_interactables.erase(area.get_parent())
+	update_interaction_marker()
 
+func update_interaction_marker():
+	var closest = get_closest_interactable()
+	if closest:
+		marker.global_transform.origin = closest.global_transform.origin
+		marker.visible = true
+	else:
+		marker.visible = false
 
 
 #func try_interact():
