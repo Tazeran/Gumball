@@ -8,8 +8,8 @@ var groundPosition = null;
 @export var top_face_down := false  # toggle per stack
 @export var allow_dig := false  # can pick below top?
 @export var face_up_on_add := true  # default behavior
-@export var team = "N"
-var team_only := true
+@export var team = ""
+var team_only = true
 
 func _ready():
 	groundPosition = get_ground_position()
@@ -56,6 +56,10 @@ func can_accept_card(card: Node3D) -> bool:
 	# Base stack accepts anything — override in subclasses
 	return true
 
+func can_remove_card(card: Node3D) -> bool:
+	# Base stack accepts anything — override in subclasses
+	return true
+
 func interact(player):
 	print("deck stack interact: ", self, player)
 
@@ -69,6 +73,8 @@ func interact(player):
 
 	else:
 		var peek_top_card = get_top_card()
+		if !can_remove_card(player.carried_card):
+			return
 		if team_only && player.team != team:
 			return
 		var top_card = remove_top_card()

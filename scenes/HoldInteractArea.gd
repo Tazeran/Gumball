@@ -4,6 +4,7 @@ extends Area3D
 @export var hold_time_required: float = 1.5  # Seconds to trigger
 @export var one_shot: bool = false  # Disable after activation
 @export var prompt_text: String = "Hold to Buy"
+@export var team: String = "" #Any
 
 signal hold_completed(player_id: int, player: Node)
 
@@ -14,10 +15,13 @@ func _ready():
 	add_to_group("interactables")
 
 #TODO Could be a whole interact information, text, type, position, visible, etcc
-func get_marker_position():
+func get_marker_position(player: Player):
 	return global_position
 
 func interaction_available(player: Player) -> bool:
+	if team != "":
+		if player.team != team:
+			return false
 	return true
 
 func _process(delta):
@@ -44,6 +48,8 @@ func _process(delta):
 
 func start_holding(player_id: int, player: Node):
 	if has_triggered or !is_instance_valid(player):
+		return
+	if !interaction_available(player):
 		return
 	if !holding_players.has(player_id):
 		holding_players[player_id] = {

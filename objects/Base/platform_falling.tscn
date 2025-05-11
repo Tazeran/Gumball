@@ -18,16 +18,17 @@ script = ExtResource("2_6ganw")
 
 [node name="Area3D" type="Area3D" parent="." index="0"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, 0)
+collision_mask = 5
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D" index="0"]
 shape = SubResource("BoxShape3D_t551e")
 
-[node name="platform-falling2#StaticBody3D" type="StaticBody3D" parent="." index="1"]
+[node name="StaticBody3D" type="StaticBody3D" parent="." index="1"]
 
-[node name="platform-falling2_StaticBody3D#CollisionShape3D" type="CollisionShape3D" parent="platform-falling2#StaticBody3D" index="0"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D" index="0"]
 shape = SubResource("ConcavePolygonShape3D_4mmvt")
 
 [node name="platform-falling2" parent="." index="2"]
 material_override = SubResource("StandardMaterial3D_auvkn")
 
-[connection signal="body_entered" from="Area3D" to="." method="_on_body_entered"]
+[connection signal="body_entered" from="Area3D" to="." method="_on_area_3d_body_entered"]

@@ -26,12 +26,6 @@ func _process(delta):
 		if respawn_timer <= 0:
 			respawn()
 
-func _on_body_entered(_body):
-	if !falling:
-		Audio.play("res://sounds/fall.ogg") # Play sound
-		scale = Vector3(1.25, 1, 1.25) # Animate scale
-		falling = true
-
 func start_respawn_timer():
 	falling = false
 	gravity = 0
@@ -42,3 +36,9 @@ func respawn():
 	scale = start_scale
 	gravity = 0
 	falling = false
+
+func _on_area_3d_body_entered(_body) -> void:
+	if !falling:
+		Audio.play("res://sounds/fall.ogg") # Play sound
+		scale = Vector3(1.25, 1, 1.25) # Animate scale
+		falling = true

@@ -1,5 +1,5 @@
 extends RigidBody3D
-
+class_name PCard
 static var texture_cache: Dictionary = {}
 static var material_cache: Dictionary = {}
 static var edge_material_cache := {}

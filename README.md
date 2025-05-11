@@ -2,6 +2,16 @@
 
 # My Notes:
 
+Goal / Target / Reserve / Pounce / Nertz Pile = 13 cards you must get rid of to win a round
+Work / Build / Tableau Piles = Solitaire Pathes
+Stock / Hand / Draw Pile = Remaining cards in players hand
+Waste / Junk / Flip Pile = the cards you turn over from Stock
+Foundation / Center / Field / Slap Piles (or Commons) = Community Stacks in middle
+
+Make finished Kinged Piles slowly spawn coins, reason to return to that point, slowly the pot of coins gets rich
+Make some other simple coin spawns
+maybe 100 Coins will reshuffle your whole setup, excluding the ones in Field Piles
+
 ### TODO:
 
 Extend Deck behavior:

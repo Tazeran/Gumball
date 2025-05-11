@@ -210,7 +210,7 @@ func get_closest_interactable() -> Node3D:
 	var closest_dist = INF
 
 	for interactable in nearby_interactables:
-		if interactable and interactable != carried_card:
+		if interactable and interactable.interaction_available(self) and interactable != carried_card:
 			var dist = global_position.distance_to(interactable.global_position)
 			if dist < closest_dist:
 				closest = interactable
