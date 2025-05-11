@@ -1,14 +1,16 @@
 extends CharacterBody3D
 
-@export var point_a: Vector3
-@export var point_b: Vector3
 @export var move_speed := 1.5
 @export var wait_time := 0.3
+#@export_node_path("Path3D") var path_node_path
+@onready var path: Path3D = $"../Path3D"
 
-var wait_timer := 0.0
-var going_to_b := true
 @onready var damage_area: Area3D = $Area3D
+#@onready var path: Path3D = get_node(path_node_path)
 
+var distance := 0.0
+var going_forward := true
+var wait_timer := 0.0
 
 func _ready():
 	damage_area.body_entered.connect(_on_body_entered)
@@ -20,21 +22,20 @@ func _on_body_entered(body):
 func _physics_process(delta):
 	if wait_timer > 0.0:
 		wait_timer -= delta
-		velocity = Vector3.ZERO
-		move_and_slide()
 		return
 
-	var target = point_a
-	if going_to_b:
-		target = point_b
-	var direction = target - global_position
+	var direction = 1.0 if going_forward else -1.0
+	distance += move_speed * delta * direction
+	var path_length = path.curve.get_baked_length()
 
-	if direction.length() < 0.05:
-		going_to_b = !going_to_b
+	if distance >= path_length:
+		distance = path_length
+		going_forward = false
 		wait_timer = wait_time
-		velocity = Vector3.ZERO
-		move_and_slide()
-		return
+	elif distance <= 0.0:
+		distance = 0.0
+		going_forward = true
+		wait_timer = wait_time
 
-	velocity = direction.normalized() * move_speed
-	move_and_slide()
+	var local_pos = path.curve.sample_baked(distance)
+	global_position = path.global_transform * local_pos
