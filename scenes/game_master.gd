@@ -10,4 +10,4 @@ func _ready():
 
 func setRound(round: int):
 	TeamMasterA.deal_hand()
-	#TeamMasterB.deal_hand()
+	TeamMasterB.deal_hand()

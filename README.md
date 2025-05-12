@@ -1,6 +1,22 @@
 <p align="center"><img src="icon.png"/></p>
 
 # My Notes:
+What are Coins to be used for?
+	Shuffle Deck
+	Spawn 4 bugs on enemy place
+	Buy Hearts / Heart Containers?
+	Buy Stamina / Stamina Containers?
+	Purchase a MarioKartBox with random powerup?
+
+
+Dropping off world should cost 1 heart. Death should have a respawn timer of 6 seconds?
+
+Ground pound another player and they are stunned?
+	Put a stars spinner around head, birdie tweeting stun sound?
+
+Left Trigger to charge, player holds still, maybe shows arrow of dirrection, then your unleashed in a charge or roll that can damage during it
+
+Remap triggers and change camera control style?
 
 Goal / Target / Reserve / Pounce / Nertz Pile = 13 cards you must get rid of to win a round
 Work / Build / Tableau Piles = Solitaire Pathes

@@ -15,6 +15,8 @@ func get_marker_position(player: Player) -> Vector3:
 		return visualizer.get_card_transform(cards.size()).origin
 
 func interaction_available(player: Player) -> bool:
+	if player.team != team:
+		return false
 	if player.carried_card == null:
 		return !cards.is_empty()
 	else:

@@ -140,6 +140,8 @@ func get_marker_position(player: Player):
 	return global_position
 
 func interaction_available(player: Player) -> bool:
+	if team != player.team:
+		return false
 	if state != CardState.FREE_FLOATING:
 		return false
 	return player.carried_card == null
@@ -282,6 +284,9 @@ func set_edge_color(color: Color) -> void:
 
 func interact(player):
 	if state == CardState.FREE_FLOATING:
+		if player.team != team:
+			print("Cannot interact with card from another team.")
+			return
 		player.pick_up_card(self)
 
 func pick_up(player: Node3D, target_mount: Node3D = null):

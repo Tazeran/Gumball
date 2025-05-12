@@ -20,6 +20,8 @@ func get_marker_position(player: Player) -> Vector3:
 	return global_position
 
 func interaction_available(player: Player) -> bool:
+	if team_only && player.team != team:
+		return false
 	if player.carried_card != null:
 		return true
 	else:

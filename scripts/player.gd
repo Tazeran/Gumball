@@ -129,15 +129,15 @@ func _on_pickup_area_body_exited(area):
 	#update_interaction_marker()
 
 #delete????
-func update_interaction_marker():
-	var closest = get_closest_interactable()
-	marker.visible = false
-	if closest:
-		#var pos = get_marker_position();
-		if closest.interaction_available(self):
-			marker.global_transform.origin = closest.get_marker_position(self)
-			#marker.global_transform.origin = closest.global_transform.origin
-			marker.visible = true
+#func update_interaction_marker():
+	#var closest = get_closest_interactable()
+	#marker.visible = false
+	#if closest:
+		##var pos = get_marker_position();
+		#if closest.interaction_available(self):
+			#marker.global_transform.origin = closest.get_marker_position(self)
+			##marker.global_transform.origin = closest.global_transform.origin
+			#marker.visible = true
 
 func handle_interactables(delta):
 	var closest = get_closest_interactable()
@@ -387,6 +387,9 @@ func collect_heart():
 
 
 func pick_up_card(card: Node3D):
+	if card.team != team:
+		print("Cannot pick up card from another team.")
+		return
 	carried_card = card
 	#card.pick_up(self)  # Calls the Card.gd function
 	card.pick_up(self, $Character/character/root/torso/antenna) # Pass the Antenna as mount point

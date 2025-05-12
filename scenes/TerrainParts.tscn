@@ -1,6 +1,7 @@
-[gd_scene load_steps=152 format=3 uid="uid://tfu1lvnh0ay3"]
+[gd_scene load_steps=153 format=3 uid="uid://tfu1lvnh0ay3"]
 
 [ext_resource type="PackedScene" uid="uid://c0mj803342lhf" path="res://models/block-grass-corner-low.glb" id="1_n0o3a"]
+[ext_resource type="Environment" uid="uid://bqnqgflivjvue" path="res://scenes/main-environment.tres" id="1_yyot2"]
 [ext_resource type="PackedScene" uid="uid://x6nbjtmabpem" path="res://models/block-grass-corner-overhang-low.glb" id="2_yyot2"]
 [ext_resource type="PackedScene" uid="uid://dnvk83oxlqygy" path="res://models/block-grass-corner-overhang.glb" id="3_payvp"]
 [ext_resource type="PackedScene" uid="uid://bg1l2qv4hs82p" path="res://models/block-grass-corner.glb" id="4_alawy"]
@@ -153,6 +154,9 @@
 [ext_resource type="PackedScene" uid="uid://ddc0cwor3uc5o" path="res://models/tree.glb" id="151_esed3"]
 
 [node name="TerrainParts" type="Node3D"]
+
+[node name="Environment" type="WorldEnvironment" parent="."]
+environment = ExtResource("1_yyot2")
 
 [node name="block-grass-corner-low2" parent="." instance=ExtResource("1_n0o3a")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.2, 0, 0)
