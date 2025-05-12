@@ -72,7 +72,7 @@ func is_holding_card():
 	return carried_card != null
 
 func _ready():
-	update_interaction_marker()
+	#update_interaction_marker()
 	# Setup input strings
 	input_left = "move_left_p" + str(player_id)
 	input_right = "move_right_p" + str(player_id)
@@ -118,7 +118,7 @@ func _on_pickup_area_body_entered(area):
 		nearby_interactables.append(area)
 	elif area.get_parent().is_in_group("interactables"):
 		nearby_interactables.append(area.get_parent())
-	update_interaction_marker()
+	#update_interaction_marker()
 
 func _on_pickup_area_body_exited(area):
 	#print("_on_pickup_area_body_exited", area)
@@ -126,8 +126,9 @@ func _on_pickup_area_body_exited(area):
 		nearby_interactables.erase(area)
 	elif area.get_parent().is_in_group("interactables"):
 		nearby_interactables.erase(area.get_parent())
-	update_interaction_marker()
+	#update_interaction_marker()
 
+#delete????
 func update_interaction_marker():
 	var closest = get_closest_interactable()
 	marker.visible = false
@@ -138,22 +139,18 @@ func update_interaction_marker():
 			#marker.global_transform.origin = closest.global_transform.origin
 			marker.visible = true
 
-
-#func try_interact():
-	#if nearby_interactables.is_empty():
-		#return
-#
-	#var best = get_closest_interactable()
-	#if best and best.has_method("interact"):
-		#best.interact(self)
-
 func handle_interactables(delta):
 	var closest = get_closest_interactable()
+	
+	marker.visible = false
 	
 	if closest != null:
 		if closest is HoldInteractable :
 			hud.interact.visible = true
 			hud.interact_prompt.text = closest.prompt_text
+		if closest.interaction_available(self):
+			marker.global_transform.origin = closest.get_marker_position(self)
+			marker.visible = true
 		#find out if it has a prompt and what type
 		#display prompt
 	else:
@@ -393,7 +390,7 @@ func pick_up_card(card: Node3D):
 	carried_card = card
 	#card.pick_up(self)  # Calls the Card.gd function
 	card.pick_up(self, $Character/character/root/torso/antenna) # Pass the Antenna as mount point
-	update_interaction_marker()
+	#update_interaction_marker()
 	Audio.play("res://sounds/card-place-2.ogg")
 	print("Picked up", card.rank, "of", card.suit)
 
@@ -402,7 +399,7 @@ func drop_card():
 		carried_card.drop_to_ground()
 		carried_card = null
 		Audio.play("res://sounds/card-place-3.ogg")
-		update_interaction_marker()
+		#update_interaction_marker()
 
 func drop_card_onto_stack(stack):
 	if !is_holding_card():

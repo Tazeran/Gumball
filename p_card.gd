@@ -211,9 +211,10 @@ func _physics_process(delta):
 				offset.origin = Vector3(0, 1, 0.5)
 				global_transform = carrier_player.global_transform * offset
 		
-		#CardState.ON_STACK:
-			#if mount_target:
-				#global_transform = mount_target.global_transform * mount_offset
+		CardState.ON_STACK:
+			if mount_target and is_instance_valid(mount_target):
+				global_transform = mount_target.global_transform * mount_offset
+
 
 func _handle_free_float(delta):
 	bob_timer += delta * bob_speed

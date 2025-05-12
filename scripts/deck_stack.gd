@@ -47,6 +47,7 @@ func add_card(card: Node3D):
 
 	card.mount_target = self
 	card.mount_offset = Transform3D(Basis(), Vector3.ZERO)
+	#card.mount_offset = self.to_local(card.global_transform)
 	card.change_state(card.CardState.ON_STACK)
 
 	if face_up_on_add:
