@@ -8,6 +8,21 @@ What are Coins to be used for?
 	Buy Stamina / Stamina Containers?
 	Purchase a MarioKartBox with random powerup?
 
+Fix the monster spawner, can't get to work for some reason.
+
+Bounce pad could be purchased with coins before you can use.
+Coins that act like physics things, but still bob, and you can spawn a fountain of them from things
+Big Spike?
+Rotating circle path spike?
+Something that spawns projectile?
+Player can use stamina to dash forward attack. double dash into each other just bounces off.
+	Maybe AOE knockback. Maybe MarioKartBox powerups?
+Level Design could use work
+
+Team based platforms? Enemy platforms fall away if you try touch them? Or other team based stuff?
+Mostly it seems like mobility type stuff to get you to where you need to be.
+And maybe stuff that might hinder the enemy? Slow-Down-BlobSlimes?
+
 
 Dropping off world should cost 1 heart. Death should have a respawn timer of 6 seconds?
 

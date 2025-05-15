@@ -34,8 +34,8 @@ const RANKS := {
 	"A": 1, "2": 2, "3": 3, "4": 4, "5": 5, "6": 6, "7": 7,
 	"8": 8, "9": 9, "10": 10, "J": 11, "Q": 12, "K": 13
 }
-const RED_SUITS := ["hearts", "diamonds"]
-const BLACK_SUITS := ["spades", "clubs"]
+const RED_SUITS := ["Hearts", "Diamonds"]
+const BLACK_SUITS := ["Spades", "Clubs"]
 
 
 @onready var pickup_area = $Area3D
@@ -215,7 +215,14 @@ func _physics_process(delta):
 		
 		CardState.ON_STACK:
 			if mount_target and is_instance_valid(mount_target):
-				global_transform = mount_target.global_transform * mount_offset
+				if mount_target.has_method("get_card_transform"):
+					# Ask the stack for the transform based on its current index
+					var stack_index = mount_target.cards.find(self)
+					if stack_index != -1:
+						global_transform = mount_target.get_card_transform(stack_index)
+				else:
+					global_transform = mount_target.global_transform * mount_offset
+
 
 
 func _handle_free_float(delta):

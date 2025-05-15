@@ -1,0 +1,21 @@
+[gd_scene load_steps=4 format=3 uid="uid://2v50x6us5skk"]
+
+[ext_resource type="PackedScene" uid="uid://dia4svb68i0nb" path="res://models/button-round.glb" id="1_kabc6"]
+[ext_resource type="Script" uid="uid://bgvofibk8c8xp" path="res://scripts/jump_pad.gd" id="2_ityjr"]
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_25k7v"]
+height = 0.273697
+radius = 0.570801
+
+[node name="JumpPad" instance=ExtResource("1_kabc6")]
+script = ExtResource("2_ityjr")
+
+[node name="Area3D" type="Area3D" parent="." index="0"]
+collision_mask = 4
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.224678, 0)
+shape = SubResource("CylinderShape3D_25k7v")
+
+[node name="button-round" parent="." index="1"]
+transform = Transform3D(3, 0, 0, 0, 2, 0, 0, 0, 3, 0, 0, 0)
