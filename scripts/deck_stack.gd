@@ -4,15 +4,18 @@ extends Node3D
 @onready var pickup_area = $Area3D
 var stack_position_offset: Vector3 = Vector3(0, 0.014, 0)  # Vertical gap between cards
 var cards: Array = []
-var groundPosition = null;
+#var groundPosition = null;
 @export var top_face_down := false  # toggle per stack
 @export var allow_dig := false  # can pick below top?
 @export var face_up_on_add := true  # default behavior
 @export var team = ""
 var team_only = true
+var ground_offset: Vector3 = Vector3.ZERO  # initialized in _ready or lazily
+
 
 func _ready():
-	groundPosition = get_ground_position()
+	#groundPosition = get_ground_position()
+	ground_offset = to_local(get_ground_position())
 	add_to_group("interactables")
 	add_to_group("decks")
 
@@ -98,22 +101,23 @@ func remove_top_card() -> Node3D:
 
 func get_card_count() -> int:
 	return cards.size()
-#
-#func get_card_position(index: int) -> Vector3:
-	#print("normal card pos")
-	#if groundPosition == null:
-		#groundPosition = get_ground_position()
-	#return groundPosition + (stack_position_offset * float(index))
-#
+
+#take the global_pos of our parent add that to local_ground_offset to get our new global_pos transform
+#!!!! I don't like this down-raycasting solution to account for decalworldedit stuff
+#probably some other solution with specific positioning, and use the mesh to show where stack will be, but delete it at gamestart
 func get_card_transform(index: int) -> Transform3D:
-	if groundPosition == null:
-		groundPosition = get_ground_position()
+	if ground_offset == Vector3.ZERO:
+		var ground_world = get_ground_position()
+		ground_offset = get_parent().to_local(ground_world)
 
-	var up := global_transform.basis.y.normalized()
-	var offset := up * stack_position_offset.y * float(index)
-	var pos : Vector3 = groundPosition + offset
+	var parent_pos = get_parent().global_position
+	var base_pos = parent_pos + ground_offset + Vector3.UP * 0.55  # raise all cards 4 units
 
-	var basis := global_transform.basis.orthonormalized()
+	var up = global_transform.basis.y.normalized()
+	var offset = up * stack_position_offset.y * float(index)
+	var pos = base_pos + offset
+
+	var basis = global_transform.basis.orthonormalized()
 	return Transform3D(basis, pos)
 
 

@@ -6,7 +6,7 @@ extends Node3D
 func _ready():
 	await get_tree().process_frame
 	setRound(0)
-	#verify_full_deck_for_team("A")
+	#Audio.play_music("")
 
 func setRound(round: int):
 	TeamMasterA.deal_hand()
