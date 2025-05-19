@@ -3,15 +3,16 @@ class_name Player
 signal coin_collected(coins: int)
 
 @export_subgroup("Components")
-@export var view: Node3D
-
 @export_subgroup("Properties")
 @export var player_id := 1
 @export var movement_speed := 250
 @export var jump_strength := 7
-@export var hud: Node
 @export var team: String
-@export var marker: Node3D
+
+var hud: Node
+var sub_viewport: SubViewportContainer
+var view_camera: Node3D #assigned by game_master.gd
+var marker: Node3D #assigned by game_master.gd
 
 # --- Card Carry System
 var carried_card: Node3D = null
@@ -84,7 +85,7 @@ func _ready():
 	input_crouch = "crouch_p" + str(player_id)
 
 	var playerTexture = null
-	if player_id == 1:
+	if player_id % 2 == 1:
 		playerTexture = load("res://models/Textures/colormapStarter.png")
 	else:
 		playerTexture = load("res://models/MarbleRun/Textures/colormap.png")
@@ -105,11 +106,12 @@ func _ready():
 	pickup_area.area_entered.connect(_on_pickup_area_body_entered)
 	pickup_area.area_exited.connect(_on_pickup_area_body_exited)
 
+func setup(): #probably more improvement here and game_master
 	if hud:
 		connect("coin_collected", Callable(hud, "_on_coin_collected"))
 		#connect("heart_collected", Callable(hud, "_on_heart_collected"))
 		hud.set_health(health, health_max)
-	print("Player ", name, " has HUD: ", hud.name, " (ref: ", hud, ")")
+	#print("Player ", name, " has HUD: ", hud.name, " (ref: ", hud, ")")
 
 
 func _on_pickup_area_body_entered(area):
@@ -265,7 +267,7 @@ func handle_controls(delta):
 
 	input.x = Input.get_action_strength(input_right) - Input.get_action_strength(input_left)
 	input.z = Input.get_action_strength(input_back) - Input.get_action_strength(input_forward)
-	input = input.rotated(Vector3.UP, view.rotation.y)
+	input = input.rotated(Vector3.UP, view_camera.rotation.y)
 
 	if input.length() > 1:
 		input = input.normalized()

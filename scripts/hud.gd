@@ -1,9 +1,12 @@
 extends CanvasLayer
 #var ring
 
-@onready var aring = $Interact/Prompt_A/Ring
-@onready var interact = $Interact
-@onready var interact_prompt = $Interact/Prompt
+@onready var interact_ring = $ControlLayoutFullRect/ControlBottomRight/Interact/Prompt_A/Ring
+@onready var stamina_ring = $ControlLayoutFullRect/ControlTopRight/Ring
+@onready var interact = $ControlLayoutFullRect/ControlBottomRight/Interact
+@onready var interact_prompt = $ControlLayoutFullRect/ControlBottomRight/Interact/Prompt
+@onready var coins_text = $ControlLayoutFullRect/ControlBottomLeft/ControlCoins/Coins
+@onready var heartbar = $ControlLayoutFullRect/ControlTopLeft/HeartBar
 
 #func connect_to_player(player):
 #	print("Connecting ", self.name ," to player: ", player.name, " asdf ", $Coins)
@@ -13,20 +16,14 @@ func _ready():
 	#ring = $Ring
 
 func set_aring_percent(val: float):
-	aring.percent = val
+	interact_ring.percent = val
 
 func set_stamina_percent(val: float):
-	if has_node("Ring"):
-		var ring = $Ring
-		if ring:
-			ring.percent = val
+	stamina_ring.percent = val
 
 func set_health(val: int, val_max: int):
-	if has_node("HeartBar"):
-		var heartbar = $HeartBar
-		if heartbar:
-			heartbar.set_health(val, val_max)
+	heartbar.set_health(val, val_max)
 
 func _on_coin_collected(coins):
 	print(">>> ", name, " got coin update: ", coins)
-	$Coins.text = str(coins)
+	coins_text.text = str(coins)

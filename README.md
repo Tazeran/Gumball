@@ -23,6 +23,7 @@ Team based platforms? Enemy platforms fall away if you try touch them? Or other 
 Mostly it seems like mobility type stuff to get you to where you need to be.
 And maybe stuff that might hinder the enemy? Slow-Down-BlobSlimes?
 
+Have players right/left pick their team A or B, what about 3 or 4 team arenas?
 
 Dropping off world should cost 1 heart. Death should have a respawn timer of 6 seconds?
 
