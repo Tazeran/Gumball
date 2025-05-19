@@ -187,7 +187,7 @@ script = ExtResource("1_d5vfk")
 
 [node name="SubViewport" type="SubViewport" parent="UI Control/GridContainer/SubViewportContainer1"]
 handle_input_locally = false
-size = Vector2i(638, 358)
+size = Vector2i(2, 2)
 render_target_update_mode = 4
 
 [node name="HUD" type="CanvasLayer" parent="UI Control/GridContainer/SubViewportContainer1/SubViewport"]
@@ -401,7 +401,7 @@ script = ExtResource("1_d5vfk")
 
 [node name="SubViewport" type="SubViewport" parent="UI Control/GridContainer/SubViewportContainer2"]
 handle_input_locally = false
-size = Vector2i(638, 358)
+size = Vector2i(2, 2)
 render_target_update_mode = 4
 
 [node name="HUD" type="CanvasLayer" parent="UI Control/GridContainer/SubViewportContainer2/SubViewport"]
@@ -615,7 +615,7 @@ script = ExtResource("1_d5vfk")
 
 [node name="SubViewport" type="SubViewport" parent="UI Control/GridContainer/SubViewportContainer3"]
 handle_input_locally = false
-size = Vector2i(638, 358)
+size = Vector2i(2, 2)
 render_target_update_mode = 4
 
 [node name="HUD" type="CanvasLayer" parent="UI Control/GridContainer/SubViewportContainer3/SubViewport"]
@@ -829,7 +829,7 @@ script = ExtResource("1_d5vfk")
 
 [node name="SubViewport" type="SubViewport" parent="UI Control/GridContainer/SubViewportContainer4"]
 handle_input_locally = false
-size = Vector2i(638, 358)
+size = Vector2i(2, 2)
 render_target_update_mode = 4
 
 [node name="HUD" type="CanvasLayer" parent="UI Control/GridContainer/SubViewportContainer4/SubViewport"]

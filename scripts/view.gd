@@ -26,6 +26,9 @@ var input_up := ""
 var input_down := ""
 var input_zoom_toggle := ""
 
+var snap_camera := false  # Tracks if snap is requested
+
+
 func assign_player(player):
 	target = player
 	player_id = player.player_id
@@ -55,27 +58,41 @@ func _physics_process(delta):
 	camera.position = camera.position.lerp(Vector3(0, 0, current_zoom), delta * zoom_transition_speed)
 
 func handle_input(delta):
-	# Orbit input (right stick)
 	var input_vec = Vector2(
 		Input.get_action_strength(input_right) - Input.get_action_strength(input_left),
 		Input.get_action_strength(input_down) - Input.get_action_strength(input_up)
 	)
 
 	var is_orbiting = input_vec.length() > 0.1
+	var snap_pressed = Input.is_action_just_pressed("camera_snap_p%d" % player_id)
 
 	if is_orbiting:
+		# Manual orbit via stick
 		camera_rotation.y += input_vec.x * rotation_speed * delta
 		camera_rotation.x += input_vec.y * rotation_speed * delta
 		camera_rotation.x = clamp(camera_rotation.x, -80, -10)
+		snap_camera = false  # cancel snap if orbiting
+
 	elif target and target.has_method("get_velocity"):
 		var velocity = target.get_velocity()
+
+		if snap_pressed:
+			# Immediately start snapping camera behind player
+			snap_camera = true
+
 		if velocity.length() > 0.1:
-			var desired_yaw = atan2(-velocity.x, -velocity.z)
-			camera_rotation.y = lerp_angle(camera_rotation.y, rad_to_deg(desired_yaw), delta * auto_align_strength)
+			var desired_yaw = rad_to_deg(atan2(-velocity.x, -velocity.z))
 
-	# Zoom toggle (right stick press)
-	if Input.is_action_just_pressed(input_zoom_toggle):
-		zoom_index = (zoom_index + 1) % zoom_levels.size()
-		desired_zoom = zoom_levels[zoom_index]
+			if snap_camera:
+				# Fast alignment when snapping
+				camera_rotation.y = lerp_angle(camera_rotation.y, desired_yaw, delta * 10.0)
 
-	current_zoom = lerp(current_zoom, desired_zoom, delta * zoom_transition_speed)
+				# Close enough? Stop snapping
+				if abs(wrapf(camera_rotation.y - desired_yaw, -180.0, 180.0)) < 3.0:
+					snap_camera = false
+			else:
+				# Slow soft-follow alignment
+				camera_rotation.y = lerp_angle(camera_rotation.y, desired_yaw, delta * 1.5)
+
+	# Optional: fixed zoom
+	current_zoom = lerp(current_zoom, zoom_levels[zoom_index], delta * zoom_transition_speed)

@@ -54,8 +54,8 @@ func deal_hand():
 	for i in range(35): # Deal 35 to cycle stack
 		spawn_card(deck.draw_card(), stockStack)
 
-	stockStack.scatter_all_cards()
-	goalStack.scatter_all_cards()
+	#stockStack.scatter_all_cards()
+	#goalStack.scatter_all_cards()
 
 
 func verify_full_deck() -> bool:

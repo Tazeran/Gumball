@@ -1,11 +1,35 @@
 extends Node
+@onready var doNothing = $"CanvasLayer/UI Control/VBoxContainer/DoNothing"
 @onready var start_p1 = $"CanvasLayer/UI Control/VBoxContainer/ButtonStart1"
 @onready var start_p2 = $"CanvasLayer/UI Control/VBoxContainer/ButtonStart2"
 @onready var start_p3 = $"CanvasLayer/UI Control/VBoxContainer/ButtonStart3"
 @onready var start_p4 = $"CanvasLayer/UI Control/VBoxContainer/ButtonStart4"
 @onready var quit = $"CanvasLayer/UI Control/VBoxContainer/ButtonQuit"
 
+func testJoys():
+	print("----")
+	#var mapping_string = "030000005e0400008e02000000000000,Xbox Controller,a:b0,b:b1,x:b2,y:b3,back:b6,start:b7,leftshoulder:b4,rightshoulder:b5,leftstick:b8,rightstick:b9,dpleft:b10,dpdown:b11,dpright:b12,dpup:b13,leftx:a0,lefty:a1,rightx:a2,righty:a3,lefttrigger:a4,righttrigger:a5"
+	#Input.add_joy_mapping(mapping_string, true)
+	
+	for id in range(8):
+		var name = Input.get_joy_name(id)
+		var guid = Input.get_joy_guid(id)
+		if guid != "":
+			print("Device", id, "Name:", name, "GUID:", guid)
+
+	#for id in range(16):
+		#var name = Input.get_joy_name(id)
+		#if name != "":
+			#print("Device ID:", id, "Name:", name, "GUID:", Input.get_joy_guid(id))
+	print(Input.get_connected_joypads())
+	for id in range(8):
+		print("ID:", id, " name:", Input.get_joy_name(id), " guid:", Input.get_joy_guid(id))
+	#for i in range(0,7):
+		#print("[",i,"] ", Input.get_joy_name(i))
+
+
 func _ready():
+	#testJoys()
 	var current = get_tree().current_scene
 	var target_path = ""
 
@@ -22,7 +46,7 @@ func _ready():
 	get_tree().change_scene_to_file(target_path)
 
 func setupMenu():
-	start_p1.grab_focus()
+	doNothing.grab_focus()
 	start_p1.pressed.connect(_on_start_pressed.bind(1))
 	start_p2.pressed.connect(_on_start_pressed.bind(2))
 	start_p3.pressed.connect(_on_start_pressed.bind(3))

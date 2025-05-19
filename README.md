@@ -81,7 +81,10 @@ Extend Deck behavior:
 		We take set of 3 and place face up on other
 		We can take whatever is top of faceup
 
-	
+### Stretch Goals:
+Maybe a 2d Minimap, or just UI, to show what fieldstacks are at, possibly even team goal stack counts or score.
+Make a 4 team area map.
+Make an AI computer that is just a floating ghost that can pass through anything and take cards to stuff.
 
 ### Polish:
 Music
@@ -141,7 +144,7 @@ Game Reset Controller:
 Play Slot awaiting Ace and built up to King
 	Fireworks when you place a king, spawns things around Table Arena
 
-Team Play-Mat
+Team Play-Mat: Make this interesting circle prolly, then solitair stuff can be disconnected nearby
 	A single 13-Deck slot
 	4 array slots to play downward on
 		Could be a thin stack, could be train tracks that move away from the base like tentacles and may be different based on the Table Arena layout.

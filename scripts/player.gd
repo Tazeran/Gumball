@@ -286,7 +286,6 @@ func handle_controls(delta):
 	if !is_on_floor() and !is_ground_pounding and Input.is_action_just_pressed(input_ground_pound):
 		start_ground_pound()
 
-
 func handle_gravity(delta):
 	if is_ground_pounding:
 		gravity += 25 * ground_pound_gravity_multiplier * delta
