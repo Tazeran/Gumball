@@ -10,6 +10,9 @@ What are Coins to be used for?
 
 Fix the monster spawner, can't get to work for some reason.
 
+When you die, instant respawn, cause a timer would be no fun.
+	Instead a jail game to break out of or just a jump path to make it back to arena which will naturally cost you time
+
 Bounce pad could be purchased with coins before you can use.
 Coins that act like physics things, but still bob, and you can spawn a fountain of them from things
 Big Spike?

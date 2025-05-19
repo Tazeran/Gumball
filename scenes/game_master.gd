@@ -29,7 +29,7 @@ func assignSubViewportContainerToPlayer(player, marker, subviewportcontainer):
 	player.sub_viewport = subviewportcontainer
 	player.hud = subviewportcontainer.get_node("SubViewport/HUD")
 	player.view_camera = subviewportcontainer.get_node("SubViewport/View")
-	player.view_camera.assignPlayer(player)
+	player.view_camera.assign_player(player)
 	player.setup()
 
 func _ready():
