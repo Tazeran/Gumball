@@ -39,6 +39,8 @@ func _ready():
 			setupMenu()
 		Master.LaunchMode.DEV_DIRECT:
 			target_path = Master.dev_scene_path
+			Master.player_count = 2
+			
 
 	if current and current.scene_file_path == target_path:
 		return  # Already in the target scene, avoid reloading

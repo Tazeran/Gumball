@@ -24,7 +24,7 @@ func spawn_card(card_data, stack: DeckStack) -> void:
 	var card = card_scene.instantiate()
 	add_child(card)
 	card.set_team(team_name)
-	card.set_card(card_data.suit, card_data.rank)
+	card.set_card(card_data.suit, card_data.rank, Master.team_backs[team_name])
 	stack.add_card(card)
 	
 func deal_hand():
@@ -82,6 +82,7 @@ func _on_cycle_triggered(_player_id: int, _player: Node):
 			var card = flipStack.remove_top_card()
 			card.set_face_up(false)
 			stockStack.add_card(card)
+		Audio.playRandom(Audio.CardShoves)
 		return
 
 	# Step 2: Flip up to 3 cards from deck to pile
@@ -90,3 +91,5 @@ func _on_cycle_triggered(_player_id: int, _player: Node):
 		var card = stockStack.remove_top_card()
 		card.set_face_up(true)
 		flipStack.add_card(card)
+	
+	Audio.playRandom(Audio.CardSlides)

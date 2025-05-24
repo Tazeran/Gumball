@@ -7,7 +7,30 @@ var available = []  # The available players.
 var queue = []  # The queue of sounds to play.
 
 var music_player: AudioStreamPlayer
+var rng := RandomNumberGenerator.new()
 
+static var CardSlides := [
+	"res://sounds/card-slide-1.ogg",
+	"res://sounds/card-slide-2.ogg",
+	"res://sounds/card-slide-3.ogg",
+	"res://sounds/card-slide-4.ogg",
+	"res://sounds/card-slide-5.ogg",
+	"res://sounds/card-slide-6.ogg",
+	"res://sounds/card-slide-7.ogg",
+	"res://sounds/card-slide-8.ogg"
+]
+static var CardPlaces := [
+	"res://sounds/card-place-1.ogg",
+	"res://sounds/card-place-2.ogg",
+	"res://sounds/card-place-3.ogg",
+	"res://sounds/card-place-4.ogg"
+]
+static var CardShoves := [
+	"res://sounds/card-shove-1.ogg",
+	"res://sounds/card-shove-2.ogg",
+	"res://sounds/card-shove-3.ogg",
+	"res://sounds/card-shove-4.ogg"
+]
 
 func _ready():
 	# SFX pool setup
@@ -30,6 +53,13 @@ func _ready():
 func _on_stream_finished(stream): available.append(stream)
 
 func play(sound_path): queue.append(sound_path)
+func playRandom(sound_path_list: Array):
+	if sound_path_list.is_empty():
+		push_error("Empty sound_path_list")
+		return
+	var index = rng.randi_range(0, sound_path_list.size() - 1)
+	var sound_path = sound_path_list[index]
+	queue.append(sound_path)
 
 func play_music(path: String, loop := true):
 	var stream = load(path)

@@ -17,3 +17,8 @@ func interaction_available(player: Player) -> bool:
 		#return true
 	#else:
 		#return !cards.is_empty()
+
+func get_card_transform(index: int) -> Transform3D:
+	var transform := super.get_card_transform(index)
+	transform.basis = Basis(Vector3.BACK, PI) * transform.basis
+	return transform

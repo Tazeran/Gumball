@@ -4,6 +4,7 @@ var players: Array = []
 @export var bob_height := 0.2
 @export var bob_speed := 1.0
 @export var detection_distance := 5.0
+@export var facePlayer := false
 
 var id := -1;
 var bob_timer := 0.0
@@ -16,11 +17,15 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	# Always bobbing
-	players = get_tree().get_nodes_in_group("players")
 	bob_timer += delta * bob_speed
 	var offset_y = (sin(bob_timer) * 0.5 + 0.5) * bob_height
 	global_position = base_position + Vector3(0, offset_y, 0)
 
+	if !facePlayer:
+		rotate_y(deg_to_rad(spin_speed * delta))
+		return
+
+	players = get_tree().get_nodes_in_group("players")
 	if players.is_empty():
 		return
 

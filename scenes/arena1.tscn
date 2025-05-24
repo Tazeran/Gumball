@@ -1,4 +1,4 @@
-[gd_scene load_steps=73 format=3 uid="uid://bqqgyqafm7xwp"]
+[gd_scene load_steps=74 format=3 uid="uid://bqqgyqafm7xwp"]
 
 [ext_resource type="Script" uid="uid://ssthegxvlm2c" path="res://scripts/sub_viewport_container.gd" id="1_d5vfk"]
 [ext_resource type="Script" uid="uid://cv2hyc71eithw" path="res://scripts/hud.gd" id="2_g5r4m"]
@@ -61,6 +61,7 @@
 [ext_resource type="Texture2D" uid="uid://br0p2n0pjjngv" path="res://shared/textures/caustic_texture.png" id="59_s3bmc"]
 [ext_resource type="Texture2D" uid="uid://de3usl6whdm1u" path="res://shared/textures/noise_swirl.jpg" id="60_qf3un"]
 [ext_resource type="PackedScene" uid="uid://2v50x6us5skk" path="res://scenes/jump_pad.tscn" id="61_3qdk3"]
+[ext_resource type="PackedScene" uid="uid://b6mhfg5y4x1fj" path="res://scenes/stamina.tscn" id="62_g5r4m"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_vc5cj"]
 font = ExtResource("4_kr5lm")
@@ -187,7 +188,7 @@ script = ExtResource("1_d5vfk")
 
 [node name="SubViewport" type="SubViewport" parent="UI Control/GridContainer/SubViewportContainer1"]
 handle_input_locally = false
-size = Vector2i(2, 2)
+size = Vector2i(638, 358)
 render_target_update_mode = 4
 
 [node name="HUD" type="CanvasLayer" parent="UI Control/GridContainer/SubViewportContainer1/SubViewport"]
@@ -401,7 +402,7 @@ script = ExtResource("1_d5vfk")
 
 [node name="SubViewport" type="SubViewport" parent="UI Control/GridContainer/SubViewportContainer2"]
 handle_input_locally = false
-size = Vector2i(2, 2)
+size = Vector2i(638, 358)
 render_target_update_mode = 4
 
 [node name="HUD" type="CanvasLayer" parent="UI Control/GridContainer/SubViewportContainer2/SubViewport"]
@@ -615,7 +616,7 @@ script = ExtResource("1_d5vfk")
 
 [node name="SubViewport" type="SubViewport" parent="UI Control/GridContainer/SubViewportContainer3"]
 handle_input_locally = false
-size = Vector2i(2, 2)
+size = Vector2i(638, 358)
 render_target_update_mode = 4
 
 [node name="HUD" type="CanvasLayer" parent="UI Control/GridContainer/SubViewportContainer3/SubViewport"]
@@ -829,7 +830,7 @@ script = ExtResource("1_d5vfk")
 
 [node name="SubViewport" type="SubViewport" parent="UI Control/GridContainer/SubViewportContainer4"]
 handle_input_locally = false
-size = Vector2i(2, 2)
+size = Vector2i(638, 358)
 render_target_update_mode = 4
 
 [node name="HUD" type="CanvasLayer" parent="UI Control/GridContainer/SubViewportContainer4/SubViewport"]
@@ -2268,3 +2269,6 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.6, -2.628, -34.408)
 
 [node name="GroundEnemy2" parent="." instance=ExtResource("33_ojhao")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.14805, -1.83272, -26.0153)
+
+[node name="StaminaItem" parent="." instance=ExtResource("62_g5r4m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17.3766, 10.9224, -25.2818)

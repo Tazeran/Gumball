@@ -364,6 +364,9 @@ func handle_effects(delta):
 	elif animation.current_animation != "jump" and !is_ground_pounding:
 		animation.play("jump", 0.1)
 
+func collect_stamina():
+	stamina = clamp(stamina + 100, 0, stamina_max);
+
 func collect_coin():
 	coins += 1
 	coin_collected.emit(coins)
@@ -395,17 +398,20 @@ func pick_up_card(card: Node3D):
 	#card.pick_up(self)  # Calls the Card.gd function
 	card.pick_up(self, $Character/character/root/torso/antenna) # Pass the Antenna as mount point
 	#update_interaction_marker()
-	Audio.play("res://sounds/card-place-2.ogg")
+	#Audio.play("res://sounds/card-place-2.ogg")
+	Audio.playRandom(Audio.CardPlaces)
 	print("Picked up", card.rank, "of", card.suit)
 
 func drop_card():
 	if carried_card:
 		carried_card.drop_to_ground()
 		carried_card = null
-		Audio.play("res://sounds/card-place-3.ogg")
+		#Audio.play("res://sounds/card-place-3.ogg")
+		Audio.playRandom(Audio.CardPlaces)
 		#update_interaction_marker()
 
 func drop_card_onto_stack(stack):
+	Audio.playRandom(Audio.CardShoves)
 	if !is_holding_card():
 		return
 	stack.add_card(carried_card)

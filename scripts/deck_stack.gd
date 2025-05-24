@@ -110,8 +110,14 @@ func get_card_transform(index: int) -> Transform3D:
 		var ground_world = get_ground_position()
 		ground_offset = get_parent().to_local(ground_world)
 
-	var parent_pos = get_parent().global_position
-	var base_pos = parent_pos + ground_offset + Vector3.UP * 0.55  # raise all cards 4 units
+	var parent_pos: Vector3
+	var base_pos: Vector3
+	if get_parent() == get_tree().current_scene:
+		parent_pos = global_position
+		base_pos = parent_pos + ground_offset
+	else:
+		parent_pos = get_parent().global_position
+		base_pos = parent_pos + ground_offset + Vector3.UP * 0.55
 
 	var up = global_transform.basis.y.normalized()
 	var offset = up * stack_position_offset.y * float(index)

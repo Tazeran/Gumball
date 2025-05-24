@@ -29,6 +29,7 @@ signal player_exited_area(player)
 var rank_value: int = 13  # Set in set_card
 var color: String = "red"  # "red" or "black"
 var team: String = "N"  # Assigned during dealing
+var my_back_key: String = "default_back"  # set by set_card()
 
 const RANKS := {
 	"A": 1, "2": 2, "3": 3, "4": 4, "5": 5, "6": 6, "7": 7,
@@ -54,8 +55,6 @@ var carrier_target: Node3D = null
 # Base paths
 const TEXTURE_PATH = "res://models/cards/textures/"
 const FRONT_TEXTURE_FORMAT = "%s_%s.png" # example: "card_hearts_A.png"
-const BACK_TEXTURE_NAME = "card_back.png"
-const back_texture_path = TEXTURE_PATH + BACK_TEXTURE_NAME
 
 # Bobbing behavior (only when floating freely)
 var bob_timer := 0.0
@@ -91,11 +90,11 @@ func set_face_up(face_up: bool = true):
 	#rotation = current_rot
 
 	# Swap material based on face
-	var key := "%s_%s" % [suit, rank]
+	var front_key := "%s_%s" % [suit, rank]
 	if face_up:
-		mesh.set_surface_override_material(front_material_index, material_cache.get(key))
+		mesh.set_surface_override_material(front_material_index, material_cache[front_key])
 	else:
-		mesh.set_surface_override_material(front_material_index, material_cache["back"])
+		mesh.set_surface_override_material(back_material_index, material_cache[my_back_key])
 
 
 func _ready():
@@ -230,46 +229,46 @@ func _handle_free_float(delta):
 	var offset_y = (sin(bob_timer) * 0.5 + 0.5) * bob_height
 	#global_position = base_position + Vector3(0, offset_y, 0)
 
-func set_card(new_suit: String, new_rank: String) -> void:
+func set_card(new_suit: String, new_rank: String, back_key: String = "default") -> void:
 	suit = new_suit
 	rank = new_rank
+	my_back_key = back_key
 
 	rank_value = RANKS.get(rank, 0)
-	if RED_SUITS.has(suit):
-		color = "red"
-	else: 
-		color = "black"
+	color = "red" if RED_SUITS.has(suit) else "black"
 
-	var key := "%s_%s" % [suit, rank]
-	var front_texture_path = TEXTURE_PATH + FRONT_TEXTURE_FORMAT % ["card_" + suit, rank]
+	var front_key := "%s_%s" % [suit, rank]
+	var front_texture_path := TEXTURE_PATH + FRONT_TEXTURE_FORMAT % ["card_" + suit, rank]
+	var back_texture_path := TEXTURE_PATH + "%s.png" % back_key
 
-	# --- Texture loading with caching ---
-	if !texture_cache.has(key):
-		texture_cache[key] = load(front_texture_path)
-	var front_texture = texture_cache[key]
+	# --- Texture caching ---
+	if !texture_cache.has(front_key):
+		texture_cache[front_key] = load(front_texture_path)
+	if !texture_cache.has(back_key):
+		texture_cache[back_key] = load(back_texture_path)
 
-	if !texture_cache.has("back"):
-		texture_cache["back"] = load(TEXTURE_PATH + BACK_TEXTURE_NAME)
-	var back_texture = texture_cache["back"]
+	var front_texture = texture_cache[front_key]
+	var back_texture = texture_cache[back_key]
 
 	# --- Material caching ---
-	if !material_cache.has(key):
+	if !material_cache.has(front_key):
 		var mat = card_front_shader_material.duplicate()
 		mat.set_shader_parameter("albedo_texture", front_texture)
 		mat.set_shader_parameter("uv_offset", Vector2((11.0 + margin) / 64.0, (2.0 + margin) / 64.0))
 		mat.set_shader_parameter("uv_scale", Vector2((42.0 - margin * 2) / 64.0, (60.0 - margin * 2) / 64.0))
-		material_cache[key] = mat
+		material_cache[front_key] = mat
 
-	if !material_cache.has("back"):
+	if !material_cache.has(back_key):
 		var back_mat = card_front_shader_material.duplicate()
 		back_mat.set_shader_parameter("albedo_texture", back_texture)
 		back_mat.set_shader_parameter("uv_offset", Vector2((11.0 + margin) / 64.0, (2.0 + margin) / 64.0))
 		back_mat.set_shader_parameter("uv_scale", Vector2((42.0 - margin * 2) / 64.0, (60.0 - margin * 2) / 64.0))
-		material_cache["back"] = back_mat
+		material_cache[back_key] = back_mat
 
 	# --- Assign materials ---
-	mesh.set_surface_override_material(front_material_index, material_cache[key])
-	mesh.set_surface_override_material(back_material_index, material_cache["back"])
+	mesh.set_surface_override_material(front_material_index, material_cache[front_key])
+	mesh.set_surface_override_material(back_material_index, material_cache[back_key])
+
 
 
 func set_edge_color(color: Color) -> void:

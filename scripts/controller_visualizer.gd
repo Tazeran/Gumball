@@ -4,11 +4,9 @@ extends Control
 
 func _process(_delta: float) -> void:
 	queue_redraw()
-	for i in range(20):  # Check up to 20 buttons
-		if Input.is_joy_button_pressed(device, i):
-			print(device, " Button ", i, " pressed")
-
-	
+	#for i in range(20):  # Check up to 20 buttons
+		#if Input.is_joy_button_pressed(device, i):
+			#print(device, " Button ", i, " pressed")
 	#for a in range(6):  # Check axes
 		#print("Axis", a, ":", Input.get_joy_axis(0, a))
 

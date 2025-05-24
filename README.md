@@ -10,6 +10,10 @@ What are Coins to be used for?
 
 Fix the monster spawner, can't get to work for some reason.
 
+The Arena could get more dangerous as you add cards? Or Per Ace, or Per Card, or Per King, or the danger is just per stack.
+
+Make a stamina pickup.
+
 When you die, instant respawn, cause a timer would be no fun.
 	Instead a jail game to break out of or just a jump path to make it back to arena which will naturally cost you time
 
@@ -46,6 +50,11 @@ Foundation / Center / Field / Slap Piles (or Commons) = Community Stacks in midd
 Make finished Kinged Piles slowly spawn coins, reason to return to that point, slowly the pot of coins gets rich
 Make some other simple coin spawns
 maybe 100 Coins will reshuffle your whole setup, excluding the ones in Field Piles
+
+
+ground pounding another player, stuns them, takes 1 hp, and loses 6 coins around them.
+	might be problem of chainstun gank, could bounce attacker way in air
+	ground pound is limited heavily by stamina, so might be fine
 
 ### TODO:
 
@@ -156,8 +165,8 @@ Bribe the cannons to launch randomly at teams hills.
 LOL, players have to run around and sort the cards afterwards. Just run around and tag them.
 
 ### Strech Goals
-Stamina Pickups?
 
+Main Menu, Pick teamcardbackimage
 
 MiniMap / Global HUD: Play Slot
 	Possibly so you can monitor Play Slots
@@ -174,6 +183,12 @@ Coins spent on map specials.
 
 
 
+##### Stamina thoughts
++basic stamina that fills bar not going over max
++basic stamina that gives a temporary container, used first
++basic stamina that gives a temporary container, used last
++faster regen for a time
++infinite for a time
 
 
 
