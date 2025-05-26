@@ -17,6 +17,7 @@ const MAX_CYCLE_CARDS = 3
 var deck: Deck
 
 func _ready():
+	cycleInteractable.interaction_available_delegate = self
 	if cycleInteractable:
 		cycleInteractable.hold_completed.connect(_on_cycle_triggered)
 
@@ -75,7 +76,15 @@ func verify_full_deck() -> bool:
 
 	return true
 
+func interaction_available(player: Player, source: Node = null) -> bool:
+	if flipStack.locked || player.carried_card != null || (stockStack.cards.is_empty() && flipStack.cards.is_empty()): #&& flipStack.locked_by_card != player.carried_card
+		return false
+		
+	return true
+
 func _on_cycle_triggered(_player_id: int, _player: Node):
+	if !interaction_available(_player):
+		return
 	# Step 1: If deck is empty, flip pile back into deck (face down)
 	if stockStack.cards.is_empty():
 		while not flipStack.cards.is_empty():
@@ -88,7 +97,7 @@ func _on_cycle_triggered(_player_id: int, _player: Node):
 	# Step 2: Flip up to 3 cards from deck to pile
 	var flips = min(MAX_CYCLE_CARDS, stockStack.get_card_count())
 	for i in range(flips):
-		var card = stockStack.remove_top_card()
+		var card = stockStack.remove_top_card(false)
 		card.set_face_up(true)
 		flipStack.add_card(card)
 	

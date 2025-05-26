@@ -2003,7 +2003,7 @@ team = "A"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16.6531, 3.72175, -23.9875)
 
 [node name="Player2" parent="." groups=["players"] instance=ExtResource("47_vdsx4")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -16.1024, 2.84075, -24.3233)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14.0261, 2.84075, -24.3233)
 player_id = 2
 team = "B"
 

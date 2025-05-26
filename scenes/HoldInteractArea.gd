@@ -5,8 +5,10 @@ extends Area3D
 @export var one_shot: bool = false  # Disable after activation
 @export var prompt_text: String = "Hold to Buy"
 @export var team: String = "" #Any
+var interaction_available_delegate: Node = null #set at ready with the delegate node
 
 signal hold_completed(player_id: int, player: Node)
+
 
 var holding_players: Dictionary = {}  # player_id -> { time: float, player: Node }
 var has_triggered := false
@@ -22,6 +24,8 @@ func interaction_available(player: Player) -> bool:
 	if team != "":
 		if player.team != team:
 			return false
+	if interaction_available_delegate and interaction_available_delegate.has_method("interaction_available"):
+		return interaction_available_delegate.interaction_available(player, self)
 	return true
 
 func _process(delta):

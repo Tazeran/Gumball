@@ -8,6 +8,11 @@ What are Coins to be used for?
 	Buy Stamina / Stamina Containers?
 	Purchase a MarioKartBox with random powerup?
 
+Instead of a lock, put a ghosted/holographic card that you can still read the Suit/Rank of, maybe still do lock on it.
+	Maybe have way to beam back card.
+	Use that function to Make sure cards that fall off universe returnreturn to lockspot
+	Maybe disable word drop entirely, or leave it for like getting hit by people.
+
 Fix the monster spawner, can't get to work for some reason.
 
 The Arena could get more dangerous as you add cards? Or Per Ace, or Per Card, or Per King, or the danger is just per stack.

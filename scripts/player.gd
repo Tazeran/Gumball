@@ -414,8 +414,13 @@ func drop_card_onto_stack(stack):
 	Audio.playRandom(Audio.CardShoves)
 	if !is_holding_card():
 		return
+		
+	# Unlock the stack the card came from, if applicable
+	if carried_card.source_deckstack != null:
+		carried_card.source_deckstack.unlock_stack()
+		
 	stack.add_card(carried_card)
-	
+
 	# Step 1: Detach from player
 	carried_card.carrier_player = null
 	carried_card.carrier_target = null

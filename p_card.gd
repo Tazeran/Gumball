@@ -30,6 +30,7 @@ var rank_value: int = 13  # Set in set_card
 var color: String = "red"  # "red" or "black"
 var team: String = "N"  # Assigned during dealing
 var my_back_key: String = "default_back"  # set by set_card()
+var source_deckstack: DeckStack = null
 
 const RANKS := {
 	"A": 1, "2": 2, "3": 3, "4": 4, "5": 5, "6": 6, "7": 7,
@@ -169,7 +170,7 @@ func change_state(new_state: int) -> void:
 
 func _physics_process(delta):
 	if global_transform.origin.y < -20:
-		global_position = base_position
+		global_position = base_position  #TODO change this to return to team/source_deckstack
 		self.linear_velocity = Vector3.ZERO
 		self.angular_velocity = Vector3.ZERO
 

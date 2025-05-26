@@ -1,5 +1,7 @@
 extends DeckStack
 class_name StockStack
+#stack that is in your "hand", which you flip 3 onto the flip stack that you may play from
+#flipping controlled by team_master.gd
 
 func can_accept_card(card: Node3D) -> bool:
 	return true  # Allow cycling cards to be returned

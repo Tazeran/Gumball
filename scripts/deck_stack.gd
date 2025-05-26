@@ -12,12 +12,34 @@ var cards: Array = []
 var team_only = true
 var ground_offset: Vector3 = Vector3.ZERO  # initialized in _ready or lazily
 
+var locked := false
+var locked_by_card: Node3D = null
+@onready var lock_visual: Node3D = null  # Assigned during _ready
 
 func _ready():
 	#groundPosition = get_ground_position()
 	ground_offset = to_local(get_ground_position())
 	add_to_group("interactables")
 	add_to_group("decks")
+	
+	lock_visual = preload("res://scenes/lock.tscn").instantiate()
+	lock_visual.visible = false
+	add_child(lock_visual)
+	lock_visual.global_position = global_position + Vector3(0, 0.1, 0)
+
+func lock_stack(card: Node3D):
+	card.source_deckstack = self
+	locked = true
+	locked_by_card = card
+	lock_visual.visible = true
+
+func unlock_stack():
+	locked = false
+	locked_by_card = null
+	lock_visual.visible = false
+
+func is_locked() -> bool:
+	return locked
 
 func get_marker_position(player: Player) -> Vector3:
 	return global_position
@@ -26,14 +48,23 @@ func interaction_available(player: Player) -> bool:
 	if team_only && player.team != team:
 		return false
 	if player.carried_card != null:
-		return true
+		if locked:
+			return locked_by_card == player.carried_card
+		else:
+			return true
 	else:
 		return !cards.is_empty()
 
 func add_card(card: Node3D):
 	#print("add_card ", self)
-	if !can_accept_card(card):
-		return
+
+	#if !can_accept_card(card):
+		#return
+
+	if locked and locked_by_card == card:
+		unlock_stack()
+
+	card.source_deckstack = self
 
 	cards.append(card)
 	card.physics_off()
@@ -59,10 +90,16 @@ func add_card(card: Node3D):
 		card.set_face_up(true)
 
 func can_accept_card(card: Node3D) -> bool:
+	if locked && card.source_stack != self:
+		return false
 	# Base stack accepts anything — override in subclasses
 	return true
 
 func can_remove_card(card: Node3D) -> bool:
+	if card == null:
+		return false
+	if locked || cards.is_empty():
+		return false
 	# Base stack accepts anything — override in subclasses
 	return true
 
@@ -79,7 +116,7 @@ func interact(player):
 
 	else:
 		var peek_top_card = get_top_card()
-		if !can_remove_card(player.carried_card):
+		if !can_remove_card(peek_top_card):
 			return
 		if team_only && player.team != team:
 			return
@@ -93,10 +130,12 @@ func get_top_card() -> Node3D:
 		return null
 	return cards[-1]
 
-func remove_top_card() -> Node3D:
-	if cards.is_empty():
+func remove_top_card(lock_the_stack: bool =  true) -> Node3D:
+	if cards.is_empty() or locked:
 		return null
 	var card = cards.pop_back()
+	if lock_the_stack:
+		lock_stack(card)
 	return card
 
 func get_card_count() -> int:
