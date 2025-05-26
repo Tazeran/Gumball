@@ -24,6 +24,6 @@ func set_stamina_percent(val: float):
 func set_health(val: int, val_max: int):
 	heartbar.set_health(val, val_max)
 
-func _on_coin_collected(coins):
+func update_coins(coins):
 	print(">>> ", name, " got coin update: ", coins)
 	coins_text.text = str(coins)

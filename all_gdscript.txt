@@ -905,6 +905,8 @@ signal player_exited_area(player)
 var rank_value: int = 13  # Set in set_card
 var color: String = "red"  # "red" or "black"
 var team: String = "N"  # Assigned during dealing
+var my_back_key: String = "default_back"  # set by set_card()
+var source_deckstack: DeckStack = null
 
 const RANKS := {
 	"A": 1, "2": 2, "3": 3, "4": 4, "5": 5, "6": 6, "7": 7,
@@ -930,8 +932,6 @@ var carrier_target: Node3D = null
 # Base paths
 const TEXTURE_PATH = "res://models/cards/textures/"
 const FRONT_TEXTURE_FORMAT = "%s_%s.png" # example: "card_hearts_A.png"
-const BACK_TEXTURE_NAME = "card_back.png"
-const back_texture_path = TEXTURE_PATH + BACK_TEXTURE_NAME
 
 # Bobbing behavior (only when floating freely)
 var bob_timer := 0.0
@@ -967,11 +967,11 @@ func set_face_up(face_up: bool = true):
 	#rotation = current_rot
 
 	# Swap material based on face
-	var key := "%s_%s" % [suit, rank]
+	var front_key := "%s_%s" % [suit, rank]
 	if face_up:
-		mesh.set_surface_override_material(front_material_index, material_cache.get(key))
+		mesh.set_surface_override_material(front_material_index, material_cache[front_key])
 	else:
-		mesh.set_surface_override_material(front_material_index, material_cache["back"])
+		mesh.set_surface_override_material(back_material_index, material_cache[my_back_key])
 
 
 func _ready():
@@ -1046,7 +1046,7 @@ func change_state(new_state: int) -> void:
 
 func _physics_process(delta):
 	if global_transform.origin.y < -20:
-		global_position = base_position
+		global_position = base_position  #TODO change this to return to team/source_deckstack
 		self.linear_velocity = Vector3.ZERO
 		self.angular_velocity = Vector3.ZERO
 
@@ -1106,46 +1106,46 @@ func _handle_free_float(delta):
 	var offset_y = (sin(bob_timer) * 0.5 + 0.5) * bob_height
 	#global_position = base_position + Vector3(0, offset_y, 0)
 
-func set_card(new_suit: String, new_rank: String) -> void:
+func set_card(new_suit: String, new_rank: String, back_key: String = "default") -> void:
 	suit = new_suit
 	rank = new_rank
+	my_back_key = back_key
 
 	rank_value = RANKS.get(rank, 0)
-	if RED_SUITS.has(suit):
-		color = "red"
-	else: 
-		color = "black"
+	color = "red" if RED_SUITS.has(suit) else "black"
 
-	var key := "%s_%s" % [suit, rank]
-	var front_texture_path = TEXTURE_PATH + FRONT_TEXTURE_FORMAT % ["card_" + suit, rank]
+	var front_key := "%s_%s" % [suit, rank]
+	var front_texture_path := TEXTURE_PATH + FRONT_TEXTURE_FORMAT % ["card_" + suit, rank]
+	var back_texture_path := TEXTURE_PATH + "%s.png" % back_key
 
-	# --- Texture loading with caching ---
-	if !texture_cache.has(key):
-		texture_cache[key] = load(front_texture_path)
-	var front_texture = texture_cache[key]
+	# --- Texture caching ---
+	if !texture_cache.has(front_key):
+		texture_cache[front_key] = load(front_texture_path)
+	if !texture_cache.has(back_key):
+		texture_cache[back_key] = load(back_texture_path)
 
-	if !texture_cache.has("back"):
-		texture_cache["back"] = load(TEXTURE_PATH + BACK_TEXTURE_NAME)
-	var back_texture = texture_cache["back"]
+	var front_texture = texture_cache[front_key]
+	var back_texture = texture_cache[back_key]
 
 	# --- Material caching ---
-	if !material_cache.has(key):
+	if !material_cache.has(front_key):
 		var mat = card_front_shader_material.duplicate()
 		mat.set_shader_parameter("albedo_texture", front_texture)
 		mat.set_shader_parameter("uv_offset", Vector2((11.0 + margin) / 64.0, (2.0 + margin) / 64.0))
 		mat.set_shader_parameter("uv_scale", Vector2((42.0 - margin * 2) / 64.0, (60.0 - margin * 2) / 64.0))
-		material_cache[key] = mat
+		material_cache[front_key] = mat
 
-	if !material_cache.has("back"):
+	if !material_cache.has(back_key):
 		var back_mat = card_front_shader_material.duplicate()
 		back_mat.set_shader_parameter("albedo_texture", back_texture)
 		back_mat.set_shader_parameter("uv_offset", Vector2((11.0 + margin) / 64.0, (2.0 + margin) / 64.0))
 		back_mat.set_shader_parameter("uv_scale", Vector2((42.0 - margin * 2) / 64.0, (60.0 - margin * 2) / 64.0))
-		material_cache["back"] = back_mat
+		material_cache[back_key] = back_mat
 
 	# --- Assign materials ---
-	mesh.set_surface_override_material(front_material_index, material_cache[key])
-	mesh.set_surface_override_material(back_material_index, material_cache["back"])
+	mesh.set_surface_override_material(front_material_index, material_cache[front_key])
+	mesh.set_surface_override_material(back_material_index, material_cache[back_key])
+
 
 
 func set_edge_color(color: Color) -> void:
@@ -1313,8 +1313,10 @@ extends Area3D
 @export var one_shot: bool = false  # Disable after activation
 @export var prompt_text: String = "Hold to Buy"
 @export var team: String = "" #Any
+var interaction_available_delegate: Callable  #set at ready with the delegate node
 
 signal hold_completed(player_id: int, player: Node)
+
 
 var holding_players: Dictionary = {}  # player_id -> { time: float, player: Node }
 var has_triggered := false
@@ -1330,6 +1332,10 @@ func interaction_available(player: Player) -> bool:
 	if team != "":
 		if player.team != team:
 			return false
+	if interaction_available_delegate and interaction_available_delegate.is_valid():
+		return interaction_available_delegate.call(player, self)
+	#if interaction_available_delegate and interaction_available_delegate.has_method("interaction_available"):
+		#return interaction_available_delegate.interaction_available(player, self)
 	return true
 
 func _process(delta):
@@ -1343,7 +1349,7 @@ func _process(delta):
 			continue
 
 		entry.time += delta
-		var progress = entry.time / hold_time_required
+		#var progress = entry.time / hold_time_required
 
 		if entry.time >= hold_time_required:
 			print("Player", player_id, "finished holding", )
@@ -1458,6 +1464,8 @@ func _ready():
 			setupMenu()
 		Master.LaunchMode.DEV_DIRECT:
 			target_path = Master.dev_scene_path
+			Master.player_count = 2
+			
 
 	if current and current.scene_file_path == target_path:
 		return  # Already in the target scene, avoid reloading
@@ -1616,6 +1624,45 @@ func _physics_process(delta):
 	global_transform = global_transform_result
 
 
+### FILE: res://scenes/stamina.gd ###
+extends RigidBody3D
+
+@onready var mesh_holder := $MeshHolder
+@onready var pickup_area := $Area3D
+
+var base_offset := Vector3.ZERO
+var bob_timer := 0.0
+var bob_speed := 2.0
+var bob_height := 0.2
+var collected := false
+
+func _ready():
+	base_offset = mesh_holder.position
+	pickup_area.body_entered.connect(_on_body_entered)
+
+	print("Initial position:", global_position)
+	gravity_scale = 1.0
+	sleeping = false
+
+func _process(delta):
+	if collected:
+		return
+	bob_timer += delta * bob_speed
+	mesh_holder.position.y = base_offset.y + sin(bob_timer) * bob_height
+
+func _on_body_entered(body):
+	print("STAM: ", body.get_path())
+	if collected:
+		return
+	if body.has_method("collect_stamina"):
+		print("COLLECT: ", body.name)
+		body.collect_stamina()
+		collected = true
+		$Particles.emitting = false
+		$MeshHolder.visible = false
+		queue_free()
+
+
 ### FILE: res://scenes/team_master.gd ###
 extends Node3D
 class_name TeamMaster
@@ -1631,21 +1678,28 @@ class_name TeamMaster
 @export var stockStack: StockStack
 @export var flipStack: FlipStack
 @export var cycleInteractable: HoldInteractable
+@export var reshuffleInteractable: HoldInteractable
 
+const reshuffle_coin_cost = 20
 const MAX_CYCLE_CARDS = 3
 var deck: Deck
 
 func _ready():
-	if cycleInteractable:
-		cycleInteractable.hold_completed.connect(_on_cycle_triggered)
+	cycleInteractable.interaction_available_delegate = Callable(self, "_cycle_interaction_available")
+	reshuffleInteractable.interaction_available_delegate = Callable(self, "_reshuffle_interaction_available")
+
+	#cycleInteractable.interaction_available_delegate = self
+	#reshuffleInteractable.interaction_available_delegate = self
+	cycleInteractable.hold_completed.connect(_on_cycle_triggered)
+	reshuffleInteractable.hold_completed.connect(_on_reshuffle_triggered)
 
 func spawn_card(card_data, stack: DeckStack) -> void:
 	var card = card_scene.instantiate()
 	add_child(card)
 	card.set_team(team_name)
-	card.set_card(card_data.suit, card_data.rank)
+	card.set_card(card_data.suit, card_data.rank, Master.team_backs[team_name])
 	stack.add_card(card)
-	
+
 func deal_hand():
 	# TODO: cleanup old cards if replaying, make it's own function
 	goalStack.team = team_name
@@ -1694,21 +1748,106 @@ func verify_full_deck() -> bool:
 
 	return true
 
+func _reshuffle_interaction_available(player: Player, source: Node = null) -> bool:
+	return player.coins >= reshuffle_coin_cost
+
+#func _on_reshuffle_triggered():
+	#print("_on_reshuffle_triggered")
+	#flipStack
+	#stockStack
+	#goalStack
+
+
+	#store number of current cards on each those stack (including if one is presently carried in a players hand locking that stack)
+	#pull/teleport them all those cards away and any ones carried by players of that team
+	#then shuffle and redeal that stored number to each location, though flip stack will place it's all onto stock
+
+func _clear_stack(stack: DeckStack) -> Array:
+	var pulled: Array = []
+	while not stack.cards.is_empty():
+		var card = stack.remove_top_card(false)
+		pulled.append(card)
+	return pulled
+
+func _on_reshuffle_triggered(_player_id: int, _player: Node):
+	print("_on_reshuffle_triggered")
+	_player.coins = _player.coins - reshuffle_coin_cost
+
+	var collected_cards: Array = []
+	var flip_count := flipStack.cards.size()
+	var stock_count := stockStack.cards.size()
+	var goal_count := goalStack.cards.size()
+	print("counts ", flip_count, " ", stock_count, " ", goal_count, " ", collected_cards.size())
+	# 1. Collect and clear cards from stacks
+	collected_cards += _clear_stack(flipStack)
+	collected_cards += _clear_stack(stockStack)
+	collected_cards += _clear_stack(goalStack)
+
+	# 2. Collect and clear from team players
+	#for player in get_tree().get_nodes_in_group("players"):
+		#if player.team != team_name:
+			#continue
+#
+		#var card = player.carried_card
+		#if card == null:
+			#continue
+#
+		#var is_locking_flip = flipStack.locked_by_card == card
+		#var is_locking_goal = goalStack.locked_by_card == card
+#
+		#if is_locking_flip or is_locking_goal:
+			#player.drop_card()
+			#collected_cards.append(card)
+#
+			#if is_locking_flip:
+				#flip_count += 1
+				#flipStack.unlock_stack()
+			#if is_locking_goal:
+				#goal_count += 1
+				#goalStack.unlock_stack()
+
+	# 3. Shuffle the collected cards
+	collected_cards.shuffle()
+
+	# 4. Redeal
+	for i in range(goal_count):
+		if collected_cards.is_empty():
+			break
+		var card = collected_cards.pop_back()
+		goalStack.add_card(card)
+
+	for i in range(stock_count + flip_count):
+		if collected_cards.is_empty():
+			break
+		var card = collected_cards.pop_back()
+		stockStack.add_card(card)
+
+
+func _cycle_interaction_available(player: Player, source: Node = null) -> bool:
+	if flipStack.locked || player.carried_card != null || (stockStack.cards.is_empty() && flipStack.cards.is_empty()): #&& flipStack.locked_by_card != player.carried_card
+		return false
+	return true
+
 func _on_cycle_triggered(_player_id: int, _player: Node):
+	if !_cycle_interaction_available(_player):
+		return
 	# Step 1: If deck is empty, flip pile back into deck (face down)
 	if stockStack.cards.is_empty():
 		while not flipStack.cards.is_empty():
 			var card = flipStack.remove_top_card()
 			card.set_face_up(false)
 			stockStack.add_card(card)
+		Audio.playRandom(Audio.CardShoves)
 		return
 
 	# Step 2: Flip up to 3 cards from deck to pile
 	var flips = min(MAX_CYCLE_CARDS, stockStack.get_card_count())
 	for i in range(flips):
-		var card = stockStack.remove_top_card()
+		var card = stockStack.remove_top_card(false)
 		card.set_face_up(true)
 		flipStack.add_card(card)
+	
+	Audio.playRandom(Audio.CardSlides)
 
 
 ### FILE: res://scripts/audio.gd ###
@@ -1721,7 +1860,30 @@ var available = []  # The available players.
 var queue = []  # The queue of sounds to play.
 
 var music_player: AudioStreamPlayer
+var rng := RandomNumberGenerator.new()
 
+static var CardSlides := [
+	"res://sounds/card-slide-1.ogg",
+	"res://sounds/card-slide-2.ogg",
+	"res://sounds/card-slide-3.ogg",
+	"res://sounds/card-slide-4.ogg",
+	"res://sounds/card-slide-5.ogg",
+	"res://sounds/card-slide-6.ogg",
+	"res://sounds/card-slide-7.ogg",
+	"res://sounds/card-slide-8.ogg"
+]
+static var CardPlaces := [
+	"res://sounds/card-place-1.ogg",
+	"res://sounds/card-place-2.ogg",
+	"res://sounds/card-place-3.ogg",
+	"res://sounds/card-place-4.ogg"
+]
+static var CardShoves := [
+	"res://sounds/card-shove-1.ogg",
+	"res://sounds/card-shove-2.ogg",
+	"res://sounds/card-shove-3.ogg",
+	"res://sounds/card-shove-4.ogg"
+]
 
 func _ready():
 	# SFX pool setup
@@ -1744,6 +1906,13 @@ func _ready():
 func _on_stream_finished(stream): available.append(stream)
 
 func play(sound_path): queue.append(sound_path)
+func playRandom(sound_path_list: Array):
+	if sound_path_list.is_empty():
+		push_error("Empty sound_path_list")
+		return
+	var index = rng.randi_range(0, sound_path_list.size() - 1)
+	var sound_path = sound_path_list[index]
+	queue.append(sound_path)
 
 func play_music(path: String, loop := true):
 	var stream = load(path)
@@ -2017,12 +2186,34 @@ var cards: Array = []
 var team_only = true
 var ground_offset: Vector3 = Vector3.ZERO  # initialized in _ready or lazily
 
+var locked := false
+var locked_by_card: Node3D = null
+@onready var lock_visual: Node3D = null  # Assigned during _ready
 
 func _ready():
 	#groundPosition = get_ground_position()
 	ground_offset = to_local(get_ground_position())
 	add_to_group("interactables")
 	add_to_group("decks")
+
+	lock_visual = preload("res://scenes/lock.tscn").instantiate()
+	lock_visual.visible = false
+	add_child(lock_visual)
+	lock_visual.global_position = global_position + Vector3(0, 0.1, 0)
+
+func lock_stack(card: Node3D):
+	card.source_deckstack = self
+	locked = true
+	locked_by_card = card
+	lock_visual.visible = true
+
+func unlock_stack():
+	locked = false
+	locked_by_card = null
+	lock_visual.visible = false
+
+func is_locked() -> bool:
+	return locked
 
 func get_marker_position(player: Player) -> Vector3:
 	return global_position
@@ -2031,14 +2222,23 @@ func interaction_available(player: Player) -> bool:
 	if team_only && player.team != team:
 		return false
 	if player.carried_card != null:
-		return true
+		if locked:
+			return locked_by_card == player.carried_card
+		else:
+			return true
 	else:
 		return !cards.is_empty()
 
 func add_card(card: Node3D):
 	#print("add_card ", self)
-	if !can_accept_card(card):
-		return
+
+	#if !can_accept_card(card):
+		#return
+
+	if locked and locked_by_card == card:
+		unlock_stack()
+
+	card.source_deckstack = self
 
 	cards.append(card)
 	card.physics_off()
@@ -2064,10 +2264,16 @@ func add_card(card: Node3D):
 		card.set_face_up(true)
 
 func can_accept_card(card: Node3D) -> bool:
+	if locked && card.source_stack != self:
+		return false
 	# Base stack accepts anything — override in subclasses
 	return true
 
 func can_remove_card(card: Node3D) -> bool:
+	if card == null:
+		return false
+	if locked || cards.is_empty():
+		return false
 	# Base stack accepts anything — override in subclasses
 	return true
 
@@ -2084,7 +2290,7 @@ func interact(player):
 
 	else:
 		var peek_top_card = get_top_card()
-		if !can_remove_card(player.carried_card):
+		if !can_remove_card(peek_top_card):
 			return
 		if team_only && player.team != team:
 			return
@@ -2098,10 +2304,12 @@ func get_top_card() -> Node3D:
 		return null
 	return cards[-1]
 
-func remove_top_card() -> Node3D:
-	if cards.is_empty():
-		return null
+func remove_top_card(lock_the_stack: bool =  true) -> Node3D:
+	#if cards.is_empty() or locked:
+		#return null
 	var card = cards.pop_back()
+	if lock_the_stack:
+		lock_stack(card)
 	return card
 
 func get_card_count() -> int:
@@ -2115,8 +2323,14 @@ func get_card_transform(index: int) -> Transform3D:
 		var ground_world = get_ground_position()
 		ground_offset = get_parent().to_local(ground_world)
 
-	var parent_pos = get_parent().global_position
-	var base_pos = parent_pos + ground_offset + Vector3.UP * 0.55  # raise all cards 4 units
+	var parent_pos: Vector3
+	var base_pos: Vector3
+	if get_parent() == get_tree().current_scene:
+		parent_pos = global_position
+		base_pos = parent_pos + ground_offset
+	else:
+		parent_pos = get_parent().global_position
+		base_pos = parent_pos + ground_offset + Vector3.UP * 0.55
 
 	var up = global_transform.basis.y.normalized()
 	var offset = up * stack_position_offset.y * float(index)
@@ -2145,7 +2359,6 @@ func get_ground_position(max_distance: float = 10.0) -> Vector3:
 	else:
 		# No ground detected below, fallback to own position
 		return global_position
-
 
 func scatter_all_cards():
 	for card in cards:
@@ -2247,13 +2460,42 @@ func add_card(card: Node3D):
 ### FILE: res://scripts/flip_stack.gd ###
 extends DeckStack
 class_name FlipStack
+#playable stack that recieves the 3 or remaining cards flipped off the stock stack
+#flipping controlled by team_master.gd
+
+func interaction_available(player: Player) -> bool:
+	if player.carried_card != null: #player carrying a card
+		return can_accept_card(player.carried_card)
+	else:
+		return can_remove_card(get_top_card())
+#
+	#if player.carried_card != null: #player carrying a card
+		#if locked and locked_by_card == player.carried_card:
+			#return true
+	#else:
+		#if cards.is_empty() or team != card.team:
+			#
+	#
+	#return false
+	#if player.team != team:
+		#return false
+	#if player.carried_card != null: #player carrying a card
+		#if locked && locked_by_card != player.carried_card:
+			#return false
+	#else: 
+	#return !cards.is_empty()
+
+func can_remove_card(card: Node3D) -> bool:
+	if card == null:
+		return false
+	if team != card.team:
+		return false
+	return !locked
 
 func can_accept_card(card: Node3D) -> bool:
-	return true  # CycleStack handles legality, pile is just a display
-
-#No need to ovveride, same as base class
-#func can_remove_card(card: Node3D) -> bool:
-#	return true  # Players can pull top card from here
+	if locked and locked_by_card == card:
+		return true
+	return false
 
 func add_card(card: Node3D):
 	card.set_face_up(true)
@@ -2262,18 +2504,32 @@ func add_card(card: Node3D):
 
 ### FILE: res://scripts/goal_stack.gd ###
 extends DeckStack
-class_name GoalStack #Priscilla Pounce Pile (13)
-
-#TODO remember card?
-#var remember_card: Node3D
+class_name GoalStack
+#Priscilla Pounce Pile (13)
+const max_stack_cards = 13;
 
 func can_accept_card(card: Node3D) -> bool:
-	#Only if it was the card you took
-	return true  # Allow cycling cards to be returned
+	#never add to this deck, unless we're returning the locked
+	if locked and locked_by_card == card:
+		return true
+	return false
 
 func can_remove_card(card: Node3D) -> bool:
-	# if there is no remember card, you can take one off
+	if cards.is_empty() || locked:
+		return false
 	return true
+
+func interaction_available(player: Player) -> bool:
+	if team_only && player.team != team:
+		return false
+	if player.carried_card != null: #player carrying a card
+		if cards.size() >= max_stack_cards:
+			return false
+		if locked:
+			return locked_by_card == player.carried_card
+		return true
+	else: #player not carrying a card
+		return !cards.is_empty()
 
 func add_card(card: Node3D):
 	card.set_face_up(false)
@@ -2385,7 +2641,7 @@ func set_stamina_percent(val: float):
 func set_health(val: int, val_max: int):
 	heartbar.set_health(val, val_max)
 
-func _on_coin_collected(coins):
+func update_coins(coins):
 	print(">>> ", name, " got coin update: ", coins)
 	coins_text.text = str(coins)
 
@@ -2411,11 +2667,16 @@ extends Node
 
 enum LaunchMode { DEV_DIRECT, MAIN_MENU }
 
-var launch_mode := LaunchMode.MAIN_MENU
-var dev_scene_path := "res://scenes/main.tscn"
+#var launch_mode := LaunchMode.MAIN_MENU
+var launch_mode := LaunchMode.DEV_DIRECT
+var dev_scene_path := "res://scenes/arena1.tscn"
 var landing_scene_path := "res://scenes/Menu/landing.tscn"
 var priscilla1 := "res://scenes/arena1.tscn"
 var player_count := 1
+var team_backs := {
+	"A": "CardBack001",
+	"B": "CardBack003"
+}
 
 
 ### FILE: res://scripts/player.gd ###
@@ -2465,7 +2726,14 @@ var gravity := 0.0
 var previously_floored := false
 var jump_single := true
 var jump_double := true
-var coins := 0
+
+var _coins := 100
+var coins:
+	get: return _coins
+	set(value):
+		_coins = value
+		hud.update_coins(_coins)
+
 var spawn_position: Vector3
 
 var is_crouching = false
@@ -2522,18 +2790,13 @@ func _ready():
 		mesh.material_override = material
 		material.albedo_texture = playerTexture
 
-
 	spawn_position = global_transform.origin
 	pickup_area.area_entered.connect(_on_pickup_area_body_entered)
 	pickup_area.area_exited.connect(_on_pickup_area_body_exited)
 
-func setup(): #probably more improvement here and game_master
-	if hud:
-		connect("coin_collected", Callable(hud, "_on_coin_collected"))
-		#connect("heart_collected", Callable(hud, "_on_heart_collected"))
-		hud.set_health(health, health_max)
-	#print("Player ", name, " has HUD: ", hud.name, " (ref: ", hud, ")")
-
+func setup(): #called by master
+	hud.update_coins(coins)
+	hud.set_health(health, health_max)
 
 func _on_pickup_area_body_entered(area):
 	#print("_on_pickup_area_body_entered", area)
@@ -2590,6 +2853,7 @@ func handle_interactables(delta):
 				active_hold_target = closest
 			elif Input.is_action_just_released(input_interact):
 				closest.stop_holding(player_id)
+				hud.set_aring_percent(0)
 				active_hold_target = null
 				
 	if not Input.is_action_just_pressed(input_interact):
@@ -2620,7 +2884,6 @@ func handle_interactables(delta):
 			print("drop_card ")
 			# No valid target — drop to world
 			drop_card()
-
 
 
 #!!!! Could also have some kind of event for anything close to returns it's like HUD info, or more generic than that
@@ -2745,7 +3008,6 @@ func jump_action():
 			return
 
 
-
 func start_ground_pound():
 	if stamina >= ground_pound_stamina_cost:
 		is_ground_pounding = true
@@ -2785,9 +3047,11 @@ func handle_effects(delta):
 	elif animation.current_animation != "jump" and !is_ground_pounding:
 		animation.play("jump", 0.1)
 
+func collect_stamina():
+	stamina = clamp(stamina + 100, 0, stamina_max);
+
 func collect_coin():
 	coins += 1
-	coin_collected.emit(coins)
 
 func collect_heart():
 	health = min(health + 2, health_max)
@@ -2816,21 +3080,29 @@ func pick_up_card(card: Node3D):
 	#card.pick_up(self)  # Calls the Card.gd function
 	card.pick_up(self, $Character/character/root/torso/antenna) # Pass the Antenna as mount point
 	#update_interaction_marker()
-	Audio.play("res://sounds/card-place-2.ogg")
+	#Audio.play("res://sounds/card-place-2.ogg")
+	Audio.playRandom(Audio.CardPlaces)
 	print("Picked up", card.rank, "of", card.suit)
 
 func drop_card():
 	if carried_card:
 		carried_card.drop_to_ground()
 		carried_card = null
-		Audio.play("res://sounds/card-place-3.ogg")
+		#Audio.play("res://sounds/card-place-3.ogg")
+		Audio.playRandom(Audio.CardPlaces)
 		#update_interaction_marker()
 
 func drop_card_onto_stack(stack):
+	Audio.playRandom(Audio.CardShoves)
 	if !is_holding_card():
 		return
+		
+	# Unlock the stack the card came from, if applicable
+	if carried_card.source_deckstack != null:
+		carried_card.source_deckstack.unlock_stack()
+		
 	stack.add_card(carried_card)
-	
+
 	# Step 1: Detach from player
 	carried_card.carrier_player = null
 	carried_card.carrier_target = null
@@ -3082,26 +3354,18 @@ func get_marker_position(player: Player) -> Vector3:
 func interaction_available(player: Player) -> bool:
 	if player.team != team:
 		return false
-	if player.carried_card == null:
-		return !cards.is_empty()
-	else:
-		return can_accept_card(player.carried_card)
-
-func add_card(card: Node3D) -> void:
-	super.add_card(card)
-	set_area_to_end()
-
-func remove_top_card() -> Node3D:
-	var card := super.remove_top_card()
-	set_area_to_end()
-	return card
-
-func can_accept_card(card: Node3D) -> bool:
-	if cards.size() >= max_cards:
+	if locked && player.carried_card != locked_by_card:
 		return false
 
+	if player.carried_card != null:
+		return can_accept_card(player.carried_card)
+	return !cards.is_empty()
+
+func can_accept_card(card: Node3D) -> bool:
+	if cards.size() >= max_cards || card.team != team || (locked && card != locked_by_card):
+		return false
 	if cards.is_empty():
-		return card.team == team
+		return true
 
 	var top = get_top_card()
 	var colors_different = card.get_color() != top.get_color()
@@ -3109,6 +3373,15 @@ func can_accept_card(card: Node3D) -> bool:
 	print(card.get_rank_value(), card.get_color(), " ", top.get_rank_value() , top.get_color())
 	#return true
 	return colors_different and ranks_correct
+
+func add_card(card: Node3D) -> void:
+	super.add_card(card)
+	set_area_to_end()
+
+func remove_top_card(lock_the_stack: bool =  true) -> Node3D:
+	var card := super.remove_top_card(lock_the_stack)
+	set_area_to_end() #todo, move the lock?
+	return card
 
 func get_card_transform(index: int) -> Transform3D:
 	return visualizer.get_card_transform(index)
@@ -3309,6 +3582,7 @@ var players: Array = []
 @export var bob_height := 0.2
 @export var bob_speed := 1.0
 @export var detection_distance := 5.0
+@export var facePlayer := false
 
 var id := -1;
 var bob_timer := 0.0
@@ -3321,11 +3595,15 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	# Always bobbing
-	players = get_tree().get_nodes_in_group("players")
 	bob_timer += delta * bob_speed
 	var offset_y = (sin(bob_timer) * 0.5 + 0.5) * bob_height
 	global_position = base_position + Vector3(0, offset_y, 0)
 
+	if !facePlayer:
+		rotate_y(deg_to_rad(spin_speed * delta))
+		return
+
+	players = get_tree().get_nodes_in_group("players")
 	if players.is_empty():
 		return
 
@@ -3362,6 +3640,8 @@ func face_player(player: Node3D, delta: float) -> void:
 ### FILE: res://scripts/stock_stack.gd ###
 extends DeckStack
 class_name StockStack
+#stack that is in your "hand", which you flip 3 onto the flip stack that you may play from
+#flipping controlled by team_master.gd
 
 func can_accept_card(card: Node3D) -> bool:
 	return true  # Allow cycling cards to be returned
@@ -3379,6 +3659,11 @@ func interaction_available(player: Player) -> bool:
 		#return true
 	#else:
 		#return !cards.is_empty()
+
+func get_card_transform(index: int) -> Transform3D:
+	var transform := super.get_card_transform(index)
+	transform.basis = Basis(Vector3.BACK, PI) * transform.basis
+	return transform
 
 
 ### FILE: res://scripts/sub_viewport_container.gd ###

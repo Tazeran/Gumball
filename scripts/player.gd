@@ -44,7 +44,14 @@ var gravity := 0.0
 var previously_floored := false
 var jump_single := true
 var jump_double := true
-var coins := 0
+
+var _coins := 100
+var coins:
+	get: return _coins
+	set(value):
+		_coins = value
+		hud.update_coins(_coins)
+
 var spawn_position: Vector3
 
 var is_crouching = false
@@ -101,18 +108,13 @@ func _ready():
 		mesh.material_override = material
 		material.albedo_texture = playerTexture
 
-
 	spawn_position = global_transform.origin
 	pickup_area.area_entered.connect(_on_pickup_area_body_entered)
 	pickup_area.area_exited.connect(_on_pickup_area_body_exited)
 
-func setup(): #probably more improvement here and game_master
-	if hud:
-		connect("coin_collected", Callable(hud, "_on_coin_collected"))
-		#connect("heart_collected", Callable(hud, "_on_heart_collected"))
-		hud.set_health(health, health_max)
-	#print("Player ", name, " has HUD: ", hud.name, " (ref: ", hud, ")")
-
+func setup(): #called by master
+	hud.update_coins(coins)
+	hud.set_health(health, health_max)
 
 func _on_pickup_area_body_entered(area):
 	#print("_on_pickup_area_body_entered", area)
@@ -169,6 +171,7 @@ func handle_interactables(delta):
 				active_hold_target = closest
 			elif Input.is_action_just_released(input_interact):
 				closest.stop_holding(player_id)
+				hud.set_aring_percent(0)
 				active_hold_target = null
 				
 	if not Input.is_action_just_pressed(input_interact):
@@ -199,7 +202,6 @@ func handle_interactables(delta):
 			print("drop_card ")
 			# No valid target — drop to world
 			drop_card()
-
 
 
 #!!!! Could also have some kind of event for anything close to returns it's like HUD info, or more generic than that
@@ -324,7 +326,6 @@ func jump_action():
 			return
 
 
-
 func start_ground_pound():
 	if stamina >= ground_pound_stamina_cost:
 		is_ground_pounding = true
@@ -369,7 +370,6 @@ func collect_stamina():
 
 func collect_coin():
 	coins += 1
-	coin_collected.emit(coins)
 
 func collect_heart():
 	health = min(health + 2, health_max)

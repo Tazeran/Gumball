@@ -146,8 +146,7 @@ SpikeBlock CharacterBody3D [res://objects/Obstacles/spike_block.gd]
 -CollisionShape3D CollisionShape3D
 -Area3D Area3D
 --CollisionShape3D CollisionShape3D
--spike-block2 Node3D
---spike-block MeshInstance3D
+-spike-block3 MeshInstance3D
 
 ### res://objects/playing_card.tscn ###
 PlayingCard Node3D [res://scripts/playing_card.gd]
@@ -772,6 +771,14 @@ Root Node3D [res://scenes/game_master.gd]
 ----platform2#StaticBody3D StaticBody3D
 -----platform2_StaticBody3D#CollisionShape3D CollisionShape3D
 ----platform2 MeshInstance3D
+---platform7 Node3D
+----platform2#StaticBody3D StaticBody3D
+-----platform2_StaticBody3D#CollisionShape3D CollisionShape3D
+----platform2 MeshInstance3D
+---platform8 Node3D
+----platform2#StaticBody3D StaticBody3D
+-----platform2_StaticBody3D#CollisionShape3D CollisionShape3D
+----platform2 MeshInstance3D
 ---platform4 Node3D
 ----platform2#StaticBody3D StaticBody3D
 -----platform2_StaticBody3D#CollisionShape3D CollisionShape3D
@@ -1133,7 +1140,9 @@ Root Node3D [res://scenes/game_master.gd]
 ---Path3D Path3D
 --Area3D Area3D
 ---CollisionShape3D CollisionShape3D
--HoldInteractAreaTeamA Area3D [res://scenes/HoldInteractArea.gd]
+-HoldInteractAreaTeamFlipA Area3D [res://scenes/HoldInteractArea.gd]
+--CollisionShape3D CollisionShape3D
+-HoldInteractAreaTeamReshuffleA Area3D [res://scenes/HoldInteractArea.gd]
 --CollisionShape3D CollisionShape3D
 -GoalStackA Node3D [res://scripts/goal_stack.gd]
 --Decal Decal
@@ -1147,7 +1156,9 @@ Root Node3D [res://scenes/game_master.gd]
 --Decal Decal
 --Area3D Area3D
 ---CollisionShape3D CollisionShape3D
--HoldInteractAreaTeamB Area3D [res://scenes/HoldInteractArea.gd]
+-HoldInteractAreaTeamFlipB Area3D [res://scenes/HoldInteractArea.gd]
+--CollisionShape3D CollisionShape3D
+-HoldInteractAreaTeamReshuffleB Area3D [res://scenes/HoldInteractArea.gd]
 --CollisionShape3D CollisionShape3D
 -GoalStackB Node3D [res://scripts/goal_stack.gd]
 --Decal Decal
@@ -1338,64 +1349,56 @@ Root Node3D [res://scenes/game_master.gd]
 ----CollisionShape3D CollisionShape3D
 ----Area3D Area3D
 -----CollisionShape3D CollisionShape3D
-----spike-block2 Node3D
------spike-block MeshInstance3D
+----spike-block3 MeshInstance3D
 ---Path3D Path3D
 --SpikeBlockVertical2 Node3D
 ---SpikeBlock CharacterBody3D [res://objects/Obstacles/spike_block.gd]
 ----CollisionShape3D CollisionShape3D
 ----Area3D Area3D
 -----CollisionShape3D CollisionShape3D
-----spike-block2 Node3D
------spike-block MeshInstance3D
+----spike-block3 MeshInstance3D
 ---Path3D Path3D
 --SpikeBlockVertical3 Node3D
 ---SpikeBlock CharacterBody3D [res://objects/Obstacles/spike_block.gd]
 ----CollisionShape3D CollisionShape3D
 ----Area3D Area3D
 -----CollisionShape3D CollisionShape3D
-----spike-block2 Node3D
------spike-block MeshInstance3D
+----spike-block3 MeshInstance3D
 ---Path3D Path3D
 --SpikeBlockVertical4 Node3D
 ---SpikeBlock CharacterBody3D [res://objects/Obstacles/spike_block.gd]
 ----CollisionShape3D CollisionShape3D
 ----Area3D Area3D
 -----CollisionShape3D CollisionShape3D
-----spike-block2 Node3D
------spike-block MeshInstance3D
+----spike-block3 MeshInstance3D
 ---Path3D Path3D
 --SpikeBlockVertical6 Node3D
 ---SpikeBlock CharacterBody3D [res://objects/Obstacles/spike_block.gd]
 ----CollisionShape3D CollisionShape3D
 ----Area3D Area3D
 -----CollisionShape3D CollisionShape3D
-----spike-block2 Node3D
------spike-block MeshInstance3D
+----spike-block3 MeshInstance3D
 ---Path3D Path3D
 --SpikeBlockVertical7 Node3D
 ---SpikeBlock CharacterBody3D [res://objects/Obstacles/spike_block.gd]
 ----CollisionShape3D CollisionShape3D
 ----Area3D Area3D
 -----CollisionShape3D CollisionShape3D
-----spike-block2 Node3D
------spike-block MeshInstance3D
+----spike-block3 MeshInstance3D
 ---Path3D Path3D
 --SpikeBlockVertical8 Node3D
 ---SpikeBlock CharacterBody3D [res://objects/Obstacles/spike_block.gd]
 ----CollisionShape3D CollisionShape3D
 ----Area3D Area3D
 -----CollisionShape3D CollisionShape3D
-----spike-block2 Node3D
------spike-block MeshInstance3D
+----spike-block3 MeshInstance3D
 ---Path3D Path3D
 --SpikeBlockVertical9 Node3D
 ---SpikeBlock CharacterBody3D [res://objects/Obstacles/spike_block.gd]
 ----CollisionShape3D CollisionShape3D
 ----Area3D Area3D
 -----CollisionShape3D CollisionShape3D
-----spike-block2 Node3D
------spike-block MeshInstance3D
+----spike-block3 MeshInstance3D
 ---Path3D Path3D
 -heart Area3D [res://scripts/heart.gd]
 --heart MeshInstance3D
@@ -1474,6 +1477,26 @@ Root Node3D [res://scenes/game_master.gd]
 ----AnimationPlayer AnimationPlayer
 ---AnimationTree AnimationTree
 ---SecondaryActionTimer Timer
+-StaminaItem RigidBody3D [res://scenes/stamina.gd]
+--CollisionShape3D CollisionShape3D
+--Area3D Area3D
+---CollisionShape3D CollisionShape3D
+--MeshHolder Node3D
+---advocado-half2 Node3D
+----advocado-half MeshInstance3D
+-----pit MeshInstance3D
+---candy-bar-wrapper2 Node3D
+----candy-bar-wrapper MeshInstance3D
+---cherries2 Node3D
+----cherries MeshInstance3D
+---cocktail2 Node3D
+----cocktail MeshInstance3D
+-----straw MeshInstance3D
+-----lemon MeshInstance3D
+---fries3 Node3D
+----fries MeshInstance3D
+-----fries2 MeshInstance3D
+--Particles CPUParticles3D
 
 ### res://scenes/card_spin_and_bob.tscn ###
 SpinAndBob Node3D [res://scripts/spin_and_bob.gd]
@@ -1934,6 +1957,28 @@ SlamButton Node3D [res://scripts/button_square.gd]
 ### res://scenes/solitaire_rune.tscn ###
 SolitaireRune Node3D
 -Decal Decal
+
+### res://scenes/stamina.tscn ###
+StaminaItem RigidBody3D [res://scenes/stamina.gd]
+-CollisionShape3D CollisionShape3D
+-Area3D Area3D
+--CollisionShape3D CollisionShape3D
+-MeshHolder Node3D
+--advocado-half2 Node3D
+---advocado-half MeshInstance3D
+----pit MeshInstance3D
+--candy-bar-wrapper2 Node3D
+---candy-bar-wrapper MeshInstance3D
+--cherries2 Node3D
+---cherries MeshInstance3D
+--cocktail2 Node3D
+---cocktail MeshInstance3D
+----straw MeshInstance3D
+----lemon MeshInstance3D
+--fries3 Node3D
+---fries MeshInstance3D
+----fries2 MeshInstance3D
+-Particles CPUParticles3D
 
 ### res://scenes/suit_rank_bobber.tscn ###
 SuitRankBobber Node3D [res://scripts/suit_rank_bobber.gd]

@@ -21,7 +21,7 @@ func _ready():
 	ground_offset = to_local(get_ground_position())
 	add_to_group("interactables")
 	add_to_group("decks")
-	
+
 	lock_visual = preload("res://scenes/lock.tscn").instantiate()
 	lock_visual.visible = false
 	add_child(lock_visual)
@@ -131,8 +131,8 @@ func get_top_card() -> Node3D:
 	return cards[-1]
 
 func remove_top_card(lock_the_stack: bool =  true) -> Node3D:
-	if cards.is_empty() or locked:
-		return null
+	#if cards.is_empty() or locked:
+		#return null
 	var card = cards.pop_back()
 	if lock_the_stack:
 		lock_stack(card)
@@ -185,7 +185,6 @@ func get_ground_position(max_distance: float = 10.0) -> Vector3:
 	else:
 		# No ground detected below, fallback to own position
 		return global_position
-
 
 func scatter_all_cards():
 	for card in cards:

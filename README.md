@@ -8,6 +8,25 @@ What are Coins to be used for?
 	Buy Stamina / Stamina Containers?
 	Purchase a MarioKartBox with random powerup?
 
+### MVP TODO:
+	Reshuffle costs coins
+		Hold 10second, cost 20 coins
+		Teleport snatches all cards of team that are stock,flip, & goal.
+		Reshuffles them into stock and goal
+
+
+	Coin fountain
+	Heart spawn
+	Stamina spawn
+
+	Coins fountain on placement?
+
+	Disk Attack?
+	Drop Coins on hit
+
+
+
+
 Instead of a lock, put a ghosted/holographic card that you can still read the Suit/Rank of, maybe still do lock on it.
 	Maybe have way to beam back card.
 	Use that function to Make sure cards that fall off universe returnreturn to lockspot

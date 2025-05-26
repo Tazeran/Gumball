@@ -12,14 +12,20 @@ class_name TeamMaster
 @export var stockStack: StockStack
 @export var flipStack: FlipStack
 @export var cycleInteractable: HoldInteractable
+@export var reshuffleInteractable: HoldInteractable
 
+const reshuffle_coin_cost = 20
 const MAX_CYCLE_CARDS = 3
 var deck: Deck
 
 func _ready():
-	cycleInteractable.interaction_available_delegate = self
-	if cycleInteractable:
-		cycleInteractable.hold_completed.connect(_on_cycle_triggered)
+	cycleInteractable.interaction_available_delegate = Callable(self, "_cycle_interaction_available")
+	reshuffleInteractable.interaction_available_delegate = Callable(self, "_reshuffle_interaction_available")
+
+	#cycleInteractable.interaction_available_delegate = self
+	#reshuffleInteractable.interaction_available_delegate = self
+	cycleInteractable.hold_completed.connect(_on_cycle_triggered)
+	reshuffleInteractable.hold_completed.connect(_on_reshuffle_triggered)
 
 func spawn_card(card_data, stack: DeckStack) -> void:
 	var card = card_scene.instantiate()
@@ -27,7 +33,7 @@ func spawn_card(card_data, stack: DeckStack) -> void:
 	card.set_team(team_name)
 	card.set_card(card_data.suit, card_data.rank, Master.team_backs[team_name])
 	stack.add_card(card)
-	
+
 func deal_hand():
 	# TODO: cleanup old cards if replaying, make it's own function
 	goalStack.team = team_name
@@ -76,14 +82,88 @@ func verify_full_deck() -> bool:
 
 	return true
 
-func interaction_available(player: Player, source: Node = null) -> bool:
+func _reshuffle_interaction_available(player: Player, source: Node = null) -> bool:
+	return player.coins >= reshuffle_coin_cost
+
+#func _on_reshuffle_triggered():
+	#print("_on_reshuffle_triggered")
+	#flipStack
+	#stockStack
+	#goalStack
+
+
+	#store number of current cards on each those stack (including if one is presently carried in a players hand locking that stack)
+	#pull/teleport them all those cards away and any ones carried by players of that team
+	#then shuffle and redeal that stored number to each location, though flip stack will place it's all onto stock
+
+func _clear_stack(stack: DeckStack) -> Array:
+	var pulled: Array = []
+	while not stack.cards.is_empty():
+		var card = stack.remove_top_card(false)
+		pulled.append(card)
+	return pulled
+
+func _on_reshuffle_triggered(_player_id: int, _player: Node):
+	print("_on_reshuffle_triggered")
+	_player.coins = _player.coins - reshuffle_coin_cost
+
+	var collected_cards: Array = []
+	var flip_count := flipStack.cards.size()
+	var stock_count := stockStack.cards.size()
+	var goal_count := goalStack.cards.size()
+	print("counts ", flip_count, " ", stock_count, " ", goal_count, " ", collected_cards.size())
+	# 1. Collect and clear cards from stacks
+	collected_cards += _clear_stack(flipStack)
+	collected_cards += _clear_stack(stockStack)
+	collected_cards += _clear_stack(goalStack)
+
+	# 2. Collect and clear from team players
+	#for player in get_tree().get_nodes_in_group("players"):
+		#if player.team != team_name:
+			#continue
+#
+		#var card = player.carried_card
+		#if card == null:
+			#continue
+#
+		#var is_locking_flip = flipStack.locked_by_card == card
+		#var is_locking_goal = goalStack.locked_by_card == card
+#
+		#if is_locking_flip or is_locking_goal:
+			#player.drop_card()
+			#collected_cards.append(card)
+#
+			#if is_locking_flip:
+				#flip_count += 1
+				#flipStack.unlock_stack()
+			#if is_locking_goal:
+				#goal_count += 1
+				#goalStack.unlock_stack()
+
+	# 3. Shuffle the collected cards
+	collected_cards.shuffle()
+
+	# 4. Redeal
+	for i in range(goal_count):
+		if collected_cards.is_empty():
+			break
+		var card = collected_cards.pop_back()
+		goalStack.add_card(card)
+
+	for i in range(stock_count + flip_count):
+		if collected_cards.is_empty():
+			break
+		var card = collected_cards.pop_back()
+		stockStack.add_card(card)
+
+
+func _cycle_interaction_available(player: Player, source: Node = null) -> bool:
 	if flipStack.locked || player.carried_card != null || (stockStack.cards.is_empty() && flipStack.cards.is_empty()): #&& flipStack.locked_by_card != player.carried_card
 		return false
-		
 	return true
 
 func _on_cycle_triggered(_player_id: int, _player: Node):
-	if !interaction_available(_player):
+	if !_cycle_interaction_available(_player):
 		return
 	# Step 1: If deck is empty, flip pile back into deck (face down)
 	if stockStack.cards.is_empty():

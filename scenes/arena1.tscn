@@ -135,7 +135,7 @@ TeamMasterB = NodePath("Teams/TeamMasterB")
 
 [node name="Teams" type="Node3D" parent="."]
 
-[node name="TeamMasterA" type="Node3D" parent="Teams" node_paths=PackedStringArray("goalStack", "solitaireStack1", "solitaireStack2", "solitaireStack3", "solitaireStack4", "stockStack", "flipStack", "cycleInteractable")]
+[node name="TeamMasterA" type="Node3D" parent="Teams" node_paths=PackedStringArray("goalStack", "solitaireStack1", "solitaireStack2", "solitaireStack3", "solitaireStack4", "stockStack", "flipStack", "cycleInteractable", "reshuffleInteractable")]
 script = ExtResource("30_d38fq")
 card_scene = ExtResource("31_lfqxg")
 team_name = "A"
@@ -146,9 +146,10 @@ solitaireStack3 = NodePath("../../SolitaireDeckStackTeamA3")
 solitaireStack4 = NodePath("../../SolitaireDeckStackTeamA4")
 stockStack = NodePath("../../StockStackA")
 flipStack = NodePath("../../FlipStackA")
-cycleInteractable = NodePath("../../HoldInteractAreaTeamA")
+cycleInteractable = NodePath("../../HoldInteractAreaTeamFlipA")
+reshuffleInteractable = NodePath("../../HoldInteractAreaTeamReshuffleA")
 
-[node name="TeamMasterB" type="Node3D" parent="Teams" node_paths=PackedStringArray("goalStack", "solitaireStack1", "solitaireStack2", "solitaireStack3", "solitaireStack4", "stockStack", "flipStack", "cycleInteractable")]
+[node name="TeamMasterB" type="Node3D" parent="Teams" node_paths=PackedStringArray("goalStack", "solitaireStack1", "solitaireStack2", "solitaireStack3", "solitaireStack4", "stockStack", "flipStack", "cycleInteractable", "reshuffleInteractable")]
 script = ExtResource("30_d38fq")
 card_scene = ExtResource("31_lfqxg")
 team_name = "B"
@@ -159,7 +160,8 @@ solitaireStack3 = NodePath("../../SolitaireDeckStackTeamB3")
 solitaireStack4 = NodePath("../../SolitaireDeckStackTeamB4")
 stockStack = NodePath("../../StockStackB")
 flipStack = NodePath("../../FlipStackB")
-cycleInteractable = NodePath("../../HoldInteractAreaTeamB")
+cycleInteractable = NodePath("../../HoldInteractAreaTeamFlipB")
+reshuffleInteractable = NodePath("../../HoldInteractAreaTeamReshuffleB")
 
 [node name="UI Control" type="Control" parent="."]
 layout_mode = 3
@@ -1362,6 +1364,12 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.71551, -2.96486, -54.1099)
 [node name="platform6" parent="NavigationRegion3D/World" instance=ExtResource("19_wtvos")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.12659, -2.96487, -54.1099)
 
+[node name="platform7" parent="NavigationRegion3D/World" instance=ExtResource("19_wtvos")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 21.045, 1.19882, -21.3711)
+
+[node name="platform8" parent="NavigationRegion3D/World" instance=ExtResource("19_wtvos")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20.8624, 1.19882, -21.3711)
+
 [node name="platform4" parent="NavigationRegion3D/World" instance=ExtResource("19_wtvos")]
 transform = Transform3D(0.993085, 0, -0.117399, 0, 1, 0, 0.117399, 0, 0.993085, -15, 0, 25.1038)
 
@@ -1591,13 +1599,26 @@ transform = Transform3D(0.999992, 0, 0, 0, 1, 0, 0, 0, 0.999992, -0.0192642, 0, 
 shape = SubResource("BoxShape3D_vchkt")
 debug_color = Color(0.906147, 0.000127643, 0.74223, 1)
 
-[node name="HoldInteractAreaTeamA" type="Area3D" parent="."]
+[node name="HoldInteractAreaTeamFlipA" type="Area3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12.7919, 1.66559, -21.2466)
 script = ExtResource("37_s4un2")
 hold_time_required = 0.45
 prompt_text = "Flip Stock"
+team = "A"
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="HoldInteractAreaTeamA"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="HoldInteractAreaTeamFlipA"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.175474, 0)
+shape = SubResource("CylinderShape3D_nvyfr")
+debug_color = Color(0.971135, 0, 0.450019, 0.42)
+
+[node name="HoldInteractAreaTeamReshuffleA" type="Area3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 21.1117, 1.66559, -21.2466)
+script = ExtResource("37_s4un2")
+hold_time_required = 1.0
+prompt_text = "Reshuffle Stock and Goal Stacks"
+team = "A"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="HoldInteractAreaTeamReshuffleA"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.175474, 0)
 shape = SubResource("CylinderShape3D_nvyfr")
 debug_color = Color(0.971135, 0, 0.450019, 0.42)
@@ -1665,13 +1686,26 @@ transform = Transform3D(0.999992, 0, 0, 0, 1, 0, 0, 0, 0.999992, -0.0192642, 0, 
 shape = SubResource("BoxShape3D_vchkt")
 debug_color = Color(0.906147, 0.000127643, 0.74223, 1)
 
-[node name="HoldInteractAreaTeamB" type="Area3D" parent="."]
+[node name="HoldInteractAreaTeamFlipB" type="Area3D" parent="."]
 transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, -12.8097, 1.66559, -21.9383)
 script = ExtResource("37_s4un2")
 hold_time_required = 0.45
 prompt_text = "Flip Stock"
+team = "B"
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="HoldInteractAreaTeamB"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="HoldInteractAreaTeamFlipB"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.175474, 0)
+shape = SubResource("CylinderShape3D_nvyfr")
+debug_color = Color(0.971135, 0, 0.450019, 0.42)
+
+[node name="HoldInteractAreaTeamReshuffleB" type="Area3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20.9318, 1.66559, -21.2466)
+script = ExtResource("37_s4un2")
+hold_time_required = 1.0
+prompt_text = "Reshuffle Stock and Goal Stacks"
+team = "B"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="HoldInteractAreaTeamReshuffleB"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.175474, 0)
 shape = SubResource("CylinderShape3D_nvyfr")
 debug_color = Color(0.971135, 0, 0.450019, 0.42)
