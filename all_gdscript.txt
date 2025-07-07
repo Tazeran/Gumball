@@ -915,6 +915,7 @@ const RANKS := {
 const RED_SUITS := ["Hearts", "Diamonds"]
 const BLACK_SUITS := ["Spades", "Clubs"]
 
+var attached_cards: Array[PCard] = []
 
 @onready var pickup_area = $Area3D
 
@@ -938,6 +939,14 @@ var bob_timer := 0.0
 var bob_height := 0.2
 var bob_speed := 1.0
 var base_position: Vector3
+
+
+func get_attached_group() -> Array[PCard]:
+	var group = [self]
+	for card in attached_cards:
+		group += card.get_attached_group()
+	return group
+
 
 func get_rank_value() -> int:
 	return rank_value
@@ -2887,7 +2896,9 @@ func handle_interactables(delta):
 
 
 #!!!! Could also have some kind of event for anything close to returns it's like HUD info, or more generic than that
-
+#I want sort order by distance
+#then work through closest to furthest
+#then each interaction slot type get's filled in if its still open
 func get_closest_interactable() -> Node3D:
 	var closest = null
 	var closest_dist = INF
@@ -3382,9 +3393,30 @@ func remove_top_card(lock_the_stack: bool =  true) -> Node3D:
 	var card := super.remove_top_card(lock_the_stack)
 	set_area_to_end() #todo, move the lock?
 	return card
+	
+func remove_all_cards(lock_the_stack: bool = true) -> Array:
+	if cards.is_empty():
+		return []
+	var removed_cards = cards.duplicate()
+	cards.clear()
+	if lock_the_stack and removed_cards.size() > 0:
+		lock_stack(removed_cards[0])  # Assume bottom card as locker
+	return removed_cards
+
 
 func get_card_transform(index: int) -> Transform3D:
 	return visualizer.get_card_transform(index)
+
+func update_card_links():
+	for i in range(cards.size() - 1):
+		var lower = cards[i]
+		var upper = cards[i + 1]
+		var valid = lower.get_rank_value() == upper.get_rank_value() + 1 and lower.color != upper.color
+		if valid:
+			lower.attached_cards = [upper]
+		else:
+			lower.attached_cards = []
+
 
 #func get_card_position(index: int) -> Vector3:
 	#print("solitaire card pos")

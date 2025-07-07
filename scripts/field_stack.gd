@@ -49,8 +49,8 @@ func can_remove_card(card: Node3D) -> bool:
 	return false
 
 func interaction_available(player: Player) -> bool:
-	if player.carried_card != null:
-		return can_accept_card(player.carried_card)
+	if player.carried_cards.size() > 0:
+		return can_accept_card(player.carried_cards[0])
 	else:
 		return false
 

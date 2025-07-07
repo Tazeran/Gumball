@@ -9,7 +9,10 @@ What are Coins to be used for?
 	Purchase a MarioKartBox with random powerup?
 
 ### MVP TODO:
-	Reshuffle costs coins
+	Make nearest interactible find the four closest, and additively show other interactions
+
+
+	Reshuffle costs coins fix/finish
 		Hold 10second, cost 20 coins
 		Teleport snatches all cards of team that are stock,flip, & goal.
 		Reshuffles them into stock and goal

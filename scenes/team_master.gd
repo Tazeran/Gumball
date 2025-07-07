@@ -103,7 +103,7 @@ func _clear_stack(stack: DeckStack) -> Array:
 		pulled.append(card)
 	return pulled
 
-func _on_reshuffle_triggered(_player_id: int, _player: Node):
+func _on_reshuffle_triggered(_player: Node):
 	print("_on_reshuffle_triggered")
 	_player.coins = _player.coins - reshuffle_coin_cost
 
@@ -158,17 +158,17 @@ func _on_reshuffle_triggered(_player_id: int, _player: Node):
 
 
 func _cycle_interaction_available(player: Player, source: Node = null) -> bool:
-	if flipStack.locked || player.carried_card != null || (stockStack.cards.is_empty() && flipStack.cards.is_empty()): #&& flipStack.locked_by_card != player.carried_card
+	if flipStack.locked || player.carried_cards.size() > 0 || (stockStack.cards.is_empty() && flipStack.cards.is_empty()): #&& flipStack.locked_by_card != player.carried_card
 		return false
 	return true
 
-func _on_cycle_triggered(_player_id: int, _player: Node):
-	if !_cycle_interaction_available(_player):
+func _on_cycle_triggered(player: Player):
+	if !_cycle_interaction_available(player):
 		return
 	# Step 1: If deck is empty, flip pile back into deck (face down)
 	if stockStack.cards.is_empty():
 		while not flipStack.cards.is_empty():
-			var card = flipStack.remove_top_card()
+			var card = flipStack.remove_top_card(false)
 			card.set_face_up(false)
 			stockStack.add_card(card)
 		Audio.playRandom(Audio.CardShoves)

@@ -1,3 +1,4 @@
+#Base class for stacks of cards
 class_name DeckStack
 extends Node3D
 
@@ -107,11 +108,11 @@ func interact(player):
 	print("deck stack interact: ", self, player)
 
 	if player.is_holding_card():
-		if !can_accept_card(player.carried_card):
+		if !can_accept_card(player.carried_cards[0]):
 			return
-		if team_only && team != player.carried_card.team:
+		if team_only && team != player.carried_cards[0].team:
 			return
-		print("Dropping card onto stack:", player.carried_card)
+		print("Dropping card onto stack:", player.carried_cards[0])
 		player.drop_card_onto_stack(self)
 
 	else:
@@ -130,7 +131,7 @@ func get_top_card() -> Node3D:
 		return null
 	return cards[-1]
 
-func remove_top_card(lock_the_stack: bool =  true) -> Node3D:
+func remove_top_card(lock_the_stack: bool = true) -> Node3D:
 	#if cards.is_empty() or locked:
 		#return null
 	var card = cards.pop_back()

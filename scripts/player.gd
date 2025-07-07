@@ -15,14 +15,15 @@ var view_camera: Node3D #assigned by game_master.gd
 var marker: Node3D #assigned by game_master.gd
 
 # --- Card Carry System
-var carried_card: Node3D = null
+var carried_cards: Array[Node3D] = []
 var nearby_card: Node3D = null  # Closest interactable card
 var card_hold_offset: Vector3 = Vector3(0, 1.0, 0)
 var interaction_radius: float = 2.0
 
 @onready var pickup_area = $PickupArea
 var nearby_interactables: Array[Node3D] = []
-var active_hold_target: Node = null
+var hold_target: Node = null
+var hold_timer: float = 0.0
 
 @onready var mesh_parts: Array[MeshInstance3D] = get_meshes_in_children($Character/character/root)
 #@onready var shared_mat: StandardMaterial3D = $Character/character/root/torso.mesh.surface_get_material(0) as StandardMaterial3D
@@ -77,7 +78,7 @@ var ground_pound_gravity_multiplier = 4.0
 @onready var animation = $Character/AnimationPlayer
 
 func is_holding_card():
-	return carried_card != null
+	return carried_cards.size() > 0
 
 func _ready():
 	#update_interaction_marker()
@@ -149,7 +150,7 @@ func handle_interactables(delta):
 	marker.visible = false
 	
 	if closest != null:
-		if closest is HoldInteractable :
+		if closest is HoldInteractable || closest is SolitairePathStack:
 			hud.interact.visible = true
 			hud.interact_prompt.text = closest.prompt_text
 		if closest.interaction_available(self):
@@ -161,27 +162,56 @@ func handle_interactables(delta):
 		hud.interact.visible = false
 		#disable all prompt
 	
-	if active_hold_target != null && Input.is_action_pressed(input_interact) && nearby_interactables.has(active_hold_target):
-		hud.set_aring_percent(active_hold_target.get_hold_progress(player_id))
-		#print("holding ", active_hold_target.get_hold_progress(player_id), "  ", active_hold_target)
-	elif carried_card == null and closest:
-		if closest.has_method("start_holding"):
-			if Input.is_action_pressed(input_interact):
-				closest.start_holding(player_id, self)
-				active_hold_target = closest
-			elif Input.is_action_just_released(input_interact):
-				closest.stop_holding(player_id)
-				hud.set_aring_percent(0)
-				active_hold_target = null
-				
-	if not Input.is_action_just_pressed(input_interact):
-		return
-	print(nearby_interactables)
-	print(input_interact, " closest: ", closest, "  ", carried_card)
+	if hold_target != null:
+		if Input.is_action_pressed(input_interact):
+			hold_timer += delta
+			if hold_timer >= hold_target.hold_time_required:
+				hold_target.finish_hold(self)
+				hold_timer = 0.0
+				hold_target = null
+				hud.set_aring_percent(0.0)
+			else:
+				hud.set_aring_percent(clamp(hold_timer / hold_target.hold_time_required, 0.0, 1.0))
 
-	if carried_card == null:
+		else:
+			# Released early
+			print("Released early")
+			if hold_timer < 0.20: #fire a tap on interactible
+				print("Released VERY early")
+				try_tap_interact(closest)
+				#hold_target.fire_tap(self)
+			hold_timer = 0.0
+			hold_target = null
+			hud.set_aring_percent(0.0)
+
+	elif carried_cards.size() == 0 and closest:
+		if closest.has_method("finish_hold"):
+			if Input.is_action_just_pressed(input_interact):
+				if closest.interaction_available(self):
+					hold_target = closest
+					hold_timer = 0.0
+			#if Input.is_action_pressed(input_interact):
+				#closest.start_holding(player_id, self)
+				#hold_target = closest
+			#elif Input.is_action_just_released(input_interact):
+				#closest.stop_holding(player_id)
+				#hud.set_aring_percent(0)
+				#hold_target = null
+	
+	if closest and Input.is_action_just_pressed(input_interact):
+		if closest.has_method("finish_hold"):
+			if carried_cards.size() > 0:
+				try_tap_interact(closest)
+		else:
+			try_tap_interact(closest)
+
+func try_tap_interact(closest):
+	print(nearby_interactables)
+	print(input_interact, " closest: ", closest, "  ", carried_cards)
+
+	if carried_cards.size() == 0:
 		# Not holding a card — try interacting normally
-		print("carried_card == null: ", carried_card)
+		print("carried_cards.size == 0: ", carried_cards)
 		if closest and closest.has_method("interact"):
 			closest.interact(self)
 	else:
@@ -205,13 +235,17 @@ func handle_interactables(delta):
 
 
 #!!!! Could also have some kind of event for anything close to returns it's like HUD info, or more generic than that
-
+#I want sort order by distance
+#then work through closest to furthest
+#then each interaction slot type get's filled in if its still open
 func get_closest_interactable() -> Node3D:
 	var closest = null
 	var closest_dist = INF
-
+	
 	for interactable in nearby_interactables:
-		if interactable and interactable.interaction_available(self) and interactable != carried_card:
+		if interactable and interactable.interaction_available(self):
+			if carried_cards.size() > 0 and interactable == carried_cards[0]:
+				continue
 			var dist = global_position.distance_to(interactable.global_position)
 			if dist < closest_dist:
 				closest = interactable
@@ -394,7 +428,7 @@ func pick_up_card(card: Node3D):
 	if card.team != team:
 		print("Cannot pick up card from another team.")
 		return
-	carried_card = card
+	carried_cards.append(card)
 	#card.pick_up(self)  # Calls the Card.gd function
 	card.pick_up(self, $Character/character/root/torso/antenna) # Pass the Antenna as mount point
 	#update_interaction_marker()
@@ -403,28 +437,30 @@ func pick_up_card(card: Node3D):
 	print("Picked up", card.rank, "of", card.suit)
 
 func drop_card():
-	if carried_card:
-		carried_card.drop_to_ground()
-		carried_card = null
+	if carried_cards.size() == 1:
+		carried_cards[0].drop_to_ground()
+		carried_cards.pop_front()
 		#Audio.play("res://sounds/card-place-3.ogg")
 		Audio.playRandom(Audio.CardPlaces)
 		#update_interaction_marker()
+	#elif carried_cards.size() > 1:
+		#do not drop them? Or drop special multicards?
 
 func drop_card_onto_stack(stack):
-	Audio.playRandom(Audio.CardShoves)
-	if !is_holding_card():
+	if carried_cards.is_empty():
 		return
-		
-	# Unlock the stack the card came from, if applicable
-	if carried_card.source_deckstack != null:
-		carried_card.source_deckstack.unlock_stack()
-		
-	stack.add_card(carried_card)
 
-	# Step 1: Detach from player
-	carried_card.carrier_player = null
-	carried_card.carrier_target = null
-	carried_card = null
+	Audio.playRandom(Audio.CardShoves)
+
+	for card in carried_cards:
+		if card.source_deckstack != null:
+			card.source_deckstack.unlock_stack()
+
+		card.carrier_player = null
+		card.carrier_target = null
+		stack.add_card(card)
+
+	carried_cards.clear()
 
 func respawn():
 	if health <= 0:

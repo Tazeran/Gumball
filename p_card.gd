@@ -39,6 +39,7 @@ const RANKS := {
 const RED_SUITS := ["Hearts", "Diamonds"]
 const BLACK_SUITS := ["Spades", "Clubs"]
 
+var attached_cards: Array[PCard] = []
 
 @onready var pickup_area = $Area3D
 
@@ -62,6 +63,14 @@ var bob_timer := 0.0
 var bob_height := 0.2
 var bob_speed := 1.0
 var base_position: Vector3
+
+
+func get_attached_group() -> Array[PCard]:
+	var group = [self]
+	for card in attached_cards:
+		group += card.get_attached_group()
+	return group
+
 
 func get_rank_value() -> int:
 	return rank_value

@@ -1,11 +1,11 @@
-extends DeckStack
-class_name FlipStack
 #playable stack that recieves the 3 or remaining cards flipped off the stock stack
 #flipping controlled by team_master.gd
+extends DeckStack
+class_name FlipStack
 
 func interaction_available(player: Player) -> bool:
-	if player.carried_card != null: #player carrying a card
-		return can_accept_card(player.carried_card)
+	if player.carried_cards.size() > 0: #player carrying a card
+		return can_accept_card(player.carried_cards[0])
 	else:
 		return can_remove_card(get_top_card())
 #

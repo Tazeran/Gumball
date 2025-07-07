@@ -1,6 +1,6 @@
+#Priscilla Pounce Pile (13)
 extends DeckStack
 class_name GoalStack
-#Priscilla Pounce Pile (13)
 const max_stack_cards = 13;
 
 func can_accept_card(card: Node3D) -> bool:
@@ -17,11 +17,11 @@ func can_remove_card(card: Node3D) -> bool:
 func interaction_available(player: Player) -> bool:
 	if team_only && player.team != team:
 		return false
-	if player.carried_card != null: #player carrying a card
+	if player.carried_cards.size() > 0: #player carrying a card
 		if cards.size() >= max_stack_cards:
 			return false
 		if locked:
-			return locked_by_card == player.carried_card
+			return locked_by_card == player.carried_cards[0]
 		return true
 	else: #player not carrying a card
 		return !cards.is_empty()

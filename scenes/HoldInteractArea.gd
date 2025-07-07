@@ -7,7 +7,7 @@ extends Area3D
 @export var team: String = "" #Any
 var interaction_available_delegate: Callable  #set at ready with the delegate node
 
-signal hold_completed(player_id: int, player: Node)
+signal hold_completed(player: Node)
 
 
 var holding_players: Dictionary = {}  # player_id -> { time: float, player: Node }
@@ -30,47 +30,54 @@ func interaction_available(player: Player) -> bool:
 		#return interaction_available_delegate.interaction_available(player, self)
 	return true
 
-func _process(delta):
-	if one_shot and has_triggered:
-		return
+func finish_hold(player: Player):
+	if one_shot:
+		has_triggered = true
+		monitoring = false
+		set_deferred("monitorable", false)
+	hold_completed.emit(player)
 
-	for player_id in holding_players.keys():
-		var entry = holding_players[player_id]
-		if !is_instance_valid(entry.player):
-			holding_players.erase(player_id)
-			continue
+#func _process(delta):
+	#if one_shot and has_triggered:
+		#return
+#
+	#for player_id in holding_players.keys():
+		#var entry = holding_players[player_id]
+		#if !is_instance_valid(entry.player):
+			#holding_players.erase(player_id)
+			#continue
+#
+		#entry.time += delta
+		##var progress = entry.time / hold_time_required
+#
+		#if entry.time >= hold_time_required:
+			#print("Player", player_id, "finished holding", )
+			#hold_completed.emit(player_id, entry.player)
+			#holding_players.erase(player_id)
+			#if one_shot:
+				#has_triggered = true
+				#monitoring = false
+				#set_deferred("monitorable", false)
 
-		entry.time += delta
-		#var progress = entry.time / hold_time_required
-
-		if entry.time >= hold_time_required:
-			print("Player", player_id, "finished holding", )
-			hold_completed.emit(player_id, entry.player)
-			holding_players.erase(player_id)
-			if one_shot:
-				has_triggered = true
-				monitoring = false
-				set_deferred("monitorable", false)
-
-func start_holding(player_id: int, player: Node):
-	if has_triggered or !is_instance_valid(player):
-		return
-	if !interaction_available(player):
-		return
-	if !holding_players.has(player_id):
-		holding_players[player_id] = {
-			"time": 0.0,
-			"player": player
-		}
-
-func stop_holding(player_id: int):
-	if holding_players.has(player_id):
-		holding_players.erase(player_id)
-
-func get_hold_progress(player_id: int) -> float:
-	if holding_players.has(player_id):
-		return clamp(holding_players[player_id].time / hold_time_required, 0, 1)
-	return 0.0
+#func start_holding(player_id: int, player: Node):
+	#if has_triggered or !is_instance_valid(player):
+		#return
+	#if !interaction_available(player):
+		#return
+	#if !holding_players.has(player_id):
+		#holding_players[player_id] = {
+			#"time": 0.0,
+			#"player": player
+		#}
+#
+#func stop_holding(player_id: int):
+	#if holding_players.has(player_id):
+		#holding_players.erase(player_id)
+#
+#func get_hold_progress(player_id: int) -> float:
+	#if holding_players.has(player_id):
+		#return clamp(holding_players[player_id].time / hold_time_required, 0, 1)
+	#return 0.0
 
 
 

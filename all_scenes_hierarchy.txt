@@ -239,6 +239,10 @@ Root Node3D [res://scenes/game_master.gd]
 ---------Prompt_A Sprite2D
 ----------Ring Control [res://scripts/RingUI.gd]
 ---------Prompt Label
+--------Interact2 Control
+---------Prompt_A Sprite2D
+----------Ring Control [res://scripts/RingUI.gd]
+---------Prompt Label
 -------ControlBottomLeft Control
 --------Prompt_A Sprite2D
 --------Prompt_A2 Sprite2D
