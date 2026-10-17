@@ -1,0 +1,14 @@
+FROM debian:bookworm-slim
+
+RUN useradd --create-home --uid 10001 gumball
+WORKDIR /opt/gumball
+
+# A Mono export contains managed assemblies and runtime files in addition to the
+# executable and PCK, so copy the complete export directory.
+COPY build/server/ /opt/gumball/
+RUN chmod 0555 /opt/gumball/GumballNetServer.x86_64 \
+    && chown -R gumball:gumball /opt/gumball
+
+USER gumball
+EXPOSE 42837/udp
+ENTRYPOINT ["/opt/gumball/GumballNetServer.x86_64", "--headless", "--server"]

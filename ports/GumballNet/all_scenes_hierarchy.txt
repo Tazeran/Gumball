@@ -1,0 +1,2370 @@
+
+### res://addons/AIHelp/plugin_dock.tscn ###
+PluginDock Control
+-VBoxContainer VBoxContainer
+--Button Button
+
+### res://Enemies/Beetle.tscn ###
+GroundEnemy RigidBody3D [res://Enemies/Beetle.gd]
+-ReactionLabel Label3D
+--AnimationPlayer AnimationPlayer
+-PlayerDetectionArea Area3D
+--CollisionShape3D CollisionShape3D
+-CollisionShapeBody CollisionShape3D
+-CollisionShapeHead CollisionShape3D
+-DeathCollisionShape CollisionShape3D
+-NavigationAgent3D NavigationAgent3D
+-DefeatSound AudioStreamPlayer3D
+-BeetlebotSkin Node3D [res://Enemies/beetle_bot/beetlebot_skin.gd]
+--beetle_bot Node3D
+---Armature Node3D
+----Skeleton3D Skeleton3D
+-----Beetle MeshInstance3D
+---AnimationPlayer AnimationPlayer
+--AnimationTree AnimationTree
+--SecondaryActionTimer Timer
+
+### res://Enemies/beetle_bot/beetlebot_skin.tscn ###
+BeetlebotSkin Node3D [res://Enemies/beetle_bot/beetlebot_skin.gd]
+-beetle_bot Node3D
+--Armature Node3D
+---Skeleton3D Skeleton3D
+----Beetle MeshInstance3D
+--AnimationPlayer AnimationPlayer
+-AnimationTree AnimationTree
+-SecondaryActionTimer Timer
+
+### res://marker.tscn ###
+Marker Node3D
+-jewel MeshInstance3D
+
+### res://MonsterScene/monster.tscn ###
+Monster Node3D
+
+### res://objects/Base/character.tscn ###
+character Node3D
+-character Node3D
+--root Node3D
+---leg-left MeshInstance3D
+---leg-right MeshInstance3D
+---torso MeshInstance3D
+----arm-left MeshInstance3D
+----arm-right MeshInstance3D
+----antenna MeshInstance3D
+-AnimationPlayer AnimationPlayer
+
+### res://objects/Base/cloud.tscn ###
+cube Node3D [res://objects/Base/cloud.gd]
+-cube2 MeshInstance3D
+
+### res://objects/Base/coin.tscn ###
+coin Area3D [res://objects/Base/coin.gd]
+-Mesh MeshInstance3D
+-CollisionShape3D CollisionShape3D
+-Particles CPUParticles3D
+
+### res://objects/Base/flag.tscn ###
+flag Node3D
+-flag2 MeshInstance3D
+
+### res://objects/Base/heart.tscn ###
+heart Area3D [res://scripts/heart.gd]
+-heart MeshInstance3D
+-CollisionShape3D CollisionShape3D
+-Particles CPUParticles3D
+
+### res://objects/Base/platform.tscn ###
+platform Node3D
+-platform2#StaticBody3D StaticBody3D
+--platform2_StaticBody3D#CollisionShape3D CollisionShape3D
+-platform2 MeshInstance3D
+
+### res://objects/Base/platform_falling.tscn ###
+platform-falling Node3D [res://objects/Base/platform_falling.gd]
+-Area3D Area3D
+--CollisionShape3D CollisionShape3D
+-StaticBody3D StaticBody3D
+--CollisionShape3D CollisionShape3D
+-platform-falling2 MeshInstance3D
+
+### res://objects/Base/platform_goal.tscn ###
+platform-goal Node3D
+-platform-falling2 MeshInstance3D
+-StaticBody3D StaticBody3D
+--CollisionShape3D CollisionShape3D
+
+### res://objects/Base/platform_grass_large_round.tscn ###
+platform-grass-large-round Node3D
+-platform-grass-large-round2#grass-small Node3D
+--grass-small2 MeshInstance3D
+-platform-grass-large-round2#grass Node3D
+--grass2 MeshInstance3D
+-platform-grass-large-round2#grass2 Node3D
+--grass2 MeshInstance3D
+-platform-grass-large-round2#StaticBody3D StaticBody3D
+--platform-grass-large-round2_StaticBody3D#CollisionShape3D CollisionShape3D
+-platform-grass-large-round2 MeshInstance3D
+
+### res://objects/Base/platform_medium.tscn ###
+platform-medium Node3D
+-platform-medium2#StaticBody3D StaticBody3D
+--platform-medium2_StaticBody3D#CollisionShape3D CollisionShape3D
+-platform-medium2 MeshInstance3D
+
+### res://objects/Base/player.tscn ###
+Player CharacterBody3D [res://scripts/player.gd]
+-PickupArea Area3D
+--CollisionShape3D CollisionShape3D
+-Collider CollisionShape3D
+-Character Node3D
+--character Node3D
+---root Node3D
+----leg-left MeshInstance3D
+----leg-right MeshInstance3D
+----torso MeshInstance3D
+-----arm-left MeshInstance3D
+-----arm-right MeshInstance3D
+-----antenna MeshInstance3D
+--AnimationPlayer AnimationPlayer
+-Shadow Decal
+-ParticlesTrail CPUParticles3D
+-SoundFootsteps AudioStreamPlayer
+
+### res://objects/BasicMarble.tscn ###
+RigidBody3D RigidBody3D [res://objects/basic_marble.gd]
+-CollisionShape3D CollisionShape3D
+-MeshInstance3D MeshInstance3D
+
+### res://objects/MarbleRun/helix_large_left_2.tscn ###
+helix-large-left2 Node3D
+-helix-large-left MeshInstance3D
+--StaticBody3D StaticBody3D
+---CollisionShape3D CollisionShape3D
+
+### res://objects/Obstacles/spike_block.tscn ###
+SpikeBlock CharacterBody3D [res://objects/Obstacles/spike_block.gd]
+-CollisionShape3D CollisionShape3D
+-Area3D Area3D
+--CollisionShape3D CollisionShape3D
+-spike-block3 MeshInstance3D
+
+### res://objects/playing_card.tscn ###
+PlayingCard Node3D [res://scripts/playing_card.gd]
+-Cube MeshInstance3D
+
+### res://objects/TerrainGreen/barrel_2.tscn ###
+barrel2 Node3D
+-barrel MeshInstance3D
+--StaticBody3D StaticBody3D
+---CollisionShape3D CollisionShape3D
+
+### res://objects/TerrainGreen/block_grass_corner_low_2.tscn ###
+block-grass-corner-low2 Node3D
+-block-grass-corner-low MeshInstance3D
+--StaticBody3D StaticBody3D
+---CollisionShape3D CollisionShape3D
+
+### res://objects/TerrainGreen/block_grass_curve_half_2.tscn ###
+block-grass-curve-half2 Node3D
+-block-grass-curve-half MeshInstance3D
+--StaticBody3D StaticBody3D
+---CollisionShape3D CollisionShape3D
+
+### res://objects/TerrainGreen/block_grass_large_tall_2.tscn ###
+block-grass-large-tall2 Node3D
+-block-grass-large-tall MeshInstance3D
+--StaticBody3D StaticBody3D
+---CollisionShape3D CollisionShape3D
+
+### res://objects/TerrainGreen/block_grass_overhang_edge_2.tscn ###
+block-grass-overhang-edge2 Node3D
+-block-grass-overhang-edge MeshInstance3D
+--StaticBody3D StaticBody3D
+---CollisionShape3D CollisionShape3D
+
+### res://objects/TerrainGreen/door_large_open_2.tscn ###
+door-large-open2 Node3D
+-door-large-open MeshInstance3D
+--StaticBody3D StaticBody3D
+---CollisionShape3D CollisionShape3D
+
+### res://objects/TerrainGreen/tree_2.tscn ###
+tree2 Node3D
+-tree MeshInstance3D
+--Group MeshInstance3D
+--Group2 MeshInstance3D
+--Group3 MeshInstance3D
+--Group4 MeshInstance3D
+--Group5 MeshInstance3D
+--Group6 MeshInstance3D
+--Group7 MeshInstance3D
+--Group8 MeshInstance3D
+--Group9 MeshInstance3D
+--Group10 MeshInstance3D
+--Group11 MeshInstance3D
+--Group12 MeshInstance3D
+--Group13 MeshInstance3D
+--Group14 MeshInstance3D
+--Group15 MeshInstance3D
+--StaticBody3D StaticBody3D
+---CollisionShape3D CollisionShape3D
+
+### res://scenes/arena1.tscn ###
+Root Node3D [res://scenes/game_master.gd]
+-Teams Node3D
+--TeamMasterA Node3D [res://scenes/team_master.gd]
+--TeamMasterB Node3D [res://scenes/team_master.gd]
+-UI Control Control
+--GridContainer GridContainer
+---SubViewportContainer1 SubViewportContainer [res://scripts/sub_viewport_container.gd]
+----SubViewport SubViewport
+-----HUD CanvasLayer [res://scripts/hud.gd]
+------ControlLayoutFullRect Control
+-------ControlTopLeft Control
+--------Prompt_A Sprite2D
+--------Prompt_A2 Sprite2D
+--------HeartBar Control [res://scripts/heart_bar.gd]
+---------Hearts HFlowContainer
+----------Icon TextureRect
+----------Icon3 TextureRect
+----------Icon2 TextureRect
+-------ControlTopRight Control
+--------Prompt_A Sprite2D
+--------Prompt_A2 Sprite2D
+--------Ring Control [res://scripts/RingUI.gd]
+-------ControlBottomRight Control
+--------Prompt_A Sprite2D
+--------Prompt_A2 Sprite2D
+--------Interact Control
+---------Prompt_A Sprite2D
+----------Ring Control [res://scripts/RingUI.gd]
+---------Prompt Label
+--------Interact2 Control
+---------Prompt_A Sprite2D
+----------Ring Control [res://scripts/RingUI.gd]
+---------Prompt Label
+-------ControlBottomLeft Control
+--------Prompt_A Sprite2D
+--------Prompt_A2 Sprite2D
+--------ControlCoins Control [res://scripts/heart_bar.gd]
+---------Icon TextureRect
+---------x Label
+---------Coins Label
+-----View Node3D [res://scripts/view.gd]
+------Camera Camera3D
+---SubViewportContainer2 SubViewportContainer [res://scripts/sub_viewport_container.gd]
+----SubViewport SubViewport
+-----HUD CanvasLayer [res://scripts/hud.gd]
+------ControlLayoutFullRect Control
+-------ControlTopLeft Control
+--------Prompt_A Sprite2D
+--------Prompt_A2 Sprite2D
+--------HeartBar Control [res://scripts/heart_bar.gd]
+---------Hearts HFlowContainer
+----------Icon TextureRect
+----------Icon3 TextureRect
+----------Icon2 TextureRect
+-------ControlTopRight Control
+--------Prompt_A Sprite2D
+--------Prompt_A2 Sprite2D
+--------Ring Control [res://scripts/RingUI.gd]
+-------ControlBottomRight Control
+--------Prompt_A Sprite2D
+--------Prompt_A2 Sprite2D
+--------Interact Control
+---------Prompt_A Sprite2D
+----------Ring Control [res://scripts/RingUI.gd]
+---------Prompt Label
+-------ControlBottomLeft Control
+--------Prompt_A Sprite2D
+--------Prompt_A2 Sprite2D
+--------ControlCoins Control [res://scripts/heart_bar.gd]
+---------Icon TextureRect
+---------x Label
+---------Coins Label
+-----View Node3D [res://scripts/view.gd]
+------Camera Camera3D
+---SubViewportContainer3 SubViewportContainer [res://scripts/sub_viewport_container.gd]
+----SubViewport SubViewport
+-----HUD CanvasLayer [res://scripts/hud.gd]
+------ControlLayoutFullRect Control
+-------ControlTopLeft Control
+--------Prompt_A Sprite2D
+--------Prompt_A2 Sprite2D
+--------HeartBar Control [res://scripts/heart_bar.gd]
+---------Hearts HFlowContainer
+----------Icon TextureRect
+----------Icon3 TextureRect
+----------Icon2 TextureRect
+-------ControlTopRight Control
+--------Prompt_A Sprite2D
+--------Prompt_A2 Sprite2D
+--------Ring Control [res://scripts/RingUI.gd]
+-------ControlBottomRight Control
+--------Prompt_A Sprite2D
+--------Prompt_A2 Sprite2D
+--------Interact Control
+---------Prompt_A Sprite2D
+----------Ring Control [res://scripts/RingUI.gd]
+---------Prompt Label
+-------ControlBottomLeft Control
+--------Prompt_A Sprite2D
+--------Prompt_A2 Sprite2D
+--------ControlCoins Control [res://scripts/heart_bar.gd]
+---------Icon TextureRect
+---------x Label
+---------Coins Label
+-----View Node3D [res://scripts/view.gd]
+------Camera Camera3D
+---SubViewportContainer4 SubViewportContainer [res://scripts/sub_viewport_container.gd]
+----SubViewport SubViewport
+-----HUD CanvasLayer [res://scripts/hud.gd]
+------ControlLayoutFullRect Control
+-------ControlTopLeft Control
+--------Prompt_A Sprite2D
+--------Prompt_A2 Sprite2D
+--------HeartBar Control [res://scripts/heart_bar.gd]
+---------Hearts HFlowContainer
+----------Icon TextureRect
+----------Icon3 TextureRect
+----------Icon2 TextureRect
+-------ControlTopRight Control
+--------Prompt_A Sprite2D
+--------Prompt_A2 Sprite2D
+--------Ring Control [res://scripts/RingUI.gd]
+-------ControlBottomRight Control
+--------Prompt_A Sprite2D
+--------Prompt_A2 Sprite2D
+--------Interact Control
+---------Prompt_A Sprite2D
+----------Ring Control [res://scripts/RingUI.gd]
+---------Prompt Label
+-------ControlBottomLeft Control
+--------Prompt_A Sprite2D
+--------Prompt_A2 Sprite2D
+--------ControlCoins Control [res://scripts/heart_bar.gd]
+---------Icon TextureRect
+---------x Label
+---------Coins Label
+-----View Node3D [res://scripts/view.gd]
+------Camera Camera3D
+-Sun DirectionalLight3D
+-Environment WorldEnvironment
+-Clouds Node3D
+--cube8 Node3D [res://objects/Base/cloud.gd]
+---cube2 MeshInstance3D
+--cube9 Node3D [res://objects/Base/cloud.gd]
+---cube2 MeshInstance3D
+--cube10 Node3D [res://objects/Base/cloud.gd]
+---cube2 MeshInstance3D
+--cube11 Node3D [res://objects/Base/cloud.gd]
+---cube2 MeshInstance3D
+--cube12 Node3D [res://objects/Base/cloud.gd]
+---cube2 MeshInstance3D
+--cube13 Node3D [res://objects/Base/cloud.gd]
+---cube2 MeshInstance3D
+--cube14 Node3D [res://objects/Base/cloud.gd]
+---cube2 MeshInstance3D
+--cube15 Node3D [res://objects/Base/cloud.gd]
+---cube2 MeshInstance3D
+--cube16 Node3D [res://objects/Base/cloud.gd]
+---cube2 MeshInstance3D
+--cube17 Node3D [res://objects/Base/cloud.gd]
+---cube2 MeshInstance3D
+--cube18 Node3D [res://objects/Base/cloud.gd]
+---cube2 MeshInstance3D
+--cube24 Node3D [res://objects/Base/cloud.gd]
+---cube2 MeshInstance3D
+--cube19 Node3D [res://objects/Base/cloud.gd]
+---cube2 MeshInstance3D
+--cube20 Node3D [res://objects/Base/cloud.gd]
+---cube2 MeshInstance3D
+--cube22 Node3D [res://objects/Base/cloud.gd]
+---cube2 MeshInstance3D
+--cube23 Node3D [res://objects/Base/cloud.gd]
+---cube2 MeshInstance3D
+--cube21 Node3D [res://objects/Base/cloud.gd]
+---cube2 MeshInstance3D
+-Pickups Node3D
+--coin11 Area3D [res://objects/Base/coin.gd]
+---Mesh MeshInstance3D
+---CollisionShape3D CollisionShape3D
+---Particles CPUParticles3D
+--coin12 Area3D [res://objects/Base/coin.gd]
+---Mesh MeshInstance3D
+---CollisionShape3D CollisionShape3D
+---Particles CPUParticles3D
+--coin13 Area3D [res://objects/Base/coin.gd]
+---Mesh MeshInstance3D
+---CollisionShape3D CollisionShape3D
+---Particles CPUParticles3D
+--coin14 Area3D [res://objects/Base/coin.gd]
+---Mesh MeshInstance3D
+---CollisionShape3D CollisionShape3D
+---Particles CPUParticles3D
+--coin15 Area3D [res://objects/Base/coin.gd]
+---Mesh MeshInstance3D
+---CollisionShape3D CollisionShape3D
+---Particles CPUParticles3D
+--coin26 Area3D [res://objects/Base/coin.gd]
+---Mesh MeshInstance3D
+---CollisionShape3D CollisionShape3D
+---Particles CPUParticles3D
+--coin27 Area3D [res://objects/Base/coin.gd]
+---Mesh MeshInstance3D
+---CollisionShape3D CollisionShape3D
+---Particles CPUParticles3D
+--coin28 Area3D [res://objects/Base/coin.gd]
+---Mesh MeshInstance3D
+---CollisionShape3D CollisionShape3D
+---Particles CPUParticles3D
+--coin29 Area3D [res://objects/Base/coin.gd]
+---Mesh MeshInstance3D
+---CollisionShape3D CollisionShape3D
+---Particles CPUParticles3D
+--coin30 Area3D [res://objects/Base/coin.gd]
+---Mesh MeshInstance3D
+---CollisionShape3D CollisionShape3D
+---Particles CPUParticles3D
+--coin31 Area3D [res://objects/Base/coin.gd]
+---Mesh MeshInstance3D
+---CollisionShape3D CollisionShape3D
+---Particles CPUParticles3D
+--coin32 Area3D [res://objects/Base/coin.gd]
+---Mesh MeshInstance3D
+---CollisionShape3D CollisionShape3D
+---Particles CPUParticles3D
+--coin33 Area3D [res://objects/Base/coin.gd]
+---Mesh MeshInstance3D
+---CollisionShape3D CollisionShape3D
+---Particles CPUParticles3D
+--coin34 Area3D [res://objects/Base/coin.gd]
+---Mesh MeshInstance3D
+---CollisionShape3D CollisionShape3D
+---Particles CPUParticles3D
+--coin35 Area3D [res://objects/Base/coin.gd]
+---Mesh MeshInstance3D
+---CollisionShape3D CollisionShape3D
+---Particles CPUParticles3D
+--coin36 Area3D [res://objects/Base/coin.gd]
+---Mesh MeshInstance3D
+---CollisionShape3D CollisionShape3D
+---Particles CPUParticles3D
+--coin37 Area3D [res://objects/Base/coin.gd]
+---Mesh MeshInstance3D
+---CollisionShape3D CollisionShape3D
+---Particles CPUParticles3D
+--coin38 Area3D [res://objects/Base/coin.gd]
+---Mesh MeshInstance3D
+---CollisionShape3D CollisionShape3D
+---Particles CPUParticles3D
+--coin39 Area3D [res://objects/Base/coin.gd]
+---Mesh MeshInstance3D
+---CollisionShape3D CollisionShape3D
+---Particles CPUParticles3D
+--coin40 Area3D [res://objects/Base/coin.gd]
+---Mesh MeshInstance3D
+---CollisionShape3D CollisionShape3D
+---Particles CPUParticles3D
+--coin41 Area3D [res://objects/Base/coin.gd]
+---Mesh MeshInstance3D
+---CollisionShape3D CollisionShape3D
+---Particles CPUParticles3D
+--coin42 Area3D [res://objects/Base/coin.gd]
+---Mesh MeshInstance3D
+---CollisionShape3D CollisionShape3D
+---Particles CPUParticles3D
+--coin43 Area3D [res://objects/Base/coin.gd]
+---Mesh MeshInstance3D
+---CollisionShape3D CollisionShape3D
+---Particles CPUParticles3D
+--coin44 Area3D [res://objects/Base/coin.gd]
+---Mesh MeshInstance3D
+---CollisionShape3D CollisionShape3D
+---Particles CPUParticles3D
+--coin45 Area3D [res://objects/Base/coin.gd]
+---Mesh MeshInstance3D
+---CollisionShape3D CollisionShape3D
+---Particles CPUParticles3D
+--coin46 Area3D [res://objects/Base/coin.gd]
+---Mesh MeshInstance3D
+---CollisionShape3D CollisionShape3D
+---Particles CPUParticles3D
+--coin47 Area3D [res://objects/Base/coin.gd]
+---Mesh MeshInstance3D
+---CollisionShape3D CollisionShape3D
+---Particles CPUParticles3D
+--coin48 Area3D [res://objects/Base/coin.gd]
+---Mesh MeshInstance3D
+---CollisionShape3D CollisionShape3D
+---Particles CPUParticles3D
+--coin49 Area3D [res://objects/Base/coin.gd]
+---Mesh MeshInstance3D
+---CollisionShape3D CollisionShape3D
+---Particles CPUParticles3D
+--coin50 Area3D [res://objects/Base/coin.gd]
+---Mesh MeshInstance3D
+---CollisionShape3D CollisionShape3D
+---Particles CPUParticles3D
+--coin51 Area3D [res://objects/Base/coin.gd]
+---Mesh MeshInstance3D
+---CollisionShape3D CollisionShape3D
+---Particles CPUParticles3D
+--coin52 Area3D [res://objects/Base/coin.gd]
+---Mesh MeshInstance3D
+---CollisionShape3D CollisionShape3D
+---Particles CPUParticles3D
+--coin53 Area3D [res://objects/Base/coin.gd]
+---Mesh MeshInstance3D
+---CollisionShape3D CollisionShape3D
+---Particles CPUParticles3D
+--coin54 Area3D [res://objects/Base/coin.gd]
+---Mesh MeshInstance3D
+---CollisionShape3D CollisionShape3D
+---Particles CPUParticles3D
+--coin55 Area3D [res://objects/Base/coin.gd]
+---Mesh MeshInstance3D
+---CollisionShape3D CollisionShape3D
+---Particles CPUParticles3D
+--coin16 Area3D [res://objects/Base/coin.gd]
+---Mesh MeshInstance3D
+---CollisionShape3D CollisionShape3D
+---Particles CPUParticles3D
+--coin17 Area3D [res://objects/Base/coin.gd]
+---Mesh MeshInstance3D
+---CollisionShape3D CollisionShape3D
+---Particles CPUParticles3D
+--coin18 Area3D [res://objects/Base/coin.gd]
+---Mesh MeshInstance3D
+---CollisionShape3D CollisionShape3D
+---Particles CPUParticles3D
+--coin19 Area3D [res://objects/Base/coin.gd]
+---Mesh MeshInstance3D
+---CollisionShape3D CollisionShape3D
+---Particles CPUParticles3D
+--coin20 Area3D [res://objects/Base/coin.gd]
+---Mesh MeshInstance3D
+---CollisionShape3D CollisionShape3D
+---Particles CPUParticles3D
+--coin21 Area3D [res://objects/Base/coin.gd]
+---Mesh MeshInstance3D
+---CollisionShape3D CollisionShape3D
+---Particles CPUParticles3D
+--coin22 Area3D [res://objects/Base/coin.gd]
+---Mesh MeshInstance3D
+---CollisionShape3D CollisionShape3D
+---Particles CPUParticles3D
+--coin23 Area3D [res://objects/Base/coin.gd]
+---Mesh MeshInstance3D
+---CollisionShape3D CollisionShape3D
+---Particles CPUParticles3D
+--coin24 Area3D [res://objects/Base/coin.gd]
+---Mesh MeshInstance3D
+---CollisionShape3D CollisionShape3D
+---Particles CPUParticles3D
+--coin25 Area3D [res://objects/Base/coin.gd]
+---Mesh MeshInstance3D
+---CollisionShape3D CollisionShape3D
+---Particles CPUParticles3D
+--coin6 Area3D [res://objects/Base/coin.gd]
+---Mesh MeshInstance3D
+---CollisionShape3D CollisionShape3D
+---Particles CPUParticles3D
+--flag2 Node3D
+---flag2 MeshInstance3D
+--flag Node3D
+---flag2 MeshInstance3D
+--flag3 Node3D
+---flag2 MeshInstance3D
+--flag4 Node3D
+---flag2 MeshInstance3D
+--flag5 Node3D
+---flag2 MeshInstance3D
+-FallingPlatforms Node3D
+--platform-falling Node3D [res://objects/Base/platform_falling.gd]
+---Area3D Area3D
+----CollisionShape3D CollisionShape3D
+---StaticBody3D StaticBody3D
+----CollisionShape3D CollisionShape3D
+---platform-falling2 MeshInstance3D
+--platform-falling2 Node3D [res://objects/Base/platform_falling.gd]
+---Area3D Area3D
+----CollisionShape3D CollisionShape3D
+---StaticBody3D StaticBody3D
+----CollisionShape3D CollisionShape3D
+---platform-falling2 MeshInstance3D
+--platform-falling7 Node3D [res://objects/Base/platform_falling.gd]
+---Area3D Area3D
+----CollisionShape3D CollisionShape3D
+---StaticBody3D StaticBody3D
+----CollisionShape3D CollisionShape3D
+---platform-falling2 MeshInstance3D
+--platform-falling8 Node3D [res://objects/Base/platform_falling.gd]
+---Area3D Area3D
+----CollisionShape3D CollisionShape3D
+---StaticBody3D StaticBody3D
+----CollisionShape3D CollisionShape3D
+---platform-falling2 MeshInstance3D
+--platform-falling9 Node3D [res://objects/Base/platform_falling.gd]
+---Area3D Area3D
+----CollisionShape3D CollisionShape3D
+---StaticBody3D StaticBody3D
+----CollisionShape3D CollisionShape3D
+---platform-falling2 MeshInstance3D
+--platform-falling10 Node3D [res://objects/Base/platform_falling.gd]
+---Area3D Area3D
+----CollisionShape3D CollisionShape3D
+---StaticBody3D StaticBody3D
+----CollisionShape3D CollisionShape3D
+---platform-falling2 MeshInstance3D
+--platform-falling11 Node3D [res://objects/Base/platform_falling.gd]
+---Area3D Area3D
+----CollisionShape3D CollisionShape3D
+---StaticBody3D StaticBody3D
+----CollisionShape3D CollisionShape3D
+---platform-falling2 MeshInstance3D
+--platform-falling12 Node3D [res://objects/Base/platform_falling.gd]
+---Area3D Area3D
+----CollisionShape3D CollisionShape3D
+---StaticBody3D StaticBody3D
+----CollisionShape3D CollisionShape3D
+---platform-falling2 MeshInstance3D
+--platform-falling13 Node3D [res://objects/Base/platform_falling.gd]
+---Area3D Area3D
+----CollisionShape3D CollisionShape3D
+---StaticBody3D StaticBody3D
+----CollisionShape3D CollisionShape3D
+---platform-falling2 MeshInstance3D
+--platform-falling14 Node3D [res://objects/Base/platform_falling.gd]
+---Area3D Area3D
+----CollisionShape3D CollisionShape3D
+---StaticBody3D StaticBody3D
+----CollisionShape3D CollisionShape3D
+---platform-falling2 MeshInstance3D
+--platform-falling16 Node3D [res://objects/Base/platform_falling.gd]
+---Area3D Area3D
+----CollisionShape3D CollisionShape3D
+---StaticBody3D StaticBody3D
+----CollisionShape3D CollisionShape3D
+---platform-falling2 MeshInstance3D
+--platform-falling17 Node3D [res://objects/Base/platform_falling.gd]
+---Area3D Area3D
+----CollisionShape3D CollisionShape3D
+---StaticBody3D StaticBody3D
+----CollisionShape3D CollisionShape3D
+---platform-falling2 MeshInstance3D
+--platform-falling18 Node3D [res://objects/Base/platform_falling.gd]
+---Area3D Area3D
+----CollisionShape3D CollisionShape3D
+---StaticBody3D StaticBody3D
+----CollisionShape3D CollisionShape3D
+---platform-falling2 MeshInstance3D
+--platform-falling19 Node3D [res://objects/Base/platform_falling.gd]
+---Area3D Area3D
+----CollisionShape3D CollisionShape3D
+---StaticBody3D StaticBody3D
+----CollisionShape3D CollisionShape3D
+---platform-falling2 MeshInstance3D
+--platform-falling20 Node3D [res://objects/Base/platform_falling.gd]
+---Area3D Area3D
+----CollisionShape3D CollisionShape3D
+---StaticBody3D StaticBody3D
+----CollisionShape3D CollisionShape3D
+---platform-falling2 MeshInstance3D
+--platform-falling21 Node3D [res://objects/Base/platform_falling.gd]
+---Area3D Area3D
+----CollisionShape3D CollisionShape3D
+---StaticBody3D StaticBody3D
+----CollisionShape3D CollisionShape3D
+---platform-falling2 MeshInstance3D
+--platform-falling22 Node3D [res://objects/Base/platform_falling.gd]
+---Area3D Area3D
+----CollisionShape3D CollisionShape3D
+---StaticBody3D StaticBody3D
+----CollisionShape3D CollisionShape3D
+---platform-falling2 MeshInstance3D
+--platform-falling23 Node3D [res://objects/Base/platform_falling.gd]
+---Area3D Area3D
+----CollisionShape3D CollisionShape3D
+---StaticBody3D StaticBody3D
+----CollisionShape3D CollisionShape3D
+---platform-falling2 MeshInstance3D
+--platform-falling24 Node3D [res://objects/Base/platform_falling.gd]
+---Area3D Area3D
+----CollisionShape3D CollisionShape3D
+---StaticBody3D StaticBody3D
+----CollisionShape3D CollisionShape3D
+---platform-falling2 MeshInstance3D
+--platform-falling25 Node3D [res://objects/Base/platform_falling.gd]
+---Area3D Area3D
+----CollisionShape3D CollisionShape3D
+---StaticBody3D StaticBody3D
+----CollisionShape3D CollisionShape3D
+---platform-falling2 MeshInstance3D
+--platform-falling26 Node3D [res://objects/Base/platform_falling.gd]
+---Area3D Area3D
+----CollisionShape3D CollisionShape3D
+---StaticBody3D StaticBody3D
+----CollisionShape3D CollisionShape3D
+---platform-falling2 MeshInstance3D
+--platform-falling27 Node3D [res://objects/Base/platform_falling.gd]
+---Area3D Area3D
+----CollisionShape3D CollisionShape3D
+---StaticBody3D StaticBody3D
+----CollisionShape3D CollisionShape3D
+---platform-falling2 MeshInstance3D
+--platform-falling28 Node3D [res://objects/Base/platform_falling.gd]
+---Area3D Area3D
+----CollisionShape3D CollisionShape3D
+---StaticBody3D StaticBody3D
+----CollisionShape3D CollisionShape3D
+---platform-falling2 MeshInstance3D
+--platform-falling29 Node3D [res://objects/Base/platform_falling.gd]
+---Area3D Area3D
+----CollisionShape3D CollisionShape3D
+---StaticBody3D StaticBody3D
+----CollisionShape3D CollisionShape3D
+---platform-falling2 MeshInstance3D
+--platform-falling31 Node3D [res://objects/Base/platform_falling.gd]
+---Area3D Area3D
+----CollisionShape3D CollisionShape3D
+---StaticBody3D StaticBody3D
+----CollisionShape3D CollisionShape3D
+---platform-falling2 MeshInstance3D
+--platform-falling32 Node3D [res://objects/Base/platform_falling.gd]
+---Area3D Area3D
+----CollisionShape3D CollisionShape3D
+---StaticBody3D StaticBody3D
+----CollisionShape3D CollisionShape3D
+---platform-falling2 MeshInstance3D
+--platform-falling33 Node3D [res://objects/Base/platform_falling.gd]
+---Area3D Area3D
+----CollisionShape3D CollisionShape3D
+---StaticBody3D StaticBody3D
+----CollisionShape3D CollisionShape3D
+---platform-falling2 MeshInstance3D
+--platform-falling34 Node3D [res://objects/Base/platform_falling.gd]
+---Area3D Area3D
+----CollisionShape3D CollisionShape3D
+---StaticBody3D StaticBody3D
+----CollisionShape3D CollisionShape3D
+---platform-falling2 MeshInstance3D
+--platform-falling35 Node3D [res://objects/Base/platform_falling.gd]
+---Area3D Area3D
+----CollisionShape3D CollisionShape3D
+---StaticBody3D StaticBody3D
+----CollisionShape3D CollisionShape3D
+---platform-falling2 MeshInstance3D
+--platform-falling36 Node3D [res://objects/Base/platform_falling.gd]
+---Area3D Area3D
+----CollisionShape3D CollisionShape3D
+---StaticBody3D StaticBody3D
+----CollisionShape3D CollisionShape3D
+---platform-falling2 MeshInstance3D
+-NavigationRegion3D NavigationRegion3D
+--World Node3D
+---platform Node3D
+----platform2#StaticBody3D StaticBody3D
+-----platform2_StaticBody3D#CollisionShape3D CollisionShape3D
+----platform2 MeshInstance3D
+---platform5 Node3D
+----platform2#StaticBody3D StaticBody3D
+-----platform2_StaticBody3D#CollisionShape3D CollisionShape3D
+----platform2 MeshInstance3D
+---platform6 Node3D
+----platform2#StaticBody3D StaticBody3D
+-----platform2_StaticBody3D#CollisionShape3D CollisionShape3D
+----platform2 MeshInstance3D
+---platform7 Node3D
+----platform2#StaticBody3D StaticBody3D
+-----platform2_StaticBody3D#CollisionShape3D CollisionShape3D
+----platform2 MeshInstance3D
+---platform8 Node3D
+----platform2#StaticBody3D StaticBody3D
+-----platform2_StaticBody3D#CollisionShape3D CollisionShape3D
+----platform2 MeshInstance3D
+---platform4 Node3D
+----platform2#StaticBody3D StaticBody3D
+-----platform2_StaticBody3D#CollisionShape3D CollisionShape3D
+----platform2 MeshInstance3D
+---platform2 Node3D
+----platform2#StaticBody3D StaticBody3D
+-----platform2_StaticBody3D#CollisionShape3D CollisionShape3D
+----platform2 MeshInstance3D
+---platform3 Node3D
+----platform2#StaticBody3D StaticBody3D
+-----platform2_StaticBody3D#CollisionShape3D CollisionShape3D
+----platform2 MeshInstance3D
+---platform-medium Node3D
+----platform-medium2#StaticBody3D StaticBody3D
+-----platform-medium2_StaticBody3D#CollisionShape3D CollisionShape3D
+----platform-medium2 MeshInstance3D
+---platform-medium4 Node3D
+----platform-medium2#StaticBody3D StaticBody3D
+-----platform-medium2_StaticBody3D#CollisionShape3D CollisionShape3D
+----platform-medium2 MeshInstance3D
+---platform-medium3 Node3D
+----platform-medium2#StaticBody3D StaticBody3D
+-----platform-medium2_StaticBody3D#CollisionShape3D CollisionShape3D
+----platform-medium2 MeshInstance3D
+---platform-grass-large-round Node3D
+----platform-grass-large-round2#grass-small Node3D
+-----grass-small2 MeshInstance3D
+----platform-grass-large-round2#grass Node3D
+-----grass2 MeshInstance3D
+----platform-grass-large-round2#grass2 Node3D
+-----grass2 MeshInstance3D
+----platform-grass-large-round2#StaticBody3D StaticBody3D
+-----platform-grass-large-round2_StaticBody3D#CollisionShape3D CollisionShape3D
+----platform-grass-large-round2 MeshInstance3D
+---platform-grass-large-round2 Node3D
+----platform-grass-large-round2#grass-small Node3D
+-----grass-small2 MeshInstance3D
+----platform-grass-large-round2#grass Node3D
+-----grass2 MeshInstance3D
+----platform-grass-large-round2#grass2 Node3D
+-----grass2 MeshInstance3D
+----platform-grass-large-round2#StaticBody3D StaticBody3D
+-----platform-grass-large-round2_StaticBody3D#CollisionShape3D CollisionShape3D
+----platform-grass-large-round2 MeshInstance3D
+---platform-grass-large-round4 Node3D
+----platform-grass-large-round2#grass-small Node3D
+-----grass-small2 MeshInstance3D
+----platform-grass-large-round2#grass Node3D
+-----grass2 MeshInstance3D
+----platform-grass-large-round2#grass2 Node3D
+-----grass2 MeshInstance3D
+----platform-grass-large-round2#StaticBody3D StaticBody3D
+-----platform-grass-large-round2_StaticBody3D#CollisionShape3D CollisionShape3D
+----platform-grass-large-round2 MeshInstance3D
+---platform-grass-large-round5 Node3D
+----platform-grass-large-round2#grass-small Node3D
+-----grass-small2 MeshInstance3D
+----platform-grass-large-round2#grass Node3D
+-----grass2 MeshInstance3D
+----platform-grass-large-round2#grass2 Node3D
+-----grass2 MeshInstance3D
+----platform-grass-large-round2#StaticBody3D StaticBody3D
+-----platform-grass-large-round2_StaticBody3D#CollisionShape3D CollisionShape3D
+----platform-grass-large-round2 MeshInstance3D
+---platform-grass-large-round3 Node3D
+----platform-grass-large-round2#grass-small Node3D
+-----grass-small2 MeshInstance3D
+----platform-grass-large-round2#grass Node3D
+-----grass2 MeshInstance3D
+----platform-grass-large-round2#grass2 Node3D
+-----grass2 MeshInstance3D
+----platform-grass-large-round2#StaticBody3D StaticBody3D
+-----platform-grass-large-round2_StaticBody3D#CollisionShape3D CollisionShape3D
+----platform-grass-large-round2 MeshInstance3D
+---block-grass-corner-low3 Node3D
+----block-grass-corner-low MeshInstance3D
+-----StaticBody3D StaticBody3D
+------CollisionShape3D CollisionShape3D
+---block-grass-corner-low4 Node3D
+----block-grass-corner-low MeshInstance3D
+-----StaticBody3D StaticBody3D
+------CollisionShape3D CollisionShape3D
+---block-grass-large-tall2 Node3D
+----block-grass-large-tall MeshInstance3D
+-----StaticBody3D StaticBody3D
+------CollisionShape3D CollisionShape3D
+---block-grass-large-tall3 Node3D
+----block-grass-large-tall MeshInstance3D
+-----StaticBody3D StaticBody3D
+------CollisionShape3D CollisionShape3D
+---block-grass-large-tall4 Node3D
+----block-grass-large-tall MeshInstance3D
+-----StaticBody3D StaticBody3D
+------CollisionShape3D CollisionShape3D
+---block-grass-large-tall5 Node3D
+----block-grass-large-tall MeshInstance3D
+-----StaticBody3D StaticBody3D
+------CollisionShape3D CollisionShape3D
+---block-grass-large-tall7 Node3D
+----block-grass-large-tall MeshInstance3D
+-----StaticBody3D StaticBody3D
+------CollisionShape3D CollisionShape3D
+---block-grass-large-tall11 Node3D
+----block-grass-large-tall MeshInstance3D
+-----StaticBody3D StaticBody3D
+------CollisionShape3D CollisionShape3D
+---block-grass-large-tall14 Node3D
+----block-grass-large-tall MeshInstance3D
+-----StaticBody3D StaticBody3D
+------CollisionShape3D CollisionShape3D
+---block-grass-large-tall12 Node3D
+----block-grass-large-tall MeshInstance3D
+-----StaticBody3D StaticBody3D
+------CollisionShape3D CollisionShape3D
+---block-grass-large-tall15 Node3D
+----block-grass-large-tall MeshInstance3D
+-----StaticBody3D StaticBody3D
+------CollisionShape3D CollisionShape3D
+---block-grass-large-tall9 Node3D
+----block-grass-large-tall MeshInstance3D
+-----StaticBody3D StaticBody3D
+------CollisionShape3D CollisionShape3D
+---block-grass-large-tall10 Node3D
+----block-grass-large-tall MeshInstance3D
+-----StaticBody3D StaticBody3D
+------CollisionShape3D CollisionShape3D
+---block-grass-large-tall13 Node3D
+----block-grass-large-tall MeshInstance3D
+-----StaticBody3D StaticBody3D
+------CollisionShape3D CollisionShape3D
+---tree2 Node3D
+----tree MeshInstance3D
+-----Group MeshInstance3D
+-----Group2 MeshInstance3D
+-----Group3 MeshInstance3D
+-----Group4 MeshInstance3D
+-----Group5 MeshInstance3D
+-----Group6 MeshInstance3D
+-----Group7 MeshInstance3D
+-----Group8 MeshInstance3D
+-----Group9 MeshInstance3D
+-----Group10 MeshInstance3D
+-----Group11 MeshInstance3D
+-----Group12 MeshInstance3D
+-----Group13 MeshInstance3D
+-----Group14 MeshInstance3D
+-----Group15 MeshInstance3D
+-----StaticBody3D StaticBody3D
+------CollisionShape3D CollisionShape3D
+---tree6 Node3D
+----tree MeshInstance3D
+-----Group MeshInstance3D
+-----Group2 MeshInstance3D
+-----Group3 MeshInstance3D
+-----Group4 MeshInstance3D
+-----Group5 MeshInstance3D
+-----Group6 MeshInstance3D
+-----Group7 MeshInstance3D
+-----Group8 MeshInstance3D
+-----Group9 MeshInstance3D
+-----Group10 MeshInstance3D
+-----Group11 MeshInstance3D
+-----Group12 MeshInstance3D
+-----Group13 MeshInstance3D
+-----Group14 MeshInstance3D
+-----Group15 MeshInstance3D
+-----StaticBody3D StaticBody3D
+------CollisionShape3D CollisionShape3D
+---tree7 Node3D
+----tree MeshInstance3D
+-----Group MeshInstance3D
+-----Group2 MeshInstance3D
+-----Group3 MeshInstance3D
+-----Group4 MeshInstance3D
+-----Group5 MeshInstance3D
+-----Group6 MeshInstance3D
+-----Group7 MeshInstance3D
+-----Group8 MeshInstance3D
+-----Group9 MeshInstance3D
+-----Group10 MeshInstance3D
+-----Group11 MeshInstance3D
+-----Group12 MeshInstance3D
+-----Group13 MeshInstance3D
+-----Group14 MeshInstance3D
+-----Group15 MeshInstance3D
+-----StaticBody3D StaticBody3D
+------CollisionShape3D CollisionShape3D
+---tree8 Node3D
+----tree MeshInstance3D
+-----Group MeshInstance3D
+-----Group2 MeshInstance3D
+-----Group3 MeshInstance3D
+-----Group4 MeshInstance3D
+-----Group5 MeshInstance3D
+-----Group6 MeshInstance3D
+-----Group7 MeshInstance3D
+-----Group8 MeshInstance3D
+-----Group9 MeshInstance3D
+-----Group10 MeshInstance3D
+-----Group11 MeshInstance3D
+-----Group12 MeshInstance3D
+-----Group13 MeshInstance3D
+-----Group14 MeshInstance3D
+-----Group15 MeshInstance3D
+-----StaticBody3D StaticBody3D
+------CollisionShape3D CollisionShape3D
+---tree9 Node3D
+----tree MeshInstance3D
+-----Group MeshInstance3D
+-----Group2 MeshInstance3D
+-----Group3 MeshInstance3D
+-----Group4 MeshInstance3D
+-----Group5 MeshInstance3D
+-----Group6 MeshInstance3D
+-----Group7 MeshInstance3D
+-----Group8 MeshInstance3D
+-----Group9 MeshInstance3D
+-----Group10 MeshInstance3D
+-----Group11 MeshInstance3D
+-----Group12 MeshInstance3D
+-----Group13 MeshInstance3D
+-----Group14 MeshInstance3D
+-----Group15 MeshInstance3D
+-----StaticBody3D StaticBody3D
+------CollisionShape3D CollisionShape3D
+---tree3 Node3D
+----tree MeshInstance3D
+-----Group MeshInstance3D
+-----Group2 MeshInstance3D
+-----Group3 MeshInstance3D
+-----Group4 MeshInstance3D
+-----Group5 MeshInstance3D
+-----Group6 MeshInstance3D
+-----Group7 MeshInstance3D
+-----Group8 MeshInstance3D
+-----Group9 MeshInstance3D
+-----Group10 MeshInstance3D
+-----Group11 MeshInstance3D
+-----Group12 MeshInstance3D
+-----Group13 MeshInstance3D
+-----Group14 MeshInstance3D
+-----Group15 MeshInstance3D
+-----StaticBody3D StaticBody3D
+------CollisionShape3D CollisionShape3D
+---tree5 Node3D
+----tree MeshInstance3D
+-----Group MeshInstance3D
+-----Group2 MeshInstance3D
+-----Group3 MeshInstance3D
+-----Group4 MeshInstance3D
+-----Group5 MeshInstance3D
+-----Group6 MeshInstance3D
+-----Group7 MeshInstance3D
+-----Group8 MeshInstance3D
+-----Group9 MeshInstance3D
+-----Group10 MeshInstance3D
+-----Group11 MeshInstance3D
+-----Group12 MeshInstance3D
+-----Group13 MeshInstance3D
+-----Group14 MeshInstance3D
+-----Group15 MeshInstance3D
+-----StaticBody3D StaticBody3D
+------CollisionShape3D CollisionShape3D
+---tree4 Node3D
+----tree MeshInstance3D
+-----Group MeshInstance3D
+-----Group2 MeshInstance3D
+-----Group3 MeshInstance3D
+-----Group4 MeshInstance3D
+-----Group5 MeshInstance3D
+-----Group6 MeshInstance3D
+-----Group7 MeshInstance3D
+-----Group8 MeshInstance3D
+-----Group9 MeshInstance3D
+-----Group10 MeshInstance3D
+-----Group11 MeshInstance3D
+-----Group12 MeshInstance3D
+-----Group13 MeshInstance3D
+-----Group14 MeshInstance3D
+-----Group15 MeshInstance3D
+-----StaticBody3D StaticBody3D
+------CollisionShape3D CollisionShape3D
+---block-grass-curve-half2 Node3D
+----block-grass-curve-half MeshInstance3D
+-----StaticBody3D StaticBody3D
+------CollisionShape3D CollisionShape3D
+---barrel2 Node3D
+----barrel MeshInstance3D
+-----StaticBody3D StaticBody3D
+------CollisionShape3D CollisionShape3D
+---barrel3 Node3D
+----barrel MeshInstance3D
+-----StaticBody3D StaticBody3D
+------CollisionShape3D CollisionShape3D
+---barrel4 Node3D
+----barrel MeshInstance3D
+-----StaticBody3D StaticBody3D
+------CollisionShape3D CollisionShape3D
+---barrel5 Node3D
+----barrel MeshInstance3D
+-----StaticBody3D StaticBody3D
+------CollisionShape3D CollisionShape3D
+---barrel6 Node3D
+----barrel MeshInstance3D
+-----StaticBody3D StaticBody3D
+------CollisionShape3D CollisionShape3D
+---barrel7 Node3D
+----barrel MeshInstance3D
+-----StaticBody3D StaticBody3D
+------CollisionShape3D CollisionShape3D
+---door-large-open2 Node3D
+----door-large-open MeshInstance3D
+-----StaticBody3D StaticBody3D
+------CollisionShape3D CollisionShape3D
+---door-large-open3 Node3D
+----door-large-open MeshInstance3D
+-----StaticBody3D StaticBody3D
+------CollisionShape3D CollisionShape3D
+---block-grass-overhang-edge2 Node3D
+----block-grass-overhang-edge MeshInstance3D
+-----StaticBody3D StaticBody3D
+------CollisionShape3D CollisionShape3D
+-MonsterSpawner Node3D [res://scenes/monster_spawner.gd]
+-GroundEnemy RigidBody3D [res://Enemies/Beetle.gd]
+--ReactionLabel Label3D
+---AnimationPlayer AnimationPlayer
+--PlayerDetectionArea Area3D
+---CollisionShape3D CollisionShape3D
+--CollisionShapeBody CollisionShape3D
+--CollisionShapeHead CollisionShape3D
+--DeathCollisionShape CollisionShape3D
+--NavigationAgent3D NavigationAgent3D
+--DefeatSound AudioStreamPlayer3D
+--BeetlebotSkin Node3D [res://Enemies/beetle_bot/beetlebot_skin.gd]
+---beetle_bot Node3D
+----Armature Node3D
+-----Skeleton3D Skeleton3D
+------Beetle MeshInstance3D
+----AnimationPlayer AnimationPlayer
+---AnimationTree AnimationTree
+---SecondaryActionTimer Timer
+-SolitaireDeckStackTeamA1 Node3D [res://scripts/SolitairePathStack.gd]
+--DecalPath Node3D [res://scripts/solitaire_path.gd]
+---Path3D Path3D
+--Area3D Area3D
+---CollisionShape3D CollisionShape3D
+-SolitaireDeckStackTeamA2 Node3D [res://scripts/SolitairePathStack.gd]
+--DecalPath Node3D [res://scripts/solitaire_path.gd]
+---Path3D Path3D
+--Area3D Area3D
+---CollisionShape3D CollisionShape3D
+-SolitaireDeckStackTeamA3 Node3D [res://scripts/SolitairePathStack.gd]
+--DecalPath Node3D [res://scripts/solitaire_path.gd]
+---Path3D Path3D
+--Area3D Area3D
+---CollisionShape3D CollisionShape3D
+-SolitaireDeckStackTeamA4 Node3D [res://scripts/SolitairePathStack.gd]
+--DecalPath Node3D [res://scripts/solitaire_path.gd]
+---Path3D Path3D
+--Area3D Area3D
+---CollisionShape3D CollisionShape3D
+-HoldInteractAreaTeamFlipA Area3D [res://scenes/HoldInteractArea.gd]
+--CollisionShape3D CollisionShape3D
+-HoldInteractAreaTeamReshuffleA Area3D [res://scenes/HoldInteractArea.gd]
+--CollisionShape3D CollisionShape3D
+-GoalStackA Node3D [res://scripts/goal_stack.gd]
+--Decal Decal
+--Area3D Area3D
+---CollisionShape3D CollisionShape3D
+-StockStackA Node3D [res://scripts/stock_stack.gd]
+--Decal Decal
+--Area3D Area3D
+---CollisionShape3D CollisionShape3D
+-FlipStackA Node3D [res://scripts/flip_stack.gd]
+--Decal Decal
+--Area3D Area3D
+---CollisionShape3D CollisionShape3D
+-HoldInteractAreaTeamFlipB Area3D [res://scenes/HoldInteractArea.gd]
+--CollisionShape3D CollisionShape3D
+-HoldInteractAreaTeamReshuffleB Area3D [res://scenes/HoldInteractArea.gd]
+--CollisionShape3D CollisionShape3D
+-GoalStackB Node3D [res://scripts/goal_stack.gd]
+--Decal Decal
+--Area3D Area3D
+---CollisionShape3D CollisionShape3D
+-StockStackB Node3D [res://scripts/stock_stack.gd]
+--Decal Decal
+--Area3D Area3D
+---CollisionShape3D CollisionShape3D
+-FlipStackB Node3D [res://scripts/flip_stack.gd]
+--Decal Decal
+--Area3D Area3D
+---CollisionShape3D CollisionShape3D
+-SolitaireDeckStackTeamB1 Node3D [res://scripts/SolitairePathStack.gd]
+--DecalPath Node3D [res://scripts/solitaire_path.gd]
+---Path3D Path3D
+--Area3D Area3D
+---CollisionShape3D CollisionShape3D
+-SolitaireDeckStackTeamB2 Node3D [res://scripts/SolitairePathStack.gd]
+--DecalPath Node3D [res://scripts/solitaire_path.gd]
+---Path3D Path3D
+--Area3D Area3D
+---CollisionShape3D CollisionShape3D
+-SolitaireDeckStackTeamB3 Node3D [res://scripts/SolitairePathStack.gd]
+--DecalPath Node3D [res://scripts/solitaire_path.gd]
+---Path3D Path3D
+--Area3D Area3D
+---CollisionShape3D CollisionShape3D
+-SolitaireDeckStackTeamB4 Node3D [res://scripts/SolitairePathStack.gd]
+--DecalPath Node3D [res://scripts/solitaire_path.gd]
+---Path3D Path3D
+--Area3D Area3D
+---CollisionShape3D CollisionShape3D
+-platform-goal Node3D
+--platform-falling2 MeshInstance3D
+--StaticBody3D StaticBody3D
+---CollisionShape3D CollisionShape3D
+--FieldStack Node3D [res://scripts/field_stack.gd]
+---Decal Decal
+---Area3D Area3D
+----CollisionShape3D CollisionShape3D
+-platform-goal3 Node3D
+--platform-falling2 MeshInstance3D
+--StaticBody3D StaticBody3D
+---CollisionShape3D CollisionShape3D
+--FieldStack Node3D [res://scripts/field_stack.gd]
+---Decal Decal
+---Area3D Area3D
+----CollisionShape3D CollisionShape3D
+-FieldStack_Flowers Node3D
+--flowers-tall2 Node3D
+---flowers-tall MeshInstance3D
+--flowers-tall3 Node3D
+---flowers-tall MeshInstance3D
+--flowers-tall4 Node3D
+---flowers-tall MeshInstance3D
+--flowers-tall5 Node3D
+---flowers-tall MeshInstance3D
+--flowers-tall6 Node3D
+---flowers-tall MeshInstance3D
+--flowers-tall7 Node3D
+---flowers-tall MeshInstance3D
+--flowers-tall8 Node3D
+---flowers-tall MeshInstance3D
+--flowers-tall9 Node3D
+---flowers-tall MeshInstance3D
+--FieldStack Node3D [res://scripts/field_stack.gd]
+---Decal Decal
+---Area3D Area3D
+----CollisionShape3D CollisionShape3D
+-FieldStack_Flowers2 Node3D
+--flowers-tall2 Node3D
+---flowers-tall MeshInstance3D
+--flowers-tall3 Node3D
+---flowers-tall MeshInstance3D
+--flowers-tall4 Node3D
+---flowers-tall MeshInstance3D
+--flowers-tall5 Node3D
+---flowers-tall MeshInstance3D
+--flowers-tall6 Node3D
+---flowers-tall MeshInstance3D
+--flowers-tall7 Node3D
+---flowers-tall MeshInstance3D
+--flowers-tall8 Node3D
+---flowers-tall MeshInstance3D
+--flowers-tall9 Node3D
+---flowers-tall MeshInstance3D
+--FieldStack Node3D [res://scripts/field_stack.gd]
+---Decal Decal
+---Area3D Area3D
+----CollisionShape3D CollisionShape3D
+-HoldInteractArea Area3D [res://scenes/HoldInteractArea.gd]
+--CollisionShape3D CollisionShape3D
+-TEMP_MISC_PARTS Node3D
+--SlamButton Node3D [res://scripts/button_square.gd]
+---Area3D Area3D
+----CollisionShape3D CollisionShape3D
+---button-square MeshInstance3D
+----button MeshInstance3D
+---AnimationPlayer AnimationPlayer
+--lock4 Node3D
+---lock MeshInstance3D
+-Player1 CharacterBody3D [res://scripts/player.gd]
+--PickupArea Area3D
+---CollisionShape3D CollisionShape3D
+--Collider CollisionShape3D
+--Character Node3D
+---character Node3D
+----root Node3D
+-----leg-left MeshInstance3D
+-----leg-right MeshInstance3D
+-----torso MeshInstance3D
+------arm-left MeshInstance3D
+------arm-right MeshInstance3D
+------antenna MeshInstance3D
+---AnimationPlayer AnimationPlayer
+--Shadow Decal
+--ParticlesTrail CPUParticles3D
+--SoundFootsteps AudioStreamPlayer
+-Marker1 Node3D
+--jewel MeshInstance3D
+-Player2 CharacterBody3D [res://scripts/player.gd]
+--PickupArea Area3D
+---CollisionShape3D CollisionShape3D
+--Collider CollisionShape3D
+--Character Node3D
+---character Node3D
+----root Node3D
+-----leg-left MeshInstance3D
+-----leg-right MeshInstance3D
+-----torso MeshInstance3D
+------arm-left MeshInstance3D
+------arm-right MeshInstance3D
+------antenna MeshInstance3D
+---AnimationPlayer AnimationPlayer
+--Shadow Decal
+--ParticlesTrail CPUParticles3D
+--SoundFootsteps AudioStreamPlayer
+-Marker2 Node3D
+--jewel MeshInstance3D
+-Player3 CharacterBody3D [res://scripts/player.gd]
+--PickupArea Area3D
+---CollisionShape3D CollisionShape3D
+--Collider CollisionShape3D
+--Character Node3D
+---character Node3D
+----root Node3D
+-----leg-left MeshInstance3D
+-----leg-right MeshInstance3D
+-----torso MeshInstance3D
+------arm-left MeshInstance3D
+------arm-right MeshInstance3D
+------antenna MeshInstance3D
+---AnimationPlayer AnimationPlayer
+--Shadow Decal
+--ParticlesTrail CPUParticles3D
+--SoundFootsteps AudioStreamPlayer
+-Marker3 Node3D
+--jewel MeshInstance3D
+-Player4 CharacterBody3D [res://scripts/player.gd]
+--PickupArea Area3D
+---CollisionShape3D CollisionShape3D
+--Collider CollisionShape3D
+--Character Node3D
+---character Node3D
+----root Node3D
+-----leg-left MeshInstance3D
+-----leg-right MeshInstance3D
+-----torso MeshInstance3D
+------arm-left MeshInstance3D
+------arm-right MeshInstance3D
+------antenna MeshInstance3D
+---AnimationPlayer AnimationPlayer
+--Shadow Decal
+--ParticlesTrail CPUParticles3D
+--SoundFootsteps AudioStreamPlayer
+-Marker4 Node3D
+--jewel MeshInstance3D
+-MarbleSpawner Node3D [res://objects/marble_spawner.gd]
+-helix-large-left2 Node3D
+--helix-large-left MeshInstance3D
+---StaticBody3D StaticBody3D
+----CollisionShape3D CollisionShape3D
+-SpawnFlullDeck Node3D [res://scripts/spawn_flull_deck.gd]
+-SpikeBlocks Node3D
+--SpikeBlockVertical Node3D
+---SpikeBlock CharacterBody3D [res://objects/Obstacles/spike_block.gd]
+----CollisionShape3D CollisionShape3D
+----Area3D Area3D
+-----CollisionShape3D CollisionShape3D
+----spike-block3 MeshInstance3D
+---Path3D Path3D
+--SpikeBlockVertical2 Node3D
+---SpikeBlock CharacterBody3D [res://objects/Obstacles/spike_block.gd]
+----CollisionShape3D CollisionShape3D
+----Area3D Area3D
+-----CollisionShape3D CollisionShape3D
+----spike-block3 MeshInstance3D
+---Path3D Path3D
+--SpikeBlockVertical3 Node3D
+---SpikeBlock CharacterBody3D [res://objects/Obstacles/spike_block.gd]
+----CollisionShape3D CollisionShape3D
+----Area3D Area3D
+-----CollisionShape3D CollisionShape3D
+----spike-block3 MeshInstance3D
+---Path3D Path3D
+--SpikeBlockVertical4 Node3D
+---SpikeBlock CharacterBody3D [res://objects/Obstacles/spike_block.gd]
+----CollisionShape3D CollisionShape3D
+----Area3D Area3D
+-----CollisionShape3D CollisionShape3D
+----spike-block3 MeshInstance3D
+---Path3D Path3D
+--SpikeBlockVertical6 Node3D
+---SpikeBlock CharacterBody3D [res://objects/Obstacles/spike_block.gd]
+----CollisionShape3D CollisionShape3D
+----Area3D Area3D
+-----CollisionShape3D CollisionShape3D
+----spike-block3 MeshInstance3D
+---Path3D Path3D
+--SpikeBlockVertical7 Node3D
+---SpikeBlock CharacterBody3D [res://objects/Obstacles/spike_block.gd]
+----CollisionShape3D CollisionShape3D
+----Area3D Area3D
+-----CollisionShape3D CollisionShape3D
+----spike-block3 MeshInstance3D
+---Path3D Path3D
+--SpikeBlockVertical8 Node3D
+---SpikeBlock CharacterBody3D [res://objects/Obstacles/spike_block.gd]
+----CollisionShape3D CollisionShape3D
+----Area3D Area3D
+-----CollisionShape3D CollisionShape3D
+----spike-block3 MeshInstance3D
+---Path3D Path3D
+--SpikeBlockVertical9 Node3D
+---SpikeBlock CharacterBody3D [res://objects/Obstacles/spike_block.gd]
+----CollisionShape3D CollisionShape3D
+----Area3D Area3D
+-----CollisionShape3D CollisionShape3D
+----spike-block3 MeshInstance3D
+---Path3D Path3D
+-heart Area3D [res://scripts/heart.gd]
+--heart MeshInstance3D
+--CollisionShape3D CollisionShape3D
+--Particles CPUParticles3D
+-heart2 Area3D [res://scripts/heart.gd]
+--heart MeshInstance3D
+--CollisionShape3D CollisionShape3D
+--Particles CPUParticles3D
+-heart3 Area3D [res://scripts/heart.gd]
+--heart MeshInstance3D
+--CollisionShape3D CollisionShape3D
+--Particles CPUParticles3D
+-MovingPlatforms Node3D [res://scenes/moving_platforms.gd]
+--Path3D Path3D
+--MovingPlatformRound CharacterBody3D [res://scenes/platform_moving.gd]
+---CollisionShape3D CollisionShape3D
+---platform-grass-large-round2 MeshInstance3D
+---FieldStack Node3D [res://scripts/field_stack.gd]
+----Decal Decal
+----Area3D Area3D
+-----CollisionShape3D CollisionShape3D
+--MovingPlatformRound2 CharacterBody3D [res://scenes/platform_moving.gd]
+---CollisionShape3D CollisionShape3D
+---platform-grass-large-round2 MeshInstance3D
+---FieldStack Node3D [res://scripts/field_stack.gd]
+----Decal Decal
+----Area3D Area3D
+-----CollisionShape3D CollisionShape3D
+-MovingPlatformsVerticle Node3D [res://scenes/moving_platforms.gd]
+--Path3D Path3D
+--MovingPlatformRound CharacterBody3D [res://scenes/platform_moving.gd]
+---CollisionShape3D CollisionShape3D
+---platform-grass-large-round2 MeshInstance3D
+---FieldStack Node3D [res://scripts/field_stack.gd]
+----Decal Decal
+----Area3D Area3D
+-----CollisionShape3D CollisionShape3D
+-MovingPlatformsVerticle2 Node3D [res://scenes/moving_platforms.gd]
+--Path3D Path3D
+--MovingPlatformRound CharacterBody3D [res://scenes/platform_moving.gd]
+---CollisionShape3D CollisionShape3D
+---platform-grass-large-round2 MeshInstance3D
+---FieldStack Node3D [res://scripts/field_stack.gd]
+----Decal Decal
+----Area3D Area3D
+-----CollisionShape3D CollisionShape3D
+-MeshInstance3DWater MeshInstance3D
+-JumpPad Node3D [res://scripts/jump_pad.gd]
+--Area3D Area3D
+---CollisionShape3D CollisionShape3D
+--button-round MeshInstance3D
+---button MeshInstance3D
+--AnimationPlayer AnimationPlayer
+-JumpPad2 Node3D [res://scripts/jump_pad.gd]
+--Area3D Area3D
+---CollisionShape3D CollisionShape3D
+--button-round MeshInstance3D
+---button MeshInstance3D
+--AnimationPlayer AnimationPlayer
+-GroundEnemy2 RigidBody3D [res://Enemies/Beetle.gd]
+--ReactionLabel Label3D
+---AnimationPlayer AnimationPlayer
+--PlayerDetectionArea Area3D
+---CollisionShape3D CollisionShape3D
+--CollisionShapeBody CollisionShape3D
+--CollisionShapeHead CollisionShape3D
+--DeathCollisionShape CollisionShape3D
+--NavigationAgent3D NavigationAgent3D
+--DefeatSound AudioStreamPlayer3D
+--BeetlebotSkin Node3D [res://Enemies/beetle_bot/beetlebot_skin.gd]
+---beetle_bot Node3D
+----Armature Node3D
+-----Skeleton3D Skeleton3D
+------Beetle MeshInstance3D
+----AnimationPlayer AnimationPlayer
+---AnimationTree AnimationTree
+---SecondaryActionTimer Timer
+-StaminaItem RigidBody3D [res://scenes/stamina.gd]
+--CollisionShape3D CollisionShape3D
+--Area3D Area3D
+---CollisionShape3D CollisionShape3D
+--MeshHolder Node3D
+---advocado-half2 Node3D
+----advocado-half MeshInstance3D
+-----pit MeshInstance3D
+---candy-bar-wrapper2 Node3D
+----candy-bar-wrapper MeshInstance3D
+---cherries2 Node3D
+----cherries MeshInstance3D
+---cocktail2 Node3D
+----cocktail MeshInstance3D
+-----straw MeshInstance3D
+-----lemon MeshInstance3D
+---fries3 Node3D
+----fries MeshInstance3D
+-----fries2 MeshInstance3D
+--Particles CPUParticles3D
+
+### res://scenes/card_spin_and_bob.tscn ###
+SpinAndBob Node3D [res://scripts/spin_and_bob.gd]
+-PlayingCard Node3D [res://scripts/playing_card.gd]
+--Cube MeshInstance3D
+
+### res://scenes/flag.tscn ###
+flag Node3D
+-flag2 MeshInstance3D
+
+### res://scenes/jump_pad.tscn ###
+JumpPad Node3D [res://scripts/jump_pad.gd]
+-Area3D Area3D
+--CollisionShape3D CollisionShape3D
+-button-round MeshInstance3D
+--button MeshInstance3D
+-AnimationPlayer AnimationPlayer
+
+### res://scenes/lock.tscn ###
+lock2 Node3D
+-lock MeshInstance3D
+
+### res://scenes/MarbleRunParts.tscn ###
+MarbleRunParts Node3D
+-banner-double-high2 Node3D
+--banner-double-high MeshInstance3D
+-banner-double2 Node3D
+--banner-double MeshInstance3D
+-banner-hanging-double-high2 Node3D
+--banner-hanging-double-high MeshInstance3D
+-banner-hanging-double2 Node3D
+--banner-hanging-double MeshInstance3D
+-banner-hanging-high2 Node3D
+--banner-hanging-high MeshInstance3D
+-banner-hanging2 Node3D
+--banner-hanging MeshInstance3D
+-banner-high2 Node3D
+--banner-high MeshInstance3D
+-banner2 Node3D
+--banner MeshInstance3D
+-bend-large2 Node3D
+--bend-large MeshInstance3D
+-bend-medium2 Node3D
+--bend-medium MeshInstance3D
+-bend-solid-large2 Node3D
+--bend-solid-large MeshInstance3D
+-bend-solid-large3 Node3D
+--bend-solid-large MeshInstance3D
+-bend-solid-medium2 Node3D
+--bend-solid-medium MeshInstance3D
+-bend2 Node3D
+--bend MeshInstance3D
+-bump-a2 Node3D
+--bump-a MeshInstance3D
+-bump-b2 Node3D
+--bump-b MeshInstance3D
+-bump-c2 Node3D
+--bump-c MeshInstance3D
+-bump-d2 Node3D
+--bump-d MeshInstance3D
+-bump-d3 Node3D
+--bump-d MeshInstance3D
+-bump-solid-a2 Node3D
+--bump-solid-a MeshInstance3D
+-bump-solid-b2 Node3D
+--bump-solid-b MeshInstance3D
+-bump-solid-c2 Node3D
+--bump-solid-c MeshInstance3D
+-bump-solid-d2 Node3D
+--bump-solid-d MeshInstance3D
+-corner-solid2 Node3D
+--corner-solid MeshInstance3D
+-corner2 Node3D
+--corner MeshInstance3D
+-cross2 Node3D
+--cross MeshInstance3D
+-curve-large2 Node3D
+--curve-large MeshInstance3D
+-curve-solid-large2 Node3D
+--curve-solid-large MeshInstance3D
+-curve-solid2 Node3D
+--curve-solid MeshInstance3D
+-curve-wide-large2 Node3D
+--curve-wide-large MeshInstance3D
+-curve-wide-medium2 Node3D
+--curve-wide-medium MeshInstance3D
+-curve-wide-solid-large2 Node3D
+--curve-wide-solid-large MeshInstance3D
+-curve-wide-solid-medium2 Node3D
+--curve-wide-solid-medium MeshInstance3D
+-curve-wide2 Node3D
+--curve-wide MeshInstance3D
+-curve2 Node3D
+--curve MeshInstance3D
+-end-hole-rounded2 Node3D
+--end-hole-rounded MeshInstance3D
+-end-hole-square2 Node3D
+--end-hole-square MeshInstance3D
+-end-rounded2 Node3D
+--end-rounded MeshInstance3D
+-end-square2 Node3D
+--end-square MeshInstance3D
+-fan-four2 Node3D
+--fan-four MeshInstance3D
+---fan MeshInstance3D
+-fan-simple-four2 Node3D
+--fan-simple-four MeshInstance3D
+---fan MeshInstance3D
+-fan-simple-two2 Node3D
+--fan-simple-two MeshInstance3D
+---fan MeshInstance3D
+-fan-standing-four2 Node3D
+--fan-standing-four MeshInstance3D
+---fan MeshInstance3D
+-fan-standing-two2 Node3D
+--fan-standing-two MeshInstance3D
+---fan MeshInstance3D
+-fan-two2 Node3D
+--fan-two MeshInstance3D
+---fan MeshInstance3D
+-funnel-long2 Node3D
+--funnel-long MeshInstance3D
+-funnel2 Node3D
+--funnel MeshInstance3D
+-helix-half-left2 Node3D
+--helix-half-left MeshInstance3D
+-helix-half-right2 Node3D
+--helix-half-right MeshInstance3D
+-helix-large-half-left2 Node3D
+--helix-large-half-left MeshInstance3D
+-helix-large-half-right2 Node3D
+--helix-large-half-right MeshInstance3D
+-helix-large-left2 Node3D
+--helix-large-left MeshInstance3D
+-helix-large-quarter-left2 Node3D
+--helix-large-quarter-left MeshInstance3D
+-helix-large-quarter-right2 Node3D
+--helix-large-quarter-right MeshInstance3D
+-helix-large-right2 Node3D
+--helix-large-right MeshInstance3D
+-helix-left2 Node3D
+--helix-left MeshInstance3D
+-helix-quarter-left2 Node3D
+--helix-quarter-left MeshInstance3D
+-helix-quarter-right2 Node3D
+--helix-quarter-right MeshInstance3D
+-helix-right2 Node3D
+--helix-right MeshInstance3D
+-marble-center-butterfly-high2 Node3D
+--marble-center-butterfly-high MeshInstance3D
+---(_ignore) MeshInstance3D
+-marble-center-butterfly-low2 Node3D
+--marble-center-butterfly-low MeshInstance3D
+---(_ignore) MeshInstance3D
+-marble-center-high2 Node3D
+--marble-center-high MeshInstance3D
+---(_ignore) MeshInstance3D
+-marble-center-low2 Node3D
+--marble-center-low MeshInstance3D
+---(_ignore) MeshInstance3D
+-marble-high Node3D
+--(_ignore) MeshInstance3D
+-marble-low Node3D
+--(_ignore) MeshInstance3D
+-ramp-end-a2 Node3D
+--ramp-end-a MeshInstance3D
+-ramp-end-b2 Node3D
+--ramp-end-b MeshInstance3D
+-ramp-end-c2 Node3D
+--ramp-end-c MeshInstance3D
+-ramp-end-d2 Node3D
+--ramp-end-d MeshInstance3D
+-ramp-end-solid-a2 Node3D
+--ramp-end-solid-a MeshInstance3D
+-ramp-end-solid-b2 Node3D
+--ramp-end-solid-b MeshInstance3D
+-ramp-end-solid-c2 Node3D
+--ramp-end-solid-c MeshInstance3D
+-ramp-end-solid-d2 Node3D
+--ramp-end-solid-d MeshInstance3D
+-ramp-end-solid-d3 Node3D
+--ramp-end-solid-d MeshInstance3D
+-ramp-end-solid-d4 Node3D
+--ramp-end-solid-d MeshInstance3D
+-ramp-end-solid-d5 Node3D
+--ramp-end-solid-d MeshInstance3D
+-ramp-long-a2 Node3D
+--ramp-long-a MeshInstance3D
+-ramp-long-b2 Node3D
+--ramp-long-b MeshInstance3D
+-ramp-long-c2 Node3D
+--ramp-long-c MeshInstance3D
+-ramp-long-d2 Node3D
+--ramp-long-d MeshInstance3D
+-ramp-long-solid-a2 Node3D
+--ramp-long-solid-a MeshInstance3D
+-ramp-long-solid-b2 Node3D
+--ramp-long-solid-b MeshInstance3D
+-ramp-long-solid-c2 Node3D
+--ramp-long-solid-c MeshInstance3D
+-ramp-long-solid-d2 Node3D
+--ramp-long-solid-d MeshInstance3D
+-ramp-start-a2 Node3D
+--ramp-start-a MeshInstance3D
+-ramp-start-b2 Node3D
+--ramp-start-b MeshInstance3D
+-ramp-start-c2 Node3D
+--ramp-start-c MeshInstance3D
+-ramp-start-c3 Node3D
+--ramp-start-c MeshInstance3D
+-ramp-start-d2 Node3D
+--ramp-start-d MeshInstance3D
+-ramp-start-d3 Node3D
+--ramp-start-d MeshInstance3D
+-ramp-start-solid-a2 Node3D
+--ramp-start-solid-a MeshInstance3D
+-ramp-start-solid-b2 Node3D
+--ramp-start-solid-b MeshInstance3D
+-ramp-start-solid-c2 Node3D
+--ramp-start-solid-c MeshInstance3D
+-ramp-start-solid-d2 Node3D
+--ramp-start-solid-d MeshInstance3D
+-s-curve-left-large2 Node3D
+--s-curve-left-large MeshInstance3D
+-s-curve-left2 Node3D
+--s-curve-left MeshInstance3D
+-s-curve-right-large2 Node3D
+--s-curve-right-large MeshInstance3D
+-s-curve-right2 Node3D
+--s-curve-right MeshInstance3D
+-s-curve-short-left-a2 Node3D
+--s-curve-short-left-a MeshInstance3D
+-s-curve-short-left-b2 Node3D
+--s-curve-short-left-b MeshInstance3D
+-s-curve-short-left-c2 Node3D
+--s-curve-short-left-c MeshInstance3D
+-slant-a2 Node3D
+--slant-a MeshInstance3D
+-slant-b2 Node3D
+--slant-b MeshInstance3D
+-slant-c2 Node3D
+--slant-c MeshInstance3D
+-slant-d2 Node3D
+--slant-d MeshInstance3D
+-slant-long-a2 Node3D
+--slant-long-a MeshInstance3D
+-slant-long-b2 Node3D
+--slant-long-b MeshInstance3D
+-slant-long-c2 Node3D
+--slant-long-c MeshInstance3D
+-slant-long-d2 Node3D
+--slant-long-d MeshInstance3D
+-slant-long-d3 Node3D
+--slant-long-d MeshInstance3D
+-slant-solid-a2 Node3D
+--slant-solid-a MeshInstance3D
+-slant-solid-b2 Node3D
+--slant-solid-b MeshInstance3D
+-slant-solid-c2 Node3D
+--slant-solid-c MeshInstance3D
+-slant-solid-d2 Node3D
+--slant-solid-d MeshInstance3D
+-slant-d3 Node3D
+--slant-d MeshInstance3D
+-slant-solid-d3 Node3D
+--slant-solid-d MeshInstance3D
+-slant-solid-long-a2 Node3D
+--slant-solid-long-a MeshInstance3D
+-slant-solid-long-b2 Node3D
+--slant-solid-long-b MeshInstance3D
+-slant-solid-long-c2 Node3D
+--slant-solid-long-c MeshInstance3D
+-slant-solid-long-d2 Node3D
+--slant-solid-long-d MeshInstance3D
+-split-double-sides-solid2 Node3D
+--split-double-sides-solid MeshInstance3D
+-split-double-sides2 Node3D
+--split-double-sides MeshInstance3D
+-split-double-solid2 Node3D
+--split-double-solid MeshInstance3D
+-split-double2 Node3D
+--split-double MeshInstance3D
+-split-large-left2 Node3D
+--split-large-left MeshInstance3D
+-split-large-right2 Node3D
+--split-large-right MeshInstance3D
+-split-large-solid-left2 Node3D
+--split-large-solid-left MeshInstance3D
+-split-large-solid-right2 Node3D
+--split-large-solid-right MeshInstance3D
+-split-left2 Node3D
+--split-left MeshInstance3D
+-split-right2 Node3D
+--split-right MeshInstance3D
+-split-solid-left2 Node3D
+--split-solid-left MeshInstance3D
+-split-solid-right2 Node3D
+--split-solid-right MeshInstance3D
+-split2 Node3D
+--split MeshInstance3D
+-straight-hole2 Node3D
+--straight-hole MeshInstance3D
+-straight-wide-hole2 Node3D
+--straight-wide-hole MeshInstance3D
+-straight-wide2 Node3D
+--straight-wide MeshInstance3D
+-straight2 Node3D
+--straight MeshInstance3D
+-support-color-four-bottom2 Node3D
+--support-color-four-bottom MeshInstance3D
+-support-color-four-middle2 Node3D
+--support-color-four-middle MeshInstance3D
+-support-color-four-top-double2 Node3D
+--support-color-four-top-double MeshInstance3D
+-support-color-four-top2 Node3D
+--support-color-four-top MeshInstance3D
+-support-color-single-bottom2 Node3D
+--support-color-single-bottom MeshInstance3D
+-support-color-single-middle2 Node3D
+--support-color-single-middle MeshInstance3D
+-support-color-single-top-double2 Node3D
+--support-color-single-top-double MeshInstance3D
+-support-color-single-top2 Node3D
+--support-color-single-top MeshInstance3D
+-support-color-two-bottom2 Node3D
+--support-color-two-bottom MeshInstance3D
+-support-color-two-middle2 Node3D
+--support-color-two-middle MeshInstance3D
+-support-color-two-top-double2 Node3D
+--support-color-two-top-double MeshInstance3D
+-support-color-two-top2 Node3D
+--support-color-two-top MeshInstance3D
+-support-four-bottom2 Node3D
+--support-four-bottom MeshInstance3D
+-support-four-middle2 Node3D
+--support-four-middle MeshInstance3D
+-support-four-top-double2 Node3D
+--support-four-top-double MeshInstance3D
+-support-four-top2 Node3D
+--support-four-top MeshInstance3D
+-support-single-bottom2 Node3D
+--support-single-bottom MeshInstance3D
+-support-single-middle2 Node3D
+--support-single-middle MeshInstance3D
+-support-single-top-double2 Node3D
+--support-single-top-double MeshInstance3D
+-support-single-top2 Node3D
+--support-single-top MeshInstance3D
+-support-two-bottom2 Node3D
+--support-two-bottom MeshInstance3D
+-support-two-middle2 Node3D
+--support-two-middle MeshInstance3D
+-support-two-top-double2 Node3D
+--support-two-top-double MeshInstance3D
+-support-two-top2 Node3D
+--support-two-top MeshInstance3D
+-tree-large2 Node3D
+--tree-large MeshInstance3D
+-tree-tall-large2 Node3D
+--tree-tall-large MeshInstance3D
+-tree-tall2 Node3D
+--tree-tall MeshInstance3D
+-tree2 Node3D
+--tree MeshInstance3D
+-tunnel2 Node3D
+--tunnel MeshInstance3D
+-wave-a2 Node3D
+--wave-a MeshInstance3D
+-wave-b2 Node3D
+--wave-b MeshInstance3D
+-wave-c2 Node3D
+--wave-c MeshInstance3D
+-wave-solid-a2 Node3D
+--wave-solid-a MeshInstance3D
+-wave-solid-b2 Node3D
+--wave-solid-b MeshInstance3D
+-wave-solid-c2 Node3D
+--wave-solid-c MeshInstance3D
+
+### res://scenes/Menu/Landing.tscn ###
+Landing Node3D [res://scenes/Menu/landing.gd]
+-Sun DirectionalLight3D
+-Environment WorldEnvironment
+-CanvasLayer CanvasLayer
+--UI Control Control
+---VBoxContainer VBoxContainer
+----DoNothing Button
+----ButtonStart1 Button
+----ButtonStart2 Button
+----ButtonStart3 Button
+----ButtonStart4 Button
+----ButtonQuit Button
+---Label Label
+--GamepadVisualizer1 Control [res://scripts/controller_visualizer.gd]
+--GamepadVisualizer2 Control [res://scripts/controller_visualizer.gd]
+--GamepadVisualizer3 Control [res://scripts/controller_visualizer.gd]
+--GamepadVisualizer4 Control [res://scripts/controller_visualizer.gd]
+--GamepadVisualizer5 Control [res://scripts/controller_visualizer.gd]
+--GamepadVisualizer6 Control [res://scripts/controller_visualizer.gd]
+--GamepadVisualizer7 Control [res://scripts/controller_visualizer.gd]
+--GamepadVisualizer8 Control [res://scripts/controller_visualizer.gd]
+-Clouds Node3D
+--cube8 Node3D [res://objects/Base/cloud.gd]
+---cube2 MeshInstance3D
+--cube9 Node3D [res://objects/Base/cloud.gd]
+---cube2 MeshInstance3D
+--cube10 Node3D [res://objects/Base/cloud.gd]
+---cube2 MeshInstance3D
+--cube11 Node3D [res://objects/Base/cloud.gd]
+---cube2 MeshInstance3D
+--cube12 Node3D [res://objects/Base/cloud.gd]
+---cube2 MeshInstance3D
+--cube13 Node3D [res://objects/Base/cloud.gd]
+---cube2 MeshInstance3D
+--cube14 Node3D [res://objects/Base/cloud.gd]
+---cube2 MeshInstance3D
+--cube15 Node3D [res://objects/Base/cloud.gd]
+---cube2 MeshInstance3D
+--cube16 Node3D [res://objects/Base/cloud.gd]
+---cube2 MeshInstance3D
+--cube17 Node3D [res://objects/Base/cloud.gd]
+---cube2 MeshInstance3D
+--cube18 Node3D [res://objects/Base/cloud.gd]
+---cube2 MeshInstance3D
+--cube24 Node3D [res://objects/Base/cloud.gd]
+---cube2 MeshInstance3D
+--cube19 Node3D [res://objects/Base/cloud.gd]
+---cube2 MeshInstance3D
+--cube20 Node3D [res://objects/Base/cloud.gd]
+---cube2 MeshInstance3D
+--cube22 Node3D [res://objects/Base/cloud.gd]
+---cube2 MeshInstance3D
+--cube23 Node3D [res://objects/Base/cloud.gd]
+---cube2 MeshInstance3D
+--cube21 Node3D [res://objects/Base/cloud.gd]
+---cube2 MeshInstance3D
+
+### res://scenes/MovingPlatformRound.tscn ###
+MovingPlatformRound CharacterBody3D [res://scenes/platform_moving.gd]
+-CollisionShape3D CollisionShape3D
+-platform-grass-large-round2 MeshInstance3D
+
+### res://scenes/p_card.tscn ###
+PCard RigidBody3D [res://p_card.gd]
+-CollisionShape3D CollisionShape3D
+-Cube MeshInstance3D
+-Area3D Area3D
+--CollisionShape3D CollisionShape3D
+
+### res://scenes/SlamButton.tscn ###
+SlamButton Node3D [res://scripts/button_square.gd]
+-Area3D Area3D
+--CollisionShape3D CollisionShape3D
+-button-square MeshInstance3D
+--button MeshInstance3D
+-AnimationPlayer AnimationPlayer
+
+### res://scenes/solitaire_rune.tscn ###
+SolitaireRune Node3D
+-Decal Decal
+
+### res://scenes/stamina.tscn ###
+StaminaItem RigidBody3D [res://scenes/stamina.gd]
+-CollisionShape3D CollisionShape3D
+-Area3D Area3D
+--CollisionShape3D CollisionShape3D
+-MeshHolder Node3D
+--advocado-half2 Node3D
+---advocado-half MeshInstance3D
+----pit MeshInstance3D
+--candy-bar-wrapper2 Node3D
+---candy-bar-wrapper MeshInstance3D
+--cherries2 Node3D
+---cherries MeshInstance3D
+--cocktail2 Node3D
+---cocktail MeshInstance3D
+----straw MeshInstance3D
+----lemon MeshInstance3D
+--fries3 Node3D
+---fries MeshInstance3D
+----fries2 MeshInstance3D
+-Particles CPUParticles3D
+
+### res://scenes/suit_rank_bobber.tscn ###
+SuitRankBobber Node3D [res://scripts/suit_rank_bobber.gd]
+-Particles CPUParticles3D
+
+### res://scenes/TerrainParts.tscn ###
+TerrainParts Node3D
+-Environment WorldEnvironment
+-block-grass-corner-low2 Node3D
+--block-grass-corner-low MeshInstance3D
+-block-grass-corner-overhang-low2 Node3D
+--block-grass-corner-overhang-low MeshInstance3D
+-block-grass-corner-overhang2 Node3D
+--block-grass-corner-overhang MeshInstance3D
+-block-grass-corner2 Node3D
+--block-grass-corner MeshInstance3D
+-block-grass-curve-half2 Node3D
+--block-grass-curve-half MeshInstance3D
+-block-grass-curve-low2 Node3D
+--block-grass-curve-low MeshInstance3D
+-block-grass-curve-low3 Node3D
+--block-grass-curve-low MeshInstance3D
+-block-grass-curve2 Node3D
+--block-grass-curve MeshInstance3D
+-block-grass-edge2 Node3D
+--block-grass-edge MeshInstance3D
+-block-grass-hexagon2 Node3D
+--block-grass-hexagon MeshInstance3D
+-block-grass-large-slope-narrow2 Node3D
+--block-grass-large-slope-narrow MeshInstance3D
+-block-grass-large-slope-narrow3 Node3D
+--block-grass-large-slope-narrow MeshInstance3D
+-block-grass-large-slope-steep-narrow2 Node3D
+--block-grass-large-slope-steep-narrow MeshInstance3D
+-block-grass-large-slope-steep2 Node3D
+--block-grass-large-slope-steep MeshInstance3D
+-block-grass-large-slope2 Node3D
+--block-grass-large-slope MeshInstance3D
+-block-grass-large-tall2 Node3D
+--block-grass-large-tall MeshInstance3D
+-block-grass-large-tall3 Node3D
+--block-grass-large-tall MeshInstance3D
+-block-grass-large2 Node3D
+--block-grass-large MeshInstance3D
+-block-grass-long2 Node3D
+--block-grass-long MeshInstance3D
+-block-grass-low-hexagon2 Node3D
+--block-grass-low-hexagon MeshInstance3D
+-block-grass-low-large2 Node3D
+--block-grass-low-large MeshInstance3D
+-block-grass-low-long2 Node3D
+--block-grass-low-long MeshInstance3D
+-block-grass-low-long3 Node3D
+--block-grass-low-long MeshInstance3D
+-block-grass-low-long4 Node3D
+--block-grass-low-long MeshInstance3D
+-block-grass-low-narrow2 Node3D
+--block-grass-low-narrow MeshInstance3D
+-block-grass-low2 Node3D
+--block-grass-low MeshInstance3D
+-block-grass-narrow2 Node3D
+--block-grass-narrow MeshInstance3D
+-block-grass-overhang-corner2 Node3D
+--block-grass-overhang-corner MeshInstance3D
+-block-grass-overhang-edge2 Node3D
+--block-grass-overhang-edge MeshInstance3D
+-block-grass-overhang-hexagon2 Node3D
+--block-grass-overhang-hexagon MeshInstance3D
+-block-grass-overhang-large-slope-narrow2 Node3D
+--block-grass-overhang-large-slope-narrow MeshInstance3D
+-block-grass-overhang-large-slope-steep-narrow2 Node3D
+--block-grass-overhang-large-slope-steep-narrow MeshInstance3D
+-block-grass-overhang-large-slope-steep2 Node3D
+--block-grass-overhang-large-slope-steep MeshInstance3D
+-block-grass-overhang-large-slope2 Node3D
+--block-grass-overhang-large-slope MeshInstance3D
+-block-grass-overhang-large-tall2 Node3D
+--block-grass-overhang-large-tall MeshInstance3D
+-block-grass-overhang-large2 Node3D
+--block-grass-overhang-large MeshInstance3D
+-block-grass-overhang-long2 Node3D
+--block-grass-overhang-long MeshInstance3D
+-block-grass-overhang-low-hexagon2 Node3D
+--block-grass-overhang-low-hexagon MeshInstance3D
+-block-grass-overhang-low-large2 Node3D
+--block-grass-overhang-low-large MeshInstance3D
+-block-grass-overhang-low-long2 Node3D
+--block-grass-overhang-low-long MeshInstance3D
+-block-grass-overhang-low-narrow2 Node3D
+--block-grass-overhang-low-narrow MeshInstance3D
+-block-grass-overhang-low2 Node3D
+--block-grass-overhang-low MeshInstance3D
+-block-grass-overhang-narrow2 Node3D
+--block-grass-overhang-narrow MeshInstance3D
+-block-grass2 Node3D
+--block-grass MeshInstance3D
+-block-grass3 Node3D
+--block-grass MeshInstance3D
+-block-grass4 Node3D
+--block-grass MeshInstance3D
+-block-grass5 Node3D
+--block-grass MeshInstance3D
+-block-grass6 Node3D
+--block-grass MeshInstance3D
+-block-moving-blue2 Node3D
+--block-moving-blue MeshInstance3D
+-block-moving-large2 Node3D
+--block-moving-large MeshInstance3D
+-block-moving2 Node3D
+--block-moving MeshInstance3D
+-block-snow-corner-low2 Node3D
+--block-snow-corner-low MeshInstance3D
+-block-snow-corner-overhang-low2 Node3D
+--block-snow-corner-overhang-low MeshInstance3D
+-block-snow-corner-overhang2 Node3D
+--block-snow-corner-overhang MeshInstance3D
+-block-snow-corner2 Node3D
+--block-snow-corner MeshInstance3D
+-block-snow-curve-half2 Node3D
+--block-snow-curve-half MeshInstance3D
+-block-snow-curve-low2 Node3D
+--block-snow-curve-low MeshInstance3D
+-block-snow-curve2 Node3D
+--block-snow-curve MeshInstance3D
+-block-snow-edge2 Node3D
+--block-snow-edge MeshInstance3D
+-block-snow-hexagon2 Node3D
+--block-snow-hexagon MeshInstance3D
+-block-snow-large-slope-narrow2 Node3D
+--block-snow-large-slope-narrow MeshInstance3D
+-block-snow-large-slope-steep-narrow2 Node3D
+--block-snow-large-slope-steep-narrow MeshInstance3D
+-block-snow-large-slope-steep2 Node3D
+--block-snow-large-slope-steep MeshInstance3D
+-block-snow-large-slope2 Node3D
+--block-snow-large-slope MeshInstance3D
+-block-snow-large-tall2 Node3D
+--block-snow-large-tall MeshInstance3D
+-block-snow-large2 Node3D
+--block-snow-large MeshInstance3D
+-block-snow-long2 Node3D
+--block-snow-long MeshInstance3D
+-block-snow-low-hexagon2 Node3D
+--block-snow-low-hexagon MeshInstance3D
+-block-snow-low-large2 Node3D
+--block-snow-low-large MeshInstance3D
+-block-snow-low-long2 Node3D
+--block-snow-low-long MeshInstance3D
+-block-snow-low-narrow2 Node3D
+--block-snow-low-narrow MeshInstance3D
+-block-snow-low2 Node3D
+--block-snow-low MeshInstance3D
+-block-snow-narrow2 Node3D
+--block-snow-narrow MeshInstance3D
+-block-snow-overhang-corner2 Node3D
+--block-snow-overhang-corner MeshInstance3D
+-block-snow-overhang-edge2 Node3D
+--block-snow-overhang-edge MeshInstance3D
+-block-snow-overhang-hexagon2 Node3D
+--block-snow-overhang-hexagon MeshInstance3D
+-block-snow-overhang-large-slope-narrow2 Node3D
+--block-snow-overhang-large-slope-narrow MeshInstance3D
+-block-snow-overhang-large-slope-steep-narrow2 Node3D
+--block-snow-overhang-large-slope-steep-narrow MeshInstance3D
+-block-snow-overhang-large-slope-steep2 Node3D
+--block-snow-overhang-large-slope-steep MeshInstance3D
+-block-snow-overhang-large-slope2 Node3D
+--block-snow-overhang-large-slope MeshInstance3D
+-block-snow-overhang-large-tall2 Node3D
+--block-snow-overhang-large-tall MeshInstance3D
+-block-snow-overhang-large2 Node3D
+--block-snow-overhang-large MeshInstance3D
+-block-snow-overhang-long2 Node3D
+--block-snow-overhang-long MeshInstance3D
+-block-snow-overhang-low-hexagon2 Node3D
+--block-snow-overhang-low-hexagon MeshInstance3D
+-block-snow-overhang-low-large2 Node3D
+--block-snow-overhang-low-large MeshInstance3D
+-block-snow-overhang-low-long2 Node3D
+--block-snow-overhang-low-long MeshInstance3D
+-block-snow-overhang-low-narrow2 Node3D
+--block-snow-overhang-low-narrow MeshInstance3D
+-block-snow-overhang-low2 Node3D
+--block-snow-overhang-low MeshInstance3D
+-block-snow-overhang-narrow2 Node3D
+--block-snow-overhang-narrow MeshInstance3D
+-block-snow2 Node3D
+--block-snow MeshInstance3D
+-bomb2 Node3D
+--bomb MeshInstance3D
+-button-round2 Node3D
+--button-round MeshInstance3D
+---button MeshInstance3D
+--AnimationPlayer AnimationPlayer
+-button-square2 Node3D
+--button-square MeshInstance3D
+---button MeshInstance3D
+--AnimationPlayer AnimationPlayer
+-character2 Node3D
+--character Node3D
+---root Node3D
+----leg-left MeshInstance3D
+----leg-right MeshInstance3D
+----torso MeshInstance3D
+-----arm-left MeshInstance3D
+-----arm-right MeshInstance3D
+-----antenna MeshInstance3D
+--AnimationPlayer AnimationPlayer
+-chest2 Node3D
+--chest MeshInstance3D
+---lid MeshInstance3D
+--AnimationPlayer AnimationPlayer
+-cube Node3D
+--cube2 MeshInstance3D
+-coin-bronze2 Node3D
+--coin-bronze MeshInstance3D
+-coin-gold2 Node3D
+--coin-gold MeshInstance3D
+-coin-silver2 Node3D
+--coin-silver MeshInstance3D
+-coin Node3D
+--coin2 MeshInstance3D
+-crate-item-strong2 Node3D
+--crate-item-strong MeshInstance3D
+-crate-item2 Node3D
+--crate-item MeshInstance3D
+-crate-strong2 Node3D
+--crate-strong MeshInstance3D
+-crate2 Node3D
+--crate MeshInstance3D
+-door-large-open2 Node3D
+--door-large-open MeshInstance3D
+-door-open2 Node3D
+--door-open MeshInstance3D
+-door-rotate-large2 Node3D
+--door-rotate-large MeshInstance3D
+---door MeshInstance3D
+--AnimationPlayer AnimationPlayer
+-door-rotate2 Node3D
+--door-rotate MeshInstance3D
+---door MeshInstance3D
+--AnimationPlayer AnimationPlayer
+-cloud Node3D
+--cloud2 MeshInstance3D
+-fence-broken2 Node3D
+--fence-broken MeshInstance3D
+-fence-corner-curved2 Node3D
+--fence-corner-curved MeshInstance3D
+-fence-corner2 Node3D
+--fence-corner MeshInstance3D
+-fence-low-broken2 Node3D
+--fence-low-broken MeshInstance3D
+-fence-low-corner-curved2 Node3D
+--fence-low-corner-curved MeshInstance3D
+-fence-low-corner2 Node3D
+--fence-low-corner MeshInstance3D
+-fence-low-straight2 Node3D
+--fence-low-straight MeshInstance3D
+-fence-straight2 Node3D
+--fence-straight MeshInstance3D
+-flag2 Node3D
+--flag MeshInstance3D
+-flag Node3D
+--flag2 MeshInstance3D
+-flowers-tall2 Node3D
+--flowers-tall MeshInstance3D
+-flowers Node3D
+--Group MeshInstance3D
+--Group2 MeshInstance3D
+--Group3 MeshInstance3D
+-grass-small Node3D
+--grass-small2 MeshInstance3D
+-grass2 Node3D
+--grass MeshInstance3D
+-grass Node3D
+--grass2 MeshInstance3D
+-heart2 Node3D
+--heart MeshInstance3D
+-hedge-corner2 Node3D
+--hedge-corner MeshInstance3D
+-hedge2 Node3D
+--hedge MeshInstance3D
+-jewel2 Node3D
+--jewel MeshInstance3D
+-key2 Node3D
+--key MeshInstance3D
+-ladder-broken2 Node3D
+--ladder-broken MeshInstance3D
+-ladder-long2 Node3D
+--ladder-long MeshInstance3D
+-ladder2 Node3D
+--ladder MeshInstance3D
+-lever2 Node3D
+--lever MeshInstance3D
+---handle MeshInstance3D
+--AnimationPlayer AnimationPlayer
+-lock2 Node3D
+--lock MeshInstance3D
+-mushrooms2 Node3D
+--mushrooms MeshInstance3D
+-plant2 Node3D
+--plant MeshInstance3D
+-platform-falling Node3D
+--platform-falling2 MeshInstance3D
+-platform-fortified2 Node3D
+--platform-fortified MeshInstance3D
+-platform-grass-large-round Node3D
+--platform-grass-large-round2 MeshInstance3D
+-platform-large Node3D
+--platform-large2 MeshInstance3D
+-platform-medium Node3D
+--platform-medium2 MeshInstance3D
+-platform-overhang2 Node3D
+--platform-overhang MeshInstance3D
+-platform-ramp2 Node3D
+--platform-ramp MeshInstance3D
+-platform2 Node3D
+--platform MeshInstance3D
+-platform Node3D
+--platform2 MeshInstance3D
+-poles2 Node3D
+--poles MeshInstance3D
+-rocks2 Node3D
+--rocks MeshInstance3D
+-saw2 Node3D
+--saw MeshInstance3D
+---Group MeshInstance3D
+-sign2 Node3D
+--sign MeshInstance3D
+-spike-block-wide2 Node3D
+--spike-block-wide MeshInstance3D
+-spike-block2 Node3D
+--spike-block MeshInstance3D
+-stones2 Node3D
+--stones MeshInstance3D
+-trap-spikes-large2 Node3D
+--trap-spikes-large MeshInstance3D
+---spikes MeshInstance3D
+--AnimationPlayer AnimationPlayer
+-trap-spikes2 Node3D
+--trap-spikes MeshInstance3D
+---spikes MeshInstance3D
+--AnimationPlayer AnimationPlayer
+-tree-pine-small2 Node3D
+--tree-pine-small MeshInstance3D
+-tree-pine-snow-small2 Node3D
+--tree-pine-snow-small MeshInstance3D
+-tree-pine-snow2 Node3D
+--tree-pine-snow MeshInstance3D
+-tree-pine2 Node3D
+--tree-pine MeshInstance3D
+-tree-snow2 Node3D
+--tree-snow MeshInstance3D
+---Group MeshInstance3D
+---Group2 MeshInstance3D
+---Group3 MeshInstance3D
+---Group4 MeshInstance3D
+---Group5 MeshInstance3D
+---Group6 MeshInstance3D
+---Group7 MeshInstance3D
+---Group8 MeshInstance3D
+---Group9 MeshInstance3D
+---Group10 MeshInstance3D
+---Group11 MeshInstance3D
+---Group12 MeshInstance3D
+---Group13 MeshInstance3D
+---Group14 MeshInstance3D
+---Group15 MeshInstance3D
+-tree2 Node3D
+--tree MeshInstance3D
+---Group MeshInstance3D
+---Group2 MeshInstance3D
+---Group3 MeshInstance3D
+---Group4 MeshInstance3D
+---Group5 MeshInstance3D
+---Group6 MeshInstance3D
+---Group7 MeshInstance3D
+---Group8 MeshInstance3D
+---Group9 MeshInstance3D
+---Group10 MeshInstance3D
+---Group11 MeshInstance3D
+---Group12 MeshInstance3D
+---Group13 MeshInstance3D
+---Group14 MeshInstance3D
+---Group15 MeshInstance3D

@@ -1,0 +1,21 @@
+[gd_scene load_steps=5 format=3 uid="uid://cetult4y0y74i"]
+
+[ext_resource type="PackedScene" uid="uid://byyu61jeemtd7" path="res://models/jewel.glb" id="1_mnpm0"]
+[ext_resource type="Shader" uid="uid://bphv8861vdyuj" path="res://hologram1.gdshader" id="2_any7m"]
+[ext_resource type="Texture2D" uid="uid://bnty6oqhxv0kn" path="res://models/Textures/colormap.png" id="3_7xx28"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_hx2hg"]
+render_priority = 0
+shader = ExtResource("2_any7m")
+shader_parameter/albedo_texture = ExtResource("3_7xx28")
+shader_parameter/alpha = 0.6
+shader_parameter/tint_color = Color(0.2, 0.6, 1, 1)
+shader_parameter/fresnel_strength = 1.0
+shader_parameter/fresnel_power = 2.0
+shader_parameter/line_speed = 10.0
+shader_parameter/line_density = 160.0
+
+[node name="Marker" instance=ExtResource("1_mnpm0")]
+
+[node name="jewel" parent="." index="0"]
+material_override = SubResource("ShaderMaterial_hx2hg")

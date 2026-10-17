@@ -1,0 +1,3924 @@
+
+### FILE: res://addons/AIHelp/AIHelpPlugin.gd ###
+#info for extending commands
+#https://docs.godotengine.org/en/stable/classes/class_editorcommandpalette.html
+
+@tool
+extends EditorPlugin
+
+var dock: Control
+
+func _enter_tree() -> void:
+	_create_dialog()
+	# Register with the EditorCommandPalette
+	var palette = get_editor_interface().get_command_palette()
+	if palette:
+		palette.add_command(
+			"Export Dump all Scripts",                             # Name of the command (shown in palette)
+			"exportdumpscripts",
+			Callable(self, "_run_export_all"),       # Binded Callable (target + method)
+		)
+		palette.add_command(
+			"Arrange Selected Nodes in Grid",
+			"arrangeselectednodesgrid",
+			Callable(self, "_show_arrange_dialog"),
+		)
+
+func _exit_tree() -> void:
+	if dialog:
+		dialog.queue_free()
+		dialog = null
+	var palette := get_editor_interface().get_command_palette()
+	if palette:
+		palette.remove_command("exportdumpscripts")
+		palette.remove_command("arrangeselectednodesgrid")
+
+func _on_button_pressed() -> void:
+	print("Button clicked! You can do anything here.")
+
+func _run_export_all() -> void:
+	print("_run_export_all")
+	_dump_all_gd_scripts_to_file()
+	#dump_input_map()
+	#!!!! could just not even have this and post in the .godot file as it has this with other useful info
+	dump_input_map_from_project_file()
+	dump_all_scenes_hierarchy_to_file()
+
+func dump_all_scenes_hierarchy_to_file(output_path: String = "res://all_scenes_hierarchy.txt") -> void:
+	var output := ""
+	var scenes := _find_scene_files("res://")
+
+	for scene_path in scenes:
+		output += "\n### %s ###\n" % scene_path
+		var scene = load(scene_path)
+		if scene:
+			var instance = scene.instantiate()
+			output += _get_node_hierarchy(instance)
+		else:
+			output += "Failed to load scene: %s\n" % scene_path
+
+	var file = FileAccess.open(output_path, FileAccess.WRITE)
+	if file:
+		file.store_string(output)
+		OS.shell_open(ProjectSettings.globalize_path(output_path))
+		print("Saved all scene hierarchies to: %s" % output_path)
+	else:
+		printerr("Failed to write to %s" % output_path)
+
+
+func _find_scene_files(dir_path: String) -> Array:
+	var results := []
+	var dir := DirAccess.open(dir_path)
+	if not dir:
+		printerr("Failed to open directory: %s" % dir_path)
+		return results
+
+	dir.list_dir_begin()
+	var file_name = dir.get_next()
+	while file_name != "":
+		var file_path = dir_path.path_join(file_name)
+		if dir.current_is_dir():
+			if file_name != "." and file_name != "..":
+				results += _find_scene_files(file_path)
+		elif file_name.ends_with(".tscn"):
+			results.append(file_path)
+		file_name = dir.get_next()
+	dir.list_dir_end()
+	return results
+
+
+func _get_node_hierarchy(root: Node, indent: String = "") -> String:
+	var line := "%s%s %s" % [indent, root.name, root.get_class()]
+	if root.get_script():
+		line += " [%s]" % root.get_script().resource_path
+	var output := line + "\n"
+
+	for child in root.get_children():
+		if child is Node:
+			output += _get_node_hierarchy(child, indent + "-")
+	return output
+
+func dump_input_map_from_project_file(project_path: String = "res://project.godot", output_path: String = "res://all_input_map_raw.txt") -> void:
+	var file := FileAccess.open(project_path, FileAccess.READ)
+	if not file:
+		printerr("Failed to open project file: %s" % project_path)
+		return
+
+	var inside_input_section := false
+	var output := ""
+
+	while not file.eof_reached():
+		var line := file.get_line()
+
+		if line.strip_edges() == "[input]":
+			inside_input_section = true
+			output += line + "\n"
+			continue
+
+		if inside_input_section:
+			if line.begins_with("[") and not line.begins_with("[input]"):
+				break  # done with [input] section
+			output += line + "\n"
+
+	var out_file := FileAccess.open(output_path, FileAccess.WRITE)
+	if out_file:
+		out_file.store_string(output)
+		OS.shell_open(ProjectSettings.globalize_path(output_path))
+		print("Saved raw input map from project.godot to: %s" % output_path)
+	else:
+		printerr("Failed to write to: %s" % output_path)
+
+func dump_input_map(output_path: String = "res://all_input_map.txt") -> void:
+	var file = FileAccess.open(output_path, FileAccess.WRITE)
+	if not file:
+		printerr("Failed to write input map to %s" % output_path)
+		return
+
+	for action in InputMap.get_actions():
+		file.store_string("Action: %s\n" % action)
+		for event in InputMap.action_get_events(action):
+			var line := "  "
+			if event is InputEventKey:
+				line += "%s%s" % [event.physical_keycode if event.physical_keycode else event.keycode, " (Physical)" if event.physical else ""]
+			elif event is InputEventMouseButton:
+				line += "Mouse Button %d" % event.button_index
+			elif event is InputEventJoypadButton:
+				line += "Joypad Button %d (Device %d)" % [event.button_index, event.device]
+			elif event is InputEventJoypadMotion:
+				var dir = "Positive" if event.axis_value > 0 else "Negative"
+				line += "Joypad Axis %d %s (Device %d)" % [event.axis, dir, event.device]
+			else:
+				line += event.as_text()
+
+			file.store_string(line + "\n")
+	file.close()
+	OS.shell_open(ProjectSettings.globalize_path(output_path))
+	print("Saved detailed input map to: %s" % output_path)
+
+var _gdscript_dump_output := ""
+
+func _dump_all_gd_scripts_to_file(output_path: String = "res://all_gdscript.txt") -> void:
+	_gdscript_dump_output = ""
+	process_dir("res://")
+
+	var save_file := FileAccess.open(output_path, FileAccess.WRITE)
+	if save_file:
+		save_file.store_string(_gdscript_dump_output)
+		print("Saved script dump to: %s" % output_path)
+		#EditorInterface.get_resource_filesystem().navigate_to_path(output_path)
+		OS.shell_open(ProjectSettings.globalize_path(output_path))
+	else:
+		printerr("Failed to save to %s" % output_path)
+
+
+func process_dir(path: String) -> void:
+	var dir := DirAccess.open(path)
+	if dir == null:
+		printerr("Could not open directory: %s" % path)
+		return
+
+	dir.list_dir_begin()
+	var file_name := dir.get_next()
+	while file_name != "":
+		if dir.current_is_dir():
+			if file_name != "." and file_name != "..":
+				process_dir(path.path_join(file_name))
+		else:
+			if file_name.ends_with(".gd"):
+				var full_path := path.path_join(file_name)
+				var script := FileAccess.open(full_path, FileAccess.READ)
+				if script:
+					var content := script.get_as_text()
+					_gdscript_dump_output += "\n### FILE: %s ###\n" % full_path
+					_gdscript_dump_output += content + "\n"
+				else:
+					printerr("Failed to read file: %s" % full_path)
+		file_name = dir.get_next()
+	dir.list_dir_end()
+
+
+var dialog: AcceptDialog
+var spacing_x_field: SpinBox
+var spacing_y_field: SpinBox
+var columns_field: SpinBox
+
+func _create_dialog() -> void:
+	dialog = AcceptDialog.new()
+	dialog.dialog_text = "Grid Settings"
+	dialog.ok_button_text = "Apply"
+
+	var vbox = VBoxContainer.new()
+
+	var spacing_x_label = Label.new()
+	spacing_x_label.text = "Spacing X:"
+	vbox.add_child(spacing_x_label)
+
+	spacing_x_field = SpinBox.new()
+	spacing_x_field.min_value = 0.1
+	spacing_x_field.value = 2.0
+	spacing_x_field.step = 0.1
+	vbox.add_child(spacing_x_field)
+
+	var spacing_y_label = Label.new()
+	spacing_y_label.text = "Spacing Y (Z axis spacing!):"
+	vbox.add_child(spacing_y_label)
+
+	spacing_y_field = SpinBox.new()
+	spacing_y_field.min_value = 0.1
+	spacing_y_field.value = 2.0
+	spacing_y_field.step = 0.1
+	vbox.add_child(spacing_y_field)
+
+	var columns_label = Label.new()
+	columns_label.text = "Columns:"
+	vbox.add_child(columns_label)
+
+	columns_field = SpinBox.new()
+	columns_field.min_value = 1
+	columns_field.value = 5
+	vbox.add_child(columns_field)
+
+	dialog.add_child(vbox)
+	dialog.confirmed.connect(_on_dialog_ok_pressed) # <-- use confirmed signal
+	get_editor_interface().get_base_control().add_child(dialog)
+
+
+
+
+func _show_arrange_dialog() -> void:
+	dialog.popup_centered(Vector2(300, 200))
+
+func _on_dialog_ok_pressed() -> void:
+	_arrange_selected_nodes_grid(
+		spacing_x_field.value,
+		spacing_y_field.value,
+		columns_field.value
+	)
+	dialog.hide()
+
+func _arrange_selected_nodes_grid(spacing_x: float, spacing_y: float, columns: int) -> void:
+	var selection = get_editor_interface().get_selection()
+	var selected_nodes = selection.get_selected_nodes()
+
+	if selected_nodes.is_empty():
+		push_warning("No nodes selected to arrange.")
+		return
+
+	selected_nodes.sort_custom(func(a, b): return a.name.naturalnocasecmp_to(b.name) < 0)
+
+	for i in range(selected_nodes.size()):
+		var node = selected_nodes[i]
+		if node is Node3D:
+			var x = (i % columns) * spacing_x
+			var z = (i / columns) * spacing_y
+			var position = Vector3(x, node.transform.origin.y, z) # Keep original Y
+			node.transform.origin = position
+		else:
+			push_warning("Node '%s' is not a Node3D, skipped." % node.name)
+
+
+### FILE: res://addons/snappy/snappy.gd ###
+@tool
+extends EditorPlugin
+
+const RAY_LENGTH = 1000
+# Workaround for Vector3.INF GDScript issue https://github.com/godotengine/godot/issues/61643
+const VECTOR_INF = Vector3(INF, INF, INF)
+
+@onready var undo_redo = get_undo_redo()
+var undo_position = null
+
+var selection = get_editor_interface().get_selection()
+var selected : Node3D = null
+var dragging = false
+var origin = Vector3()
+var origin_2d = null
+
+func _enter_tree():
+	selection.connect("selection_changed", _on_selection_changed)
+
+func _handles(object):
+	if object is Node3D:
+		return true
+	return false
+
+func _forward_3d_draw_over_viewport(overlay):
+	if origin_2d != null:
+		overlay.draw_circle(origin_2d, 4, Color.YELLOW)
+	pass
+
+func _forward_3d_gui_input(camera, event):
+	# We need mouse events to get the cursor position
+	# This means pressing V when no mouse events are being sent does nothing
+	# It's rarely noticable though
+	if selected == null or not event is InputEventMouse:
+		return false
+
+	#if event is InputEventMouse:
+	var now_dragging = event.button_mask == MOUSE_BUTTON_LEFT and Input.is_key_pressed(KEY_V)
+	if dragging and not now_dragging and origin != VECTOR_INF:
+		undo_redo.create_action("Snap vertex")
+		undo_redo.add_do_property(selected, "position", selected.position)
+		undo_redo.add_undo_property(selected, "position", undo_position)
+		undo_redo.commit_action()
+	dragging = now_dragging
+
+
+	if Input.is_key_pressed(KEY_V):
+		var from = camera.project_ray_origin(event.position)
+		var direction = camera.project_ray_normal(event.position)
+		var to = from + direction * RAY_LENGTH
+
+		if not dragging:
+			var meshes = find_meshes(selected)
+			origin = find_closest_point(meshes, from, direction)
+			undo_position = selected.position
+
+			if origin != VECTOR_INF:
+				origin_2d = camera.unproject_position(origin)
+			else:
+				origin_2d = null
+			update_overlays()
+		elif origin != VECTOR_INF:
+			origin_2d = camera.unproject_position(origin)
+			update_overlays()
+			var ids = RenderingServer.instances_cull_ray(from, to, selected.get_world_3d().scenario)
+			var meshes = []
+			for id in ids:
+				var obj = instance_from_id(id)
+				if obj != selected and obj.get_parent() != selected and obj is Node3D:
+					meshes += find_meshes(obj)
+
+			var target = find_closest_point(meshes, from, direction)
+			if target != VECTOR_INF:
+				selected.global_position -= origin - target
+				origin = target
+			return true
+	else:
+		origin = VECTOR_INF
+		origin_2d = null
+		update_overlays()
+	return false
+
+func _on_selection_changed():
+	var nodes = selection.get_selected_nodes()
+	if nodes.size() > 0 and nodes[0] is Node3D:
+		selected = nodes[0]
+	else:
+		selected = null
+		origin = null
+
+func find_meshes(node : Node3D) -> Array:
+	var meshes : Array = []
+	if node is MeshInstance3D:
+		meshes.append(node)
+	if node is CSGShape3D:
+		meshes.append(node)
+	for child in node.get_children():
+		if child is Node3D:
+			meshes += find_meshes(child)
+	return meshes
+
+func find_closest_point(meshes : Array, from : Vector3, direction : Vector3) -> Vector3:
+	var closest := VECTOR_INF
+	var closest_distance := INF
+
+	# We will not use the distance between the vertex and the from position,
+	# (that would always be the vertex closest to the camera). Instead we
+	# use the distance between the vertex and the ray under the mouse cursor.
+	# Ideally we would use the 2d distance of the unprojected vertices,
+	# however unprojecting every vertex can have a performance penalty for
+	# large meshes. This is a good balance between performance and accuracy.
+	var segment_start := from
+	var segment_end := from + direction
+
+	for mesh in meshes:
+		var vertices = PackedVector3Array()
+		if mesh is MeshInstance3D:
+			vertices = mesh.get_mesh().get_faces()
+		if mesh is CSGShape3D:
+			if mesh.is_root_shape():
+				var csg_mesh = (mesh as CSGShape3D).get_meshes()[1]
+				vertices = csg_mesh.get_faces()
+			else:
+				vertices.append(Vector3.ZERO)
+		for i in range(vertices.size()):
+			var current_point: Vector3 = mesh.global_transform * vertices[i]
+			var current_on_ray := Geometry3D.get_closest_point_to_segment_uncapped(
+				current_point, segment_start, segment_end)
+			var current_distance := current_on_ray.distance_to(current_point)
+			if closest == VECTOR_INF or current_distance < closest_distance:
+				closest = current_point
+				closest_distance = current_distance
+
+	return closest
+
+
+
+### FILE: res://Enemies/Beetle.gd ###
+extends RigidBody3D
+
+#const COIN_SCENE := preload("res://Player/Coin/Coin.tscn")
+#const PUFF_SCENE := preload("smoke_puff/smoke_puff.tscn")
+const DISSOLVE_MATERIAL := preload("res://shared/shaders/monster_disolve.tres")
+var _original_albedo: Texture2D
+var _dissolve_mat: ShaderMaterial
+
+const move_speed = 3;
+const tired_speed = 1;
+
+enum State { PATROL_IDLE, PATROL_WALK, CHASE, REST }
+var _state: State = State.PATROL_IDLE
+
+var patrol_idle_timer := 0.0
+var patrol_idle_duration := 2.0
+var patrol_target_position: Vector3
+var patrol_walk_duration := 5.0
+var patrol_walk_timer := 0.0
+var patrol_radius := 5.0
+
+
+var stamina := 5.0
+var max_stamina := 5.0
+var stamina_regen_rate := 1.5
+var stamina_drain_rate := 1.0
+
+
+@onready var _reaction_animation_player: AnimationPlayer = $ReactionLabel/AnimationPlayer
+@onready var _detection_area: Area3D = $PlayerDetectionArea
+@onready var _beetle_skin: Node3D = $BeetlebotSkin
+@onready var _beetle_mesh: MeshInstance3D = $BeetlebotSkin/beetle_bot/Armature/Skeleton3D/Beetle
+@onready var _navigation_agent: NavigationAgent3D = $NavigationAgent3D
+@onready var _death_collision_shape: CollisionShape3D = $DeathCollisionShape
+@onready var _defeat_sound: AudioStreamPlayer3D = $DefeatSound
+
+@onready var _target: Node3D = null
+@onready var _alive: bool = true
+
+
+func _ready() -> void:
+	add_to_group("enemies")
+	# Cache original texture for this beetle
+	_original_albedo = _beetle_mesh.get_active_material(0).get("albedo_texture")
+
+	# Duplicate shared shader material
+	#_dissolve_mat = DISSOLVE_MATERIAL.duplicate()
+	#_dissolve_mat.set_shader_parameter("albedo_texture", _original_albedo)
+	#_beetle_mesh.set_surface_override_material(0, _dissolve_mat)
+
+	_detection_area.body_entered.connect(_on_body_entered)
+	_detection_area.body_exited.connect(_on_body_exited)
+	_beetle_skin.idle()
+
+
+func _physics_process(delta: float) -> void:
+	if not _alive:
+		return
+
+	if _target != null:
+		_state = State.CHASE
+
+	match _state:
+		State.PATROL_IDLE:
+			_beetle_skin.idle()
+			stamina = min(max_stamina, stamina + stamina_regen_rate * delta)
+			patrol_idle_timer -= delta
+			if patrol_idle_timer <= 0.0:
+				_set_new_patrol_target()
+				_state = State.PATROL_WALK
+
+		State.PATROL_WALK:
+			_beetle_skin.walk()
+			stamina = min(max_stamina, stamina + stamina_regen_rate * delta)
+
+			_navigation_agent.target_position = patrol_target_position
+			var next_location = _navigation_agent.get_next_path_position()
+			if not _navigation_agent.is_target_reached():
+				var direction = (next_location - global_position)
+				direction.y = 0
+				direction = direction.normalized()
+				# Make the beetle face the movement direction
+				if direction.length() > 0.01:
+					look_at(global_position + direction)
+				move_and_collide(direction * delta * move_speed * 0.5)  # patrol slower
+
+			patrol_walk_timer -= delta
+			if patrol_walk_timer <= 0.0 or _navigation_agent.is_target_reached():
+				_state = State.PATROL_IDLE
+				patrol_idle_timer = patrol_idle_duration
+
+		State.CHASE:
+			_beetle_skin.walk()
+			stamina -= stamina_drain_rate * delta
+			if stamina < 0:
+				stamina = 0
+
+			if _target != null:
+				var target_pos = _target.global_position
+				target_pos.y = global_position.y
+				var to_target = (target_pos - global_position)
+				if to_target.length() > 0.01:
+					look_at(target_pos)
+
+				_navigation_agent.target_position = _target.global_position
+				var next_location = _navigation_agent.get_next_path_position()
+				if not _navigation_agent.is_target_reached():
+					var direction = (next_location - global_position)
+					direction.y = 0
+					direction = direction.normalized()
+					var speed = move_speed
+					if stamina <= 0:
+						speed *= 0.3
+					var collision = move_and_collide(direction * delta * speed)
+					if collision:
+						var collider = collision.get_collider()
+						if collider is Player:
+							if collider.is_ground_pounding:
+								print("Beetle hit by ground pound!")
+								var impact_point = global_position - collider.global_position
+								damage(impact_point, Vector3.UP * 6)  # Trigger beetle damage with knockback
+							else:
+								# Standard bump damage to player
+								var impact = global_position - collider.global_position
+								var force = -impact
+								force.y = 0.5
+								force *= 10.0
+								collider.take_damage(1, global_position)
+								_beetle_skin.attack()
+
+		State.REST:
+			_beetle_skin.idle()
+			stamina = min(max_stamina, stamina + stamina_regen_rate * delta)
+			if stamina >= max_stamina:
+				_state = State.PATROL_IDLE
+				patrol_idle_timer = patrol_idle_duration
+
+
+func _set_new_patrol_target():
+	var random_offset = Vector3(randf_range(-patrol_radius, patrol_radius), 0, randf_range(-patrol_radius, patrol_radius))
+	patrol_target_position = global_position + random_offset
+	patrol_walk_timer = patrol_walk_duration
+	_navigation_agent.target_position = patrol_target_position
+
+
+func damage(impact_point: Vector3, force: Vector3) -> void:
+	lock_rotation = false
+	force = force.limit_length(3.0)
+	apply_impulse(force, impact_point)
+
+	if not _alive:
+		return
+
+	_defeat_sound.play()
+	_alive = false
+	_beetle_skin.power_off()
+
+	_detection_area.body_entered.disconnect(_on_body_entered)
+	_detection_area.body_exited.disconnect(_on_body_exited)
+	_target = null
+	_death_collision_shape.set_deferred("disabled", false)
+
+
+	#axis_lock_angular_x = false
+	#axis_lock_angular_y = false
+	#axis_lock_angular_z = false
+	gravity_scale = 1.0
+
+	await get_tree().create_timer(2).timeout
+
+	#var puff := PUFF_SCENE.instantiate()
+	#get_parent().add_child(puff)
+	#puff.global_position = global_position
+	#await puff.full
+	#for i in range(coins_count):
+		#var coin := COIN_SCENE.instantiate()
+		#get_parent().add_child(coin)
+		#coin.global_position = global_position
+		#coin.spawn()
+	#await get_tree().create_timer(1.0).timeout  # Delay before dissolve
+	disable_all_collisions(self)
+	gravity_scale = 0.1
+	_beetle_mesh.set_surface_override_material(0, DISSOLVE_MATERIAL)
+	_beetle_mesh.set_surface_override_material(1, DISSOLVE_MATERIAL)
+	_beetle_mesh.set_surface_override_material(2, DISSOLVE_MATERIAL)
+	#_beetle_mesh.material_overlay = DISSOLVE_MATERIAL
+	# Animate dissolve over 1 second
+	for i in range(30):
+		var t = i / 30.0
+		DISSOLVE_MATERIAL.set_shader_parameter("dissolve_amount", t)
+		await get_tree().create_timer(0.05).timeout
+	await get_tree().create_timer(0.1).timeout
+	queue_free()
+
+func disable_all_collisions(root: Node):
+	for child in root.get_children():
+		if child is CollisionShape3D:
+			child.disabled = true
+		elif child.get_child_count() > 0:
+			disable_all_collisions(child)
+
+func _on_body_entered(body: Node3D) -> void:
+	if body is Player:
+		_target = body
+		_state = State.CHASE
+		_reaction_animation_player.play("found_player")
+
+func _on_body_exited(body: Node3D) -> void:
+	if body is Player:
+		_target = null
+		_state = State.PATROL_IDLE
+		patrol_idle_timer = patrol_idle_duration
+		_reaction_animation_player.play("lost_player")
+		_beetle_skin.idle()
+
+
+### FILE: res://Enemies/beetle_bot/beetlebot_skin.gd ###
+extends Node3D
+
+# Set loop on some animation
+@export var _force_loop : PackedStringArray
+@onready var _animation_tree : AnimationTree = $AnimationTree
+@onready var _main_state_machine : AnimationNodeStateMachinePlayback = _animation_tree.get("parameters/StateMachine/playback")
+@onready var _secondary_action_timer : Timer = $SecondaryActionTimer
+
+func _ready():
+	_animation_tree.active = true
+	for animation_name in _force_loop:
+		var anim : Animation = $beetle_bot/AnimationPlayer.get_animation(animation_name)
+		anim.loop_mode = Animation.LOOP_LINEAR
+
+func _on_secondary_action_timer_timeout():
+	if _main_state_machine.get_current_node() == "Idle":
+		shake()
+	_secondary_action_timer.start(randf_range(3.0, 8.0))
+
+func idle():
+	_main_state_machine.travel("Idle")
+	
+func walk():
+	_main_state_machine.travel("Walk")
+	
+func shake():
+	_main_state_machine.travel("Shake")
+	
+func attack():
+	_main_state_machine.travel("Attack")
+	
+func power_off():
+	_main_state_machine.travel("PowerOff")
+	_secondary_action_timer.stop()
+
+
+### FILE: res://objects/Base/cloud.gd ###
+extends Node3D
+
+var time = 0.0
+
+var random_number = RandomNumberGenerator.new()
+
+var random_velocity:float
+var random_time:float
+
+func _ready():
+	
+	random_velocity = random_number.randf_range(0.1, 2.0)
+	random_time = random_number.randf_range(0.1, 2.0)
+
+func _process(delta):
+	
+	position.y += (cos(time * random_time) * random_velocity) * delta # Sine movement
+	
+	time += delta
+
+
+### FILE: res://objects/Base/coin.gd ###
+extends Area3D
+
+var time := 0.0
+var grabbed := false
+
+# Collecting coins
+
+func _on_body_entered(body):
+	if body.has_method("collect_coin") and !grabbed:
+		
+		body.collect_coin()
+		
+		Audio.play("res://sounds/coin.ogg") # Play sound
+		
+		$Mesh.queue_free() # Make invisible
+		$Particles.emitting = false # Stop emitting stars
+		
+		grabbed = true
+
+# Rotating, animating up and down
+
+func _process(delta):
+	
+	rotate_y(2 * delta) # Rotation
+	position.y += (cos(time * 5) * 1) * delta # Sine movement
+	
+	time += delta
+
+
+### FILE: res://objects/Base/platform_falling.gd ###
+extends Node3D
+
+var falling := false
+var gravity := 0.0
+var respawn_timer := 0.0
+var respawn_delay := 3.0  # How many seconds before respawning
+var start_position := Vector3.ZERO
+var start_scale := Vector3.ONE
+
+func _ready():
+	start_position = position
+	start_scale = scale
+
+func _process(delta):
+	if falling:
+		gravity += 0.25
+		position.y -= gravity * delta
+		
+		scale = scale.lerp(Vector3(1, 1, 1), delta * 10) # Animate scale back toward normal
+		
+		if position.y < -10:
+			start_respawn_timer()
+
+	if respawn_timer > 0:
+		respawn_timer -= delta
+		if respawn_timer <= 0:
+			respawn()
+
+func start_respawn_timer():
+	falling = false
+	gravity = 0
+	respawn_timer = respawn_delay
+
+func respawn():
+	position = start_position
+	scale = start_scale
+	gravity = 0
+	falling = false
+
+func _on_area_3d_body_entered(_body) -> void:
+	if !falling:
+		Audio.play("res://sounds/fall.ogg") # Play sound
+		scale = Vector3(1.25, 1, 1.25) # Animate scale
+		falling = true
+
+
+### FILE: res://objects/basic_marble.gd ###
+extends RigidBody3D
+
+@export var kill_y_threshold: float = -10.0
+var spawner  # Assigned externally
+
+func _physics_process(delta):
+	if global_transform.origin.y < kill_y_threshold:
+		queue_free()
+
+		if spawner and spawner.has_method("_on_marble_deleted"):
+			spawner._on_marble_deleted()
+
+
+### FILE: res://objects/marble_spawner.gd ###
+extends Node3D
+
+@export var marble_scene: PackedScene
+@export_range(0.1, 10.0) var spawn_interval: float = 2.0
+@export var max_marbles: int = 10
+@export var y_gizmo_radius: float = 0.25
+
+var _timer := 0.0
+var _marble_count := 0
+
+func _process(delta):
+	if marble_scene == null:
+		return
+
+	_timer += delta
+	if _timer >= spawn_interval:
+		_timer = 0.0
+		if _marble_count < max_marbles:
+			spawn_marble()
+
+func spawn_marble():
+	var marble = marble_scene.instantiate()
+	marble.spawner = self
+	get_tree().current_scene.add_child(marble)
+	marble.global_transform.origin = global_transform.origin
+	_marble_count += 1
+	#print("MCC: ", _marble_count)
+
+
+func _on_marble_deleted():
+	_marble_count -= 1
+	#print("MCD: ", _marble_count)
+
+#func _notification(what):
+	#if Engine.is_editor_hint():
+		#if what == NOTIFICATION_TRANSFORM_CHANGED or what == NOTIFICATION_READY:
+			#update_gizmo()
+#
+#func update_gizmo():
+	#if !is_inside_tree():
+		#return
+	#var debug_draw := get_viewport().get_debug_draw()
+	#if debug_draw:
+		#debug_draw.draw_sphere(global_transform.origin, y_gizmo_radius, Color.GREEN)
+
+
+### FILE: res://objects/Obstacles/spike_block.gd ###
+extends CharacterBody3D
+
+@export var move_speed := 1.5
+@export var wait_time := 0.3
+#@export_node_path("Path3D") var path_node_path
+@onready var path: Path3D = $"../Path3D"
+
+@onready var damage_area: Area3D = $Area3D
+#@onready var path: Path3D = get_node(path_node_path)
+
+var distance := 0.0
+var going_forward := true
+var wait_timer := 0.0
+
+func _ready():
+	damage_area.body_entered.connect(_on_body_entered)
+
+func _on_body_entered(body):
+	if body.has_method("take_damage"):
+		body.take_damage(1, global_transform.origin)
+
+func _physics_process(delta):
+	if wait_timer > 0.0:
+		wait_timer -= delta
+		return
+
+	var direction = 1.0 if going_forward else -1.0
+	distance += move_speed * delta * direction
+	var path_length = path.curve.get_baked_length()
+
+	if distance >= path_length:
+		distance = path_length
+		going_forward = false
+		wait_timer = wait_time
+	elif distance <= 0.0:
+		distance = 0.0
+		going_forward = true
+		wait_timer = wait_time
+
+	var local_pos = path.curve.sample_baked(distance)
+	global_position = path.global_transform * local_pos
+
+
+### FILE: res://p_card.gd ###
+extends RigidBody3D
+class_name PCard
+static var texture_cache: Dictionary = {}
+static var material_cache: Dictionary = {}
+static var edge_material_cache := {}
+
+const front_material_index := 0
+const back_material_index := 1
+const edge_material_index := 2
+const margin = 1.5
+
+# Enum for card behavior state
+enum CardState {
+	FREE_FLOATING,
+	CARRIED_BY_PLAYER,
+	ON_STACK
+}
+
+signal player_entered_area(player)
+signal player_exited_area(player)
+# Nodes
+@export var mesh : MeshInstance3D
+
+# Editable properties
+@export var card_front_shader_material: ShaderMaterial
+@export var edge_color : Color = Color.BLACK
+@export var suit : String = "hearts"
+@export var rank : String = "K"
+var rank_value: int = 13  # Set in set_card
+var color: String = "red"  # "red" or "black"
+var team: String = "N"  # Assigned during dealing
+var my_back_key: String = "default_back"  # set by set_card()
+var source_deckstack: DeckStack = null
+
+const RANKS := {
+	"A": 1, "2": 2, "3": 3, "4": 4, "5": 5, "6": 6, "7": 7,
+	"8": 8, "9": 9, "10": 10, "J": 11, "Q": 12, "K": 13
+}
+const RED_SUITS := ["Hearts", "Diamonds"]
+const BLACK_SUITS := ["Spades", "Clubs"]
+
+var attached_cards: Array[PCard] = []
+
+@onready var pickup_area = $Area3D
+
+var low_speed_timer = 0.0
+var flattening = false
+var has_flattened = false
+
+# Runtime state
+var state: CardState = CardState.FREE_FLOATING
+var mount_target: Node3D = null
+var mount_offset: Transform3D = Transform3D.IDENTITY
+var carrier_player: Node3D = null
+var carrier_target: Node3D = null
+
+# Base paths
+const TEXTURE_PATH = "res://models/cards/textures/"
+const FRONT_TEXTURE_FORMAT = "%s_%s.png" # example: "card_hearts_A.png"
+
+# Bobbing behavior (only when floating freely)
+var bob_timer := 0.0
+var bob_height := 0.2
+var bob_speed := 1.0
+var base_position: Vector3
+
+
+func get_attached_group() -> Array[PCard]:
+	var group = [self]
+	for card in attached_cards:
+		group += card.get_attached_group()
+	return group
+
+
+func get_rank_value() -> int:
+	return rank_value
+
+func get_color() -> String:
+	return color
+
+const TEAM_COLORS := {
+	"A": Color(0.4, 0.6, 1.0),  # Soft blue
+	"B": Color(1.0, 0.5, 0.5)   # Soft red
+}
+func set_team(teamStr: String):
+	team = teamStr
+	set_edge_color(TEAM_COLORS.get(team, Color.GRAY))
+
+
+var is_face_up: bool = true
+func set_face_up(face_up: bool = true):
+	is_face_up = face_up
+
+	# Flip over the X axis (local pitch) without affecting Y rotation
+	#var current_rot = rotation
+	#if face_up:
+		#current_rot.x = 0.0
+	#else:
+		#current_rot.x = PI
+	#rotation = current_rot
+
+	# Swap material based on face
+	var front_key := "%s_%s" % [suit, rank]
+	if face_up:
+		mesh.set_surface_override_material(front_material_index, material_cache[front_key])
+	else:
+		mesh.set_surface_override_material(back_material_index, material_cache[my_back_key])
+
+
+func _ready():
+	self.set_freeze_mode(FreezeMode.FREEZE_MODE_KINEMATIC)
+	#print("ready pickup_area", pickup_area)
+	if pickup_area == null:
+		push_error("pickup_area not found!")
+		print("asdf asdf asd f asready")
+	base_position = global_position
+	add_to_group("interactables")
+	add_to_group("cards")
+	if mesh == null:
+		push_error("CardMesh not found!")
+	#else:
+		#set_edge_color(edge_color)
+		#set_card(suit, rank)
+
+var flatten_speed = 3.0  # How fast to rotate to flat
+
+func start_flattening():
+	flattening = true
+	self.freeze = true
+	self.linear_velocity = Vector3.ZERO
+	self.angular_velocity = Vector3.ZERO
+	self.gravity_scale = 0.0
+
+func update_flattening(delta):
+	# Slowly rotate the card back to zero tilt
+	var target_rotation = Vector3(0, rotation.y, 0)  # Keep facing same Y
+	rotation.x = lerp_angle(rotation.x, target_rotation.x, delta * flatten_speed)
+	rotation.z = lerp_angle(rotation.z, target_rotation.z, delta * flatten_speed)
+
+	# If very close to upright, snap it
+	if abs(rotation.x) < deg_to_rad(1) and abs(rotation.z) < deg_to_rad(1):
+		rotation.x = 0
+		rotation.z = 0
+		flattening = false
+		has_flattened = true
+		#print("Card fully flattened!")
+
+func get_marker_position(player: Player):
+	return global_position
+
+func interaction_available(player: Player) -> bool:
+	if team != player.team:
+		return false
+	if state != CardState.FREE_FLOATING:
+		return false
+	return player.carried_card == null
+
+
+func change_state(new_state: int) -> void:
+	#if state == new_state:
+		#return  # No need to change to same state
+	state = new_state
+	match state:
+		CardState.ON_STACK:
+			#print("pickup_area", self, pickup_area)
+			if pickup_area:
+				pickup_area.monitorable = false
+			physics_off()
+
+		CardState.FREE_FLOATING:
+			if pickup_area:
+				pickup_area.monitorable = true
+			physics_on()
+
+		CardState.CARRIED_BY_PLAYER:
+			if pickup_area:
+				pickup_area.monitorable = false
+			physics_off()
+
+func _physics_process(delta):
+	if global_transform.origin.y < -20:
+		global_position = base_position  #TODO change this to return to team/source_deckstack
+		self.linear_velocity = Vector3.ZERO
+		self.angular_velocity = Vector3.ZERO
+
+	match state:
+		CardState.FREE_FLOATING:
+			#_handle_free_float(delta)
+			if !flattening and !has_flattened:
+				# Check if card is nearly stopped
+				#print(self.linear_velocity.length(), "   ", self.angular_velocity.length())
+				if self.linear_velocity.length() < 0.36 and self.angular_velocity.length() < 1.79:
+					low_speed_timer += delta
+					if low_speed_timer > 0.5:  # been slow for half a second
+						#print("Starting flattening!")
+						start_flattening()
+				else:
+					low_speed_timer = 0.0
+
+			if flattening:
+				update_flattening(delta)
+		
+		CardState.CARRIED_BY_PLAYER:
+			if carrier_target:
+				var offset = Transform3D()
+
+				var basis = Basis()
+				basis = basis.rotated(Vector3(1, 0, 0), deg_to_rad(90))
+				basis = basis.rotated(Vector3(0, 1, 0), deg_to_rad(180))
+				offset.basis = basis
+
+				offset.origin = Vector3(0, 0, 0)  # Adjust height above antenna tip
+
+				global_transform = carrier_target.global_transform * offset
+			elif carrier_player:
+				var offset = Transform3D()
+				var basis = Basis()
+				#basis = basis.rotated(Vector3(1, 0, 0), deg_to_rad(90))
+				#basis = basis.rotated(Vector3(0, 1, 0), deg_to_rad(180))
+				offset.basis = basis
+				#offset.origin = Vector3(0, 0.16, -0.37)
+				offset.origin = Vector3(0, 1, 0.5)
+				global_transform = carrier_player.global_transform * offset
+		
+		CardState.ON_STACK:
+			if mount_target and is_instance_valid(mount_target):
+				if mount_target.has_method("get_card_transform"):
+					# Ask the stack for the transform based on its current index
+					var stack_index = mount_target.cards.find(self)
+					if stack_index != -1:
+						global_transform = mount_target.get_card_transform(stack_index)
+				else:
+					global_transform = mount_target.global_transform * mount_offset
+
+
+
+func _handle_free_float(delta):
+	bob_timer += delta * bob_speed
+	var offset_y = (sin(bob_timer) * 0.5 + 0.5) * bob_height
+	#global_position = base_position + Vector3(0, offset_y, 0)
+
+func set_card(new_suit: String, new_rank: String, back_key: String = "default") -> void:
+	suit = new_suit
+	rank = new_rank
+	my_back_key = back_key
+
+	rank_value = RANKS.get(rank, 0)
+	color = "red" if RED_SUITS.has(suit) else "black"
+
+	var front_key := "%s_%s" % [suit, rank]
+	var front_texture_path := TEXTURE_PATH + FRONT_TEXTURE_FORMAT % ["card_" + suit, rank]
+	var back_texture_path := TEXTURE_PATH + "%s.png" % back_key
+
+	# --- Texture caching ---
+	if !texture_cache.has(front_key):
+		texture_cache[front_key] = load(front_texture_path)
+	if !texture_cache.has(back_key):
+		texture_cache[back_key] = load(back_texture_path)
+
+	var front_texture = texture_cache[front_key]
+	var back_texture = texture_cache[back_key]
+
+	# --- Material caching ---
+	if !material_cache.has(front_key):
+		var mat = card_front_shader_material.duplicate()
+		mat.set_shader_parameter("albedo_texture", front_texture)
+		mat.set_shader_parameter("uv_offset", Vector2((11.0 + margin) / 64.0, (2.0 + margin) / 64.0))
+		mat.set_shader_parameter("uv_scale", Vector2((42.0 - margin * 2) / 64.0, (60.0 - margin * 2) / 64.0))
+		material_cache[front_key] = mat
+
+	if !material_cache.has(back_key):
+		var back_mat = card_front_shader_material.duplicate()
+		back_mat.set_shader_parameter("albedo_texture", back_texture)
+		back_mat.set_shader_parameter("uv_offset", Vector2((11.0 + margin) / 64.0, (2.0 + margin) / 64.0))
+		back_mat.set_shader_parameter("uv_scale", Vector2((42.0 - margin * 2) / 64.0, (60.0 - margin * 2) / 64.0))
+		material_cache[back_key] = back_mat
+
+	# --- Assign materials ---
+	mesh.set_surface_override_material(front_material_index, material_cache[front_key])
+	mesh.set_surface_override_material(back_material_index, material_cache[back_key])
+
+
+
+func set_edge_color(color: Color) -> void:
+	edge_color = color
+	# Use color as the cache key (to_hex or direct Color object)
+	var key = color.to_html(false)  # e.g., "#FF0000"
+	if not edge_material_cache.has(key):
+		var base_mat = mesh.mesh.surface_get_material(edge_material_index)
+		if base_mat:
+			var mat = base_mat.duplicate()
+			mat.albedo_color = color
+			edge_material_cache[key] = mat
+	else:
+		# Material already cached for this color
+		pass
+
+	# Apply material from cache
+	mesh.set_surface_override_material(edge_material_index, edge_material_cache[key])
+
+func interact(player):
+	if state == CardState.FREE_FLOATING:
+		if player.team != team:
+			print("Cannot interact with card from another team.")
+			return
+		player.pick_up_card(self)
+
+func pick_up(player: Node3D, target_mount: Node3D = null):
+	print("card/pick_up: ", target_mount)
+	carrier_player = player
+	mount_target = null
+	has_flattened = false
+	carrier_target = target_mount if target_mount != null else player
+	change_state(CardState.CARRIED_BY_PLAYER)
+	physics_off()
+
+func drop_to_ground():
+	# Determine starting position
+	if carrier_player and is_instance_valid(carrier_player):
+		global_position = carrier_player.global_position + Vector3(0, 0.5, 0)
+	# Otherwise keep current position or assume it's already positioned by caller
+
+	rotation_degrees.x += 60
+
+	has_flattened = false
+	carrier_player = null
+	carrier_target = null
+	mount_target = null
+	change_state(CardState.FREE_FLOATING)
+	physics_on()
+
+	self.linear_velocity = Vector3(0, -2.5, 0)  # Small down speed
+	self.angular_velocity = Vector3(-2.5, 0, 0)
+	#self.angular_velocity = Vector3(randf_range(-2, 2), randf_range(-1, 1), randf_range(-2, 2))
+
+func physics_on():
+	self.freeze = false
+	self.sleeping = false
+	self.linear_velocity = Vector3.ZERO
+	self.angular_velocity = Vector3.ZERO
+	self.gravity_scale = 1.0
+
+func physics_off():
+	self.freeze = true
+	self.sleeping = true
+	self.linear_velocity = Vector3.ZERO
+	self.angular_velocity = Vector3.ZERO
+	self.gravity_scale = 0.0
+	
+func mount_to(target: Node3D, offset: Transform3D = Transform3D.IDENTITY):
+	carrier_player = null
+	mount_target = target
+	mount_offset = offset
+	change_state(CardState.ON_STACK)
+
+
+### FILE: res://scenes/game_master.gd ###
+extends Node3D
+
+@export var TeamMasterA: TeamMaster
+@export var TeamMasterB: TeamMaster
+
+@onready var ScreenGrid = $"UI Control/GridContainer"
+@onready var Views := [
+	$"UI Control/GridContainer/SubViewportContainer1",
+	$"UI Control/GridContainer/SubViewportContainer2",
+	$"UI Control/GridContainer/SubViewportContainer3",
+	$"UI Control/GridContainer/SubViewportContainer4"
+]
+@onready var Players := [
+	$"Player1",
+	$"Player2",
+	$"Player3",
+	$"Player4"
+]
+@onready var PlayerMarkers := [
+	$"Marker1",
+	$"Marker2",
+	$"Marker3",
+	$"Marker4",
+]
+
+func assignSubViewportContainerToPlayer(player, marker, subviewportcontainer):
+	print("attachSubViewportContainerToPlayer ", subviewportcontainer, player, marker)
+	player.marker = marker
+	player.sub_viewport = subviewportcontainer
+	player.hud = subviewportcontainer.get_node("SubViewport/HUD")
+	player.view_camera = subviewportcontainer.get_node("SubViewport/View")
+	player.view_camera.assign_player(player)
+	player.setup()
+
+func _ready():
+	#get master variables and set things up
+	#UI Control
+	#Master.player_count
+	#enable disable players, selectors, and cameras and UI?
+	#for 1 player, set gridcontainer columns to 1
+	#there might be a margin 1-2px to turn off somewhere too
+	if(Master.player_count == 1):
+		ScreenGrid.columns = 1
+	else:
+		ScreenGrid.columns = 2
+
+	for i in range(Views.size()):
+		var container = Views[i]
+		assignSubViewportContainerToPlayer(Players[i], PlayerMarkers[i], container)
+		container.visible = i < Master.player_count
+		if(i >= Master.player_count):
+			container.queue_free()
+			PlayerMarkers[i].queue_free()
+			Players[i].queue_free()
+			continue;
+		var top_left = container.get_node("SubViewport/HUD/ControlLayoutFullRect/ControlTopLeft")
+		var top_right = container.get_node("SubViewport/HUD/ControlLayoutFullRect/ControlTopRight")
+		var bottom_left = container.get_node("SubViewport/HUD/ControlLayoutFullRect/ControlBottomLeft")
+		var bottom_right = container.get_node("SubViewport/HUD/ControlLayoutFullRect/ControlBottomRight")
+		if top_left == null:
+			continue
+		var scale = null
+		match Master.player_count:
+			1:
+				scale = Vector2(1, 1)
+			2:
+				scale = Vector2(0.8, 0.8)
+			3, 4:
+				scale = Vector2(0.6, 0.6)
+		top_left.scale = scale
+		top_right.scale = scale
+		bottom_left.scale = scale
+		bottom_right.scale = scale
+
+	await get_tree().process_frame
+	setRound(0)
+	#Audio.play_music("")
+
+func setRound(round: int):
+	TeamMasterA.deal_hand()
+	TeamMasterB.deal_hand()
+
+
+### FILE: res://scenes/HoldInteractArea.gd ###
+class_name HoldInteractable
+extends Area3D
+
+@export var hold_time_required: float = 1.5  # Seconds to trigger
+@export var one_shot: bool = false  # Disable after activation
+@export var prompt_text: String = "Hold to Buy"
+@export var team: String = "" #Any
+var interaction_available_delegate: Callable  #set at ready with the delegate node
+
+signal hold_completed(player_id: int, player: Node)
+
+
+var holding_players: Dictionary = {}  # player_id -> { time: float, player: Node }
+var has_triggered := false
+
+func _ready():
+	add_to_group("interactables")
+
+#TODO Could be a whole interact information, text, type, position, visible, etcc
+func get_marker_position(player: Player):
+	return global_position
+
+func interaction_available(player: Player) -> bool:
+	if team != "":
+		if player.team != team:
+			return false
+	if interaction_available_delegate and interaction_available_delegate.is_valid():
+		return interaction_available_delegate.call(player, self)
+	#if interaction_available_delegate and interaction_available_delegate.has_method("interaction_available"):
+		#return interaction_available_delegate.interaction_available(player, self)
+	return true
+
+func _process(delta):
+	if one_shot and has_triggered:
+		return
+
+	for player_id in holding_players.keys():
+		var entry = holding_players[player_id]
+		if !is_instance_valid(entry.player):
+			holding_players.erase(player_id)
+			continue
+
+		entry.time += delta
+		#var progress = entry.time / hold_time_required
+
+		if entry.time >= hold_time_required:
+			print("Player", player_id, "finished holding", )
+			hold_completed.emit(player_id, entry.player)
+			holding_players.erase(player_id)
+			if one_shot:
+				has_triggered = true
+				monitoring = false
+				set_deferred("monitorable", false)
+
+func start_holding(player_id: int, player: Node):
+	if has_triggered or !is_instance_valid(player):
+		return
+	if !interaction_available(player):
+		return
+	if !holding_players.has(player_id):
+		holding_players[player_id] = {
+			"time": 0.0,
+			"player": player
+		}
+
+func stop_holding(player_id: int):
+	if holding_players.has(player_id):
+		holding_players.erase(player_id)
+
+func get_hold_progress(player_id: int) -> float:
+	if holding_players.has(player_id):
+		return clamp(holding_players[player_id].time / hold_time_required, 0, 1)
+	return 0.0
+
+
+
+#extends Area3D
+#
+#@export var hold_time_required: float = 1.5  # Seconds needed to activate
+#
+#signal hold_progress(player_id: int, progress: float)
+#signal hold_completed(player_id: int)
+#
+#var holding_players: Dictionary = {}  # player_id -> current hold time
+#
+#func _ready():
+	#add_to_group("interactables")
+#
+#func _process(delta):
+	#for player_id in holding_players.keys():
+		#holding_players[player_id] += delta
+		#var progress = holding_players[player_id] / hold_time_required
+#
+		## Emit progress for HUD
+		#hold_progress.emit(player_id, clamp(progress, 0, 1))
+#
+		#if holding_players[player_id] >= hold_time_required:
+			## Player finished holding!
+			#print("Player finished holding to activate!")
+			#hold_completed.emit(player_id)
+			#holding_players.erase(player_id)
+#
+#func progress(player_id: int):
+	#if holding_players.has(player_id):
+		#return holding_players[player_id]
+#
+#func start_holding(player_id: int):
+	#if !holding_players.has(player_id):
+		#holding_players[player_id] = 0.0
+#
+#func stop_holding(player_id: int):
+	#if holding_players.has(player_id):
+		#holding_players.erase(player_id)
+		## Optionally emit a "hold cancelled" signal if needed
+
+
+### FILE: res://scenes/Menu/landing.gd ###
+extends Node
+@onready var doNothing = $"CanvasLayer/UI Control/VBoxContainer/DoNothing"
+@onready var start_p1 = $"CanvasLayer/UI Control/VBoxContainer/ButtonStart1"
+@onready var start_p2 = $"CanvasLayer/UI Control/VBoxContainer/ButtonStart2"
+@onready var start_p3 = $"CanvasLayer/UI Control/VBoxContainer/ButtonStart3"
+@onready var start_p4 = $"CanvasLayer/UI Control/VBoxContainer/ButtonStart4"
+@onready var quit = $"CanvasLayer/UI Control/VBoxContainer/ButtonQuit"
+
+func testJoys():
+	print("----")
+	#var mapping_string = "030000005e0400008e02000000000000,Xbox Controller,a:b0,b:b1,x:b2,y:b3,back:b6,start:b7,leftshoulder:b4,rightshoulder:b5,leftstick:b8,rightstick:b9,dpleft:b10,dpdown:b11,dpright:b12,dpup:b13,leftx:a0,lefty:a1,rightx:a2,righty:a3,lefttrigger:a4,righttrigger:a5"
+	#Input.add_joy_mapping(mapping_string, true)
+	
+	for id in range(8):
+		var name = Input.get_joy_name(id)
+		var guid = Input.get_joy_guid(id)
+		if guid != "":
+			print("Device", id, "Name:", name, "GUID:", guid)
+
+	#for id in range(16):
+		#var name = Input.get_joy_name(id)
+		#if name != "":
+			#print("Device ID:", id, "Name:", name, "GUID:", Input.get_joy_guid(id))
+	print(Input.get_connected_joypads())
+	for id in range(8):
+		print("ID:", id, " name:", Input.get_joy_name(id), " guid:", Input.get_joy_guid(id))
+	#for i in range(0,7):
+		#print("[",i,"] ", Input.get_joy_name(i))
+
+
+func _ready():
+	#testJoys()
+	var current = get_tree().current_scene
+	var target_path = ""
+
+	match Master.launch_mode:
+		Master.LaunchMode.MAIN_MENU:
+			target_path = Master.landing_scene_path
+			setupMenu()
+		Master.LaunchMode.DEV_DIRECT:
+			target_path = Master.dev_scene_path
+			Master.player_count = 2
+			
+
+	if current and current.scene_file_path == target_path:
+		return  # Already in the target scene, avoid reloading
+
+	get_tree().change_scene_to_file(target_path)
+
+func setupMenu():
+	doNothing.grab_focus()
+	start_p1.pressed.connect(_on_start_pressed.bind(1))
+	start_p2.pressed.connect(_on_start_pressed.bind(2))
+	start_p3.pressed.connect(_on_start_pressed.bind(3))
+	start_p4.pressed.connect(_on_start_pressed.bind(4))
+	quit.pressed.connect(_on_quit_pressed)
+
+func _on_start_pressed(player_count: int):
+	Master.player_count = player_count
+	print("Start pressed: ", player_count)
+	get_tree().change_scene_to_file(Master.priscilla1)
+
+func _on_quit_pressed():
+	get_tree().quit()
+
+
+### FILE: res://scenes/monster_spawner.gd ###
+extends Node3D
+
+@export var monster_scene: PackedScene
+@export var respawn_delay: float = 12.0
+
+var current_monster: Node = null
+var respawn_timer: Timer
+
+func _ready():
+	respawn_timer = Timer.new()
+	respawn_timer.one_shot = true
+	respawn_timer.wait_time = respawn_delay
+	respawn_timer.timeout.connect(_on_respawn_timeout)
+	add_child(respawn_timer)
+
+	spawn_monster()
+
+func spawn_monster():
+	if monster_scene == null:
+		print("TRYING TO Spawn Monster", monster_scene)
+		push_error("No monster scene assigned!")
+		return
+
+	current_monster = monster_scene.instantiate()
+	get_tree().current_scene.add_child(current_monster)
+	current_monster.global_position = global_position
+
+	print("Spawn Monster", current_monster)
+	
+	# Listen for a 'defeated' or 'dead' signal (you must emit this from your monster)
+	if current_monster.has_signal("defeated"):
+		current_monster.connect("defeated", _on_monster_defeated)
+	else:
+		push_warning("Monster does not have 'defeated' signal. You must implement this in your monster script.")
+
+func _on_monster_defeated():
+	current_monster = null
+	respawn_timer.start()
+
+func _on_respawn_timeout():
+	spawn_monster()
+
+
+### FILE: res://scenes/moving_platforms.gd ###
+extends Node3D
+
+@onready var path: Path3D = $"Path3D"
+
+#Space out the platforms evently
+func _ready():
+	return
+	#await get_tree().process_frame
+	var path_length = path.curve.get_baked_length()
+	var platforms := []
+
+	# Collect all direct or recursive children that are CharacterBody3D
+	for child in get_children():
+		if child is CharacterBody3D:
+			platforms.append(child)
+#
+	#if platforms.is_empty():
+		#return
+
+	for i in range(platforms.size()):
+		var platform = platforms[i]
+		platform.distance_offset += path_length * (float(i) / float(platforms.size()))
+		platform.distance = platform.distance_offset
+		print(i, " ", platform, " ", platform.distance_offset)
+
+
+### FILE: res://scenes/platform_moving.gd ###
+extends CharacterBody3D
+
+@export var move_speed: float = 1.5
+@export var distance_offset: float = 1
+@export var force_up_alignment: bool = true
+@export var lock_to_position_only: bool = false
+@export var pause_time: float = 0.5  # Pause at ends if path is open
+
+@onready var path: Path3D = $"../Path3D"
+
+var distance: float = 0.0
+var going_forward: bool = true
+var wait_timer: float = 0.0
+
+func _ready():
+	var path_length = path.curve.get_baked_length()
+	distance = distance_offset * path_length
+
+func _physics_process(delta):
+	if path == null:
+		return
+
+	var path_length = path.curve.get_baked_length()
+
+	if wait_timer > 0.0:
+		wait_timer -= delta
+		return
+
+	if path.curve.closed:
+		distance += move_speed * delta
+		distance = fposmod(distance, path_length)
+	else:
+		var direction = 1.0 if going_forward else -1.0
+		distance += move_speed * delta * direction
+
+		if distance >= path_length:
+			distance = path_length
+			going_forward = false
+			wait_timer = pause_time
+		elif distance <= 0.0:
+			distance = 0.0
+			going_forward = true
+			wait_timer = pause_time
+
+	var local_transform = path.curve.sample_baked_with_rotation(distance)
+	var global_transform_result = path.global_transform * local_transform
+
+	if lock_to_position_only:
+		global_position = global_transform_result.origin
+		return
+
+	if force_up_alignment:
+		var position = global_transform_result.origin
+		var forward = global_transform_result.basis.x.normalized()
+		var up = Vector3.UP
+		var right = up.cross(forward).normalized()
+		var adjusted_basis = Basis(right, up, forward).orthonormalized()
+		global_transform_result.basis = adjusted_basis
+		global_transform_result.origin = position
+
+	global_transform = global_transform_result
+
+
+### FILE: res://scenes/stamina.gd ###
+extends RigidBody3D
+
+@onready var mesh_holder := $MeshHolder
+@onready var pickup_area := $Area3D
+
+var base_offset := Vector3.ZERO
+var bob_timer := 0.0
+var bob_speed := 2.0
+var bob_height := 0.2
+var collected := false
+
+func _ready():
+	base_offset = mesh_holder.position
+	pickup_area.body_entered.connect(_on_body_entered)
+
+	print("Initial position:", global_position)
+	gravity_scale = 1.0
+	sleeping = false
+
+func _process(delta):
+	if collected:
+		return
+	bob_timer += delta * bob_speed
+	mesh_holder.position.y = base_offset.y + sin(bob_timer) * bob_height
+
+func _on_body_entered(body):
+	print("STAM: ", body.get_path())
+	if collected:
+		return
+	if body.has_method("collect_stamina"):
+		print("COLLECT: ", body.name)
+		body.collect_stamina()
+		collected = true
+		$Particles.emitting = false
+		$MeshHolder.visible = false
+		queue_free()
+
+
+### FILE: res://scenes/team_master.gd ###
+extends Node3D
+class_name TeamMaster
+
+@export var card_scene: PackedScene  # Your Card.tscn
+@export var team_name: String
+
+@export var goalStack: GoalStack
+@export var solitaireStack1: SolitairePathStack
+@export var solitaireStack2: SolitairePathStack
+@export var solitaireStack3: SolitairePathStack
+@export var solitaireStack4: SolitairePathStack
+@export var stockStack: StockStack
+@export var flipStack: FlipStack
+@export var cycleInteractable: HoldInteractable
+@export var reshuffleInteractable: HoldInteractable
+
+const reshuffle_coin_cost = 20
+const MAX_CYCLE_CARDS = 3
+var deck: Deck
+
+func _ready():
+	cycleInteractable.interaction_available_delegate = Callable(self, "_cycle_interaction_available")
+	reshuffleInteractable.interaction_available_delegate = Callable(self, "_reshuffle_interaction_available")
+
+	#cycleInteractable.interaction_available_delegate = self
+	#reshuffleInteractable.interaction_available_delegate = self
+	cycleInteractable.hold_completed.connect(_on_cycle_triggered)
+	reshuffleInteractable.hold_completed.connect(_on_reshuffle_triggered)
+
+func spawn_card(card_data, stack: DeckStack) -> void:
+	var card = card_scene.instantiate()
+	add_child(card)
+	card.set_team(team_name)
+	card.set_card(card_data.suit, card_data.rank, Master.team_backs[team_name])
+	stack.add_card(card)
+
+func deal_hand():
+	# TODO: cleanup old cards if replaying, make it's own function
+	goalStack.team = team_name
+	stockStack.team = team_name
+	flipStack.team = team_name
+	cycleInteractable.team = team_name
+	solitaireStack1.team = team_name
+	solitaireStack2.team = team_name
+	solitaireStack3.team = team_name
+	solitaireStack4.team = team_name
+
+	deck = Deck.new()
+	deck.create_full_deck()
+	deck.shuffle()
+	print("Team ", team_name," deck cards:", deck.cards_remaining())
+
+	# Deal 1 card to 4 solitaire paths
+	spawn_card(deck.draw_card(), solitaireStack1)
+	spawn_card(deck.draw_card(), solitaireStack2)
+	spawn_card(deck.draw_card(), solitaireStack3)
+	spawn_card(deck.draw_card(), solitaireStack4)
+
+	for i in range(13): # Deal 13 to goal stack
+		spawn_card(deck.draw_card(), goalStack)
+	for i in range(35): # Deal 35 to cycle stack
+		spawn_card(deck.draw_card(), stockStack)
+
+	#stockStack.scatter_all_cards()
+	#goalStack.scatter_all_cards()
+
+
+func verify_full_deck() -> bool:
+	var found_cards := {}
+	print("verify_full_deck_for_team: ", team_name)
+	for card in get_tree().get_nodes_in_group("cards"):
+		if card.team == team_name:
+			var key = "%s_%s" % [card.suit, card.rank]
+			found_cards[key] = true
+
+	for suit in Deck.SUITS:
+		for rank in Deck.RANKS:
+			var key = "%s_%s" % [suit, rank]
+			if not found_cards.has(key):
+				print("Missing card for team %s: %s" % [team_name, key])
+				return false
+
+	return true
+
+func _reshuffle_interaction_available(player: Player, source: Node = null) -> bool:
+	return player.coins >= reshuffle_coin_cost
+
+#func _on_reshuffle_triggered():
+	#print("_on_reshuffle_triggered")
+	#flipStack
+	#stockStack
+	#goalStack
+
+
+	#store number of current cards on each those stack (including if one is presently carried in a players hand locking that stack)
+	#pull/teleport them all those cards away and any ones carried by players of that team
+	#then shuffle and redeal that stored number to each location, though flip stack will place it's all onto stock
+
+func _clear_stack(stack: DeckStack) -> Array:
+	var pulled: Array = []
+	while not stack.cards.is_empty():
+		var card = stack.remove_top_card(false)
+		pulled.append(card)
+	return pulled
+
+func _on_reshuffle_triggered(_player_id: int, _player: Node):
+	print("_on_reshuffle_triggered")
+	_player.coins = _player.coins - reshuffle_coin_cost
+
+	var collected_cards: Array = []
+	var flip_count := flipStack.cards.size()
+	var stock_count := stockStack.cards.size()
+	var goal_count := goalStack.cards.size()
+	print("counts ", flip_count, " ", stock_count, " ", goal_count, " ", collected_cards.size())
+	# 1. Collect and clear cards from stacks
+	collected_cards += _clear_stack(flipStack)
+	collected_cards += _clear_stack(stockStack)
+	collected_cards += _clear_stack(goalStack)
+
+	# 2. Collect and clear from team players
+	#for player in get_tree().get_nodes_in_group("players"):
+		#if player.team != team_name:
+			#continue
+#
+		#var card = player.carried_card
+		#if card == null:
+			#continue
+#
+		#var is_locking_flip = flipStack.locked_by_card == card
+		#var is_locking_goal = goalStack.locked_by_card == card
+#
+		#if is_locking_flip or is_locking_goal:
+			#player.drop_card()
+			#collected_cards.append(card)
+#
+			#if is_locking_flip:
+				#flip_count += 1
+				#flipStack.unlock_stack()
+			#if is_locking_goal:
+				#goal_count += 1
+				#goalStack.unlock_stack()
+
+	# 3. Shuffle the collected cards
+	collected_cards.shuffle()
+
+	# 4. Redeal
+	for i in range(goal_count):
+		if collected_cards.is_empty():
+			break
+		var card = collected_cards.pop_back()
+		goalStack.add_card(card)
+
+	for i in range(stock_count + flip_count):
+		if collected_cards.is_empty():
+			break
+		var card = collected_cards.pop_back()
+		stockStack.add_card(card)
+
+
+func _cycle_interaction_available(player: Player, source: Node = null) -> bool:
+	if flipStack.locked || player.carried_card != null || (stockStack.cards.is_empty() && flipStack.cards.is_empty()): #&& flipStack.locked_by_card != player.carried_card
+		return false
+	return true
+
+func _on_cycle_triggered(_player_id: int, _player: Node):
+	if !_cycle_interaction_available(_player):
+		return
+	# Step 1: If deck is empty, flip pile back into deck (face down)
+	if stockStack.cards.is_empty():
+		while not flipStack.cards.is_empty():
+			var card = flipStack.remove_top_card()
+			card.set_face_up(false)
+			stockStack.add_card(card)
+		Audio.playRandom(Audio.CardShoves)
+		return
+
+	# Step 2: Flip up to 3 cards from deck to pile
+	var flips = min(MAX_CYCLE_CARDS, stockStack.get_card_count())
+	for i in range(flips):
+		var card = stockStack.remove_top_card(false)
+		card.set_face_up(true)
+		flipStack.add_card(card)
+	
+	Audio.playRandom(Audio.CardSlides)
+
+
+### FILE: res://scripts/audio.gd ###
+extends Node
+
+var num_players = 12
+var bus = "master"
+
+var available = []  # The available players.
+var queue = []  # The queue of sounds to play.
+
+var music_player: AudioStreamPlayer
+var rng := RandomNumberGenerator.new()
+
+static var CardSlides := [
+	"res://sounds/card-slide-1.ogg",
+	"res://sounds/card-slide-2.ogg",
+	"res://sounds/card-slide-3.ogg",
+	"res://sounds/card-slide-4.ogg",
+	"res://sounds/card-slide-5.ogg",
+	"res://sounds/card-slide-6.ogg",
+	"res://sounds/card-slide-7.ogg",
+	"res://sounds/card-slide-8.ogg"
+]
+static var CardPlaces := [
+	"res://sounds/card-place-1.ogg",
+	"res://sounds/card-place-2.ogg",
+	"res://sounds/card-place-3.ogg",
+	"res://sounds/card-place-4.ogg"
+]
+static var CardShoves := [
+	"res://sounds/card-shove-1.ogg",
+	"res://sounds/card-shove-2.ogg",
+	"res://sounds/card-shove-3.ogg",
+	"res://sounds/card-shove-4.ogg"
+]
+
+func _ready():
+	# SFX pool setup
+	for i in num_players:
+		var p = AudioStreamPlayer.new()
+		add_child(p)
+		available.append(p)
+		p.volume_db = -10
+		p.finished.connect(_on_stream_finished.bind(p))
+		p.bus = bus
+
+	# Music setup
+	music_player = AudioStreamPlayer.new()
+	add_child(music_player)
+	music_player.bus = "music"  # Optional: create a dedicated music bus in the audio settings
+	music_player.volume_db = -6
+
+
+
+func _on_stream_finished(stream): available.append(stream)
+
+func play(sound_path): queue.append(sound_path)
+func playRandom(sound_path_list: Array):
+	if sound_path_list.is_empty():
+		push_error("Empty sound_path_list")
+		return
+	var index = rng.randi_range(0, sound_path_list.size() - 1)
+	var sound_path = sound_path_list[index]
+	queue.append(sound_path)
+
+func play_music(path: String, loop := true):
+	var stream = load(path)
+	
+	if stream is AudioStream:
+		# Duplicate the stream so we can modify its loop flag safely
+		stream = stream.duplicate()
+		
+		if stream is AudioStreamOggVorbis or stream is AudioStreamWAV:
+			stream.loop = loop
+	music_player.volume_db = -2  # slightly quieter
+	music_player.stream = stream
+	music_player.play()
+	music_player.stream_paused = false
+
+
+func stop_music():
+	music_player.stop()
+
+func pause_music():
+	music_player.stream_paused = true
+
+func resume_music():
+	music_player.stream_paused = false
+
+
+func _process(_delta):
+
+	if not queue.is_empty() and not available.is_empty():
+		
+		available[0].stream = load(queue.pop_front())
+		available[0].play()
+		available[0].pitch_scale = randf_range(0.9, 1.1)
+		
+		available.pop_front()
+
+
+### FILE: res://scripts/button_square.gd ###
+extends Node3D
+
+signal pressed(active: bool)  # <- SIGNAL: anyone can listen to button presses
+
+@export var is_toggle_button: bool = true  # <- Toggle mode or Momentary mode
+@export var is_active: bool = false  # <- Only meaningful for toggle mode
+
+@onready var animation_player: AnimationPlayer = $AnimationPlayer
+@onready var area: Area3D = $Area3D
+
+func _ready():
+	area.body_entered.connect(_on_body_entered)
+
+	# Setup initial animation if in toggle mode
+	if is_toggle_button:
+		if is_active:
+			animation_player.play("toggle-on")
+		else:
+			animation_player.play("toggle-off")
+
+func _on_body_entered(body):
+	if body.is_in_group("players") and body.is_ground_pounding:
+		Audio.play("res://sounds/bookPlace2.ogg")
+		press()
+
+func press():
+	if is_toggle_button:
+		is_active = !is_active  # Flip active state
+		if is_active:
+			animation_player.play("toggle-on")
+		else:
+			animation_player.play("toggle-off")
+	else:
+		# Just play "toggle" animation every press, no state tracking
+		animation_player.play("toggle")
+
+	# Emit signal no matter what mode
+	emit_signal("pressed", is_active)
+
+
+### FILE: res://scripts/CardData.gd ###
+# CardData.gd
+class_name CardData
+
+var suit: String
+var rank: String
+
+func _init(_suit: String = "", _rank: String = ""):
+	suit = _suit
+	rank = _rank
+
+
+### FILE: res://scripts/controller_visualizer.gd ###
+extends Control
+
+@export var device: int = 0
+
+func _process(_delta: float) -> void:
+	queue_redraw()
+	#for i in range(20):  # Check up to 20 buttons
+		#if Input.is_joy_button_pressed(device, i):
+			#print(device, " Button ", i, " pressed")
+	#for a in range(6):  # Check axes
+		#print("Axis", a, ":", Input.get_joy_axis(0, a))
+
+func _draw() -> void:
+	var size = Vector2(81, 69)
+	draw_rect(Rect2(Vector2.ZERO, size), Color(0.15, 0.15, 0.15, 0.45))
+
+	draw_trigger(Vector2(5, 5), Input.get_joy_axis(device, JOY_AXIS_TRIGGER_LEFT))
+	draw_bumper(Vector2(5, 17), Input.is_joy_button_pressed(device, JOY_BUTTON_LEFT_SHOULDER))
+
+	draw_trigger(Vector2(52, 5), Input.get_joy_axis(device, JOY_AXIS_TRIGGER_RIGHT))
+	draw_bumper(Vector2(52, 17), Input.is_joy_button_pressed(device, JOY_BUTTON_RIGHT_SHOULDER))
+
+	var dpad_pos = Vector2(18, 38)  # adjust for your overall layout
+	draw_dpad_arrow(dpad_pos + Vector2(-11, 4.5), deg_to_rad(-90.0), Input.is_joy_button_pressed(device, JOY_BUTTON_DPAD_LEFT))  # Left
+	draw_dpad_arrow(dpad_pos + Vector2(-4.5, -11), deg_to_rad(0.0), Input.is_joy_button_pressed(device, JOY_BUTTON_DPAD_UP))      # Up
+	draw_dpad_arrow(dpad_pos + Vector2(11, -4.5), deg_to_rad(90.0), Input.is_joy_button_pressed(device, JOY_BUTTON_DPAD_RIGHT))   # Right
+	draw_dpad_arrow(dpad_pos + Vector2(4.5, 11), deg_to_rad(180.0), Input.is_joy_button_pressed(device, JOY_BUTTON_DPAD_DOWN))   # Down
+
+	draw_joystick(Vector2(30, 56), Input.get_joy_axis(device, JOY_AXIS_LEFT_X), Input.get_joy_axis(device, JOY_AXIS_LEFT_Y), Input.is_joy_button_pressed(device, JOY_BUTTON_LEFT_STICK))
+	draw_joystick(Vector2(49, 56), Input.get_joy_axis(device, JOY_AXIS_RIGHT_X), Input.get_joy_axis(device, JOY_AXIS_RIGHT_Y), Input.is_joy_button_pressed(device, JOY_BUTTON_RIGHT_STICK))
+
+	var face_pos = Vector2(49, 25)
+	draw_face_button(face_pos + Vector2(1, 9), Input.is_joy_button_pressed(device, JOY_BUTTON_X))
+	draw_face_button(face_pos + Vector2(9, 1), Input.is_joy_button_pressed(device, JOY_BUTTON_Y))
+	draw_face_button(face_pos + Vector2(17, 9), Input.is_joy_button_pressed(device, JOY_BUTTON_B))
+	draw_face_button(face_pos + Vector2(9, 17), Input.is_joy_button_pressed(device, JOY_BUTTON_A))
+
+	draw_option_button(Vector2(33, 27), Input.is_joy_button_pressed(device, JOY_BUTTON_BACK))
+	draw_option_button(Vector2(42, 27), Input.is_joy_button_pressed(device, JOY_BUTTON_START))
+
+func draw_option_button(pos: Vector2, pressed: bool) -> void:
+	var color := Color.WHITE
+	if pressed:
+		color = Color.RED
+	draw_rect(Rect2(pos, Vector2(6, 5)), Color.BLACK)
+	draw_rect(Rect2(pos + Vector2.ONE, Vector2(4, 3)), color)
+
+func draw_dpad_arrow(pos: Vector2, angle: float, pressed: bool) -> void:
+	var color := Color.RED if pressed else Color.WHITE
+	var width := 9.0
+	var height := 9.0
+
+	# Define arrow pointing "down" around the origin
+	var local_points = [
+		Vector2(0, 0),
+		Vector2(width, 0),
+		Vector2(width, height / 2),
+		Vector2(width / 2, height),
+		Vector2(0, height / 2)
+	]
+
+	# Rotate and translate the points
+	var rotated_points: Array = []
+	for p in local_points:
+		var rotated = p.rotated(angle)
+		rotated_points.append(rotated + pos)
+
+	# Close the shape
+	rotated_points.append(rotated_points[0])
+
+	draw_polygon(rotated_points, [color])
+	draw_polyline(rotated_points, Color.BLACK)
+
+
+func draw_face_button(pos: Vector2, pressed: bool) -> void:
+	var r := 5
+	var color := Color.WHITE
+	if pressed:
+		color = Color.RED
+	draw_circle(pos + Vector2(r, r), r, Color.BLACK)
+	draw_circle(pos + Vector2(r, r), r - 1, color)
+
+func draw_bumper(pos: Vector2, pressed: bool) -> void:
+	var size = Vector2(24, 6)
+	var color := Color.WHITE
+	if pressed:
+		color = Color.RED
+	draw_rect(Rect2(pos, size), Color.BLACK)
+	draw_rect(Rect2(pos + Vector2.ONE, size - Vector2(2, 2)), color)
+
+func draw_trigger(pos: Vector2, value: float) -> void:
+	var size = Vector2(24, 10)
+	draw_rect(Rect2(pos, size), Color.BLACK)
+	draw_rect(Rect2(pos + Vector2.ONE, size - Vector2(2, 2)), Color.WHITE)
+	draw_rect(Rect2(pos + Vector2.ONE, Vector2(size.x - 2, (size.y - 2) * value)), Color.RED)
+
+func draw_joystick(pos: Vector2, ax: float, ay: float, pressed: bool) -> void:
+	var radius := 8
+	var dist := 4
+	var color := Color.WHITE
+	if pressed:
+		color = Color.RED
+
+	draw_circle(pos, radius, Color.BLACK)
+	draw_circle(pos, radius - 1, Color.GRAY)
+
+	var offset = Vector2(ax, ay) * dist
+	draw_circle(pos + offset, radius - 2, Color.BLACK)
+	draw_circle(pos + offset, radius - 3, color)
+
+# Axis/button constants
+const JOY_AXIS_LEFT_X := 0
+const JOY_AXIS_LEFT_Y := 1
+const JOY_AXIS_RIGHT_X := 2
+const JOY_AXIS_RIGHT_Y := 3
+const JOY_AXIS_TRIGGER_LEFT := 4
+const JOY_AXIS_TRIGGER_RIGHT := 5
+
+const JOY_BUTTON_A := 0
+const JOY_BUTTON_B := 1
+const JOY_BUTTON_X := 2
+const JOY_BUTTON_Y := 3
+const JOY_BUTTON_LEFT_SHOULDER := 9
+const JOY_BUTTON_RIGHT_SHOULDER := 10
+const JOY_BUTTON_BACK := 4
+const JOY_BUTTON_START := 6
+const JOY_BUTTON_LEFT_STICK := 7
+const JOY_BUTTON_RIGHT_STICK := 8
+const JOY_BUTTON_DPAD_UP := 11
+const JOY_BUTTON_DPAD_DOWN := 12
+const JOY_BUTTON_DPAD_LEFT := 13
+const JOY_BUTTON_DPAD_RIGHT := 14
+
+
+### FILE: res://scripts/deck.gd ###
+# Deck.gd
+class_name Deck
+
+const SUITS = ["Hearts", "Diamonds", "Clubs", "Spades"]
+const RANKS = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"]
+
+var cards: Array = []  # Array of CardData
+
+func create_full_deck():
+	cards.clear()
+	for suit in SUITS:
+		for rank in RANKS:
+			var card_data = CardData.new()
+			card_data.suit = suit
+			card_data.rank = rank
+			cards.append(card_data)
+
+func shuffle():
+	cards.shuffle()
+
+func draw_card() -> CardData:
+	if cards.is_empty():
+		return null
+	return cards.pop_back()
+
+func is_empty() -> bool:
+	return cards.is_empty()
+
+func cards_remaining() -> int:
+	return cards.size()
+
+
+### FILE: res://scripts/deck_stack.gd ###
+class_name DeckStack
+extends Node3D
+
+@onready var pickup_area = $Area3D
+var stack_position_offset: Vector3 = Vector3(0, 0.014, 0)  # Vertical gap between cards
+var cards: Array = []
+#var groundPosition = null;
+@export var top_face_down := false  # toggle per stack
+@export var allow_dig := false  # can pick below top?
+@export var face_up_on_add := true  # default behavior
+@export var team = ""
+var team_only = true
+var ground_offset: Vector3 = Vector3.ZERO  # initialized in _ready or lazily
+
+var locked := false
+var locked_by_card: Node3D = null
+@onready var lock_visual: Node3D = null  # Assigned during _ready
+
+func _ready():
+	#groundPosition = get_ground_position()
+	ground_offset = to_local(get_ground_position())
+	add_to_group("interactables")
+	add_to_group("decks")
+
+	lock_visual = preload("res://scenes/lock.tscn").instantiate()
+	lock_visual.visible = false
+	add_child(lock_visual)
+	lock_visual.global_position = global_position + Vector3(0, 0.1, 0)
+
+func lock_stack(card: Node3D):
+	card.source_deckstack = self
+	locked = true
+	locked_by_card = card
+	lock_visual.visible = true
+
+func unlock_stack():
+	locked = false
+	locked_by_card = null
+	lock_visual.visible = false
+
+func is_locked() -> bool:
+	return locked
+
+func get_marker_position(player: Player) -> Vector3:
+	return global_position
+
+func interaction_available(player: Player) -> bool:
+	if team_only && player.team != team:
+		return false
+	if player.carried_card != null:
+		if locked:
+			return locked_by_card == player.carried_card
+		else:
+			return true
+	else:
+		return !cards.is_empty()
+
+func add_card(card: Node3D):
+	#print("add_card ", self)
+
+	#if !can_accept_card(card):
+		#return
+
+	if locked and locked_by_card == card:
+		unlock_stack()
+
+	card.source_deckstack = self
+
+	cards.append(card)
+	card.physics_off()
+	#var card_transform = get_card_transform(cards.size() - 1)
+	#card.global_position = card_transform.origin
+	#card.global_rotation = card_transform.basis.get_euler()
+	#card.global_transform = get_card_transform(cards.size() - 1)
+
+	var t := get_card_transform(cards.size() - 1)
+	#t.basis = Basis().rotated(Vector3.UP, deg_to_rad(30 * cards.size()))
+	card.global_transform = t
+	#print("Card transform set to:", card.global_transform)
+	
+	#card.global_position = get_card_position(cards.size() - 1)
+	#card.global_rotation = Vector3.ZERO
+
+	card.mount_target = self
+	card.mount_offset = Transform3D(Basis(), Vector3.ZERO)
+	#card.mount_offset = self.to_local(card.global_transform)
+	card.change_state(card.CardState.ON_STACK)
+
+	if face_up_on_add:
+		card.set_face_up(true)
+
+func can_accept_card(card: Node3D) -> bool:
+	if locked && card.source_stack != self:
+		return false
+	# Base stack accepts anything — override in subclasses
+	return true
+
+func can_remove_card(card: Node3D) -> bool:
+	if card == null:
+		return false
+	if locked || cards.is_empty():
+		return false
+	# Base stack accepts anything — override in subclasses
+	return true
+
+func interact(player):
+	print("deck stack interact: ", self, player)
+
+	if player.is_holding_card():
+		if !can_accept_card(player.carried_card):
+			return
+		if team_only && team != player.carried_card.team:
+			return
+		print("Dropping card onto stack:", player.carried_card)
+		player.drop_card_onto_stack(self)
+
+	else:
+		var peek_top_card = get_top_card()
+		if !can_remove_card(peek_top_card):
+			return
+		if team_only && player.team != team:
+			return
+		var top_card = remove_top_card()
+		print("Picking up top card:", top_card)
+		if top_card:
+			player.pick_up_card(top_card)
+
+func get_top_card() -> Node3D:
+	if cards.is_empty():
+		return null
+	return cards[-1]
+
+func remove_top_card(lock_the_stack: bool =  true) -> Node3D:
+	#if cards.is_empty() or locked:
+		#return null
+	var card = cards.pop_back()
+	if lock_the_stack:
+		lock_stack(card)
+	return card
+
+func get_card_count() -> int:
+	return cards.size()
+
+#take the global_pos of our parent add that to local_ground_offset to get our new global_pos transform
+#!!!! I don't like this down-raycasting solution to account for decalworldedit stuff
+#probably some other solution with specific positioning, and use the mesh to show where stack will be, but delete it at gamestart
+func get_card_transform(index: int) -> Transform3D:
+	if ground_offset == Vector3.ZERO:
+		var ground_world = get_ground_position()
+		ground_offset = get_parent().to_local(ground_world)
+
+	var parent_pos: Vector3
+	var base_pos: Vector3
+	if get_parent() == get_tree().current_scene:
+		parent_pos = global_position
+		base_pos = parent_pos + ground_offset
+	else:
+		parent_pos = get_parent().global_position
+		base_pos = parent_pos + ground_offset + Vector3.UP * 0.55
+
+	var up = global_transform.basis.y.normalized()
+	var offset = up * stack_position_offset.y * float(index)
+	var pos = base_pos + offset
+
+	var basis = global_transform.basis.orthonormalized()
+	return Transform3D(basis, pos)
+
+
+
+func get_ground_position(max_distance: float = 10.0) -> Vector3:
+	var start = global_position
+
+	var end = start - Vector3.UP * max_distance
+	
+	var space_state = get_world_3d().direct_space_state
+	var query = PhysicsRayQueryParameters3D.new()
+	query.from = start
+	query.to = end
+	query.collision_mask = 1  # Assuming Terrain is Layer 1. Change if needed.
+
+	var result = space_state.intersect_ray(query)
+	
+	if result:
+		return result.position
+	else:
+		# No ground detected below, fallback to own position
+		return global_position
+
+func scatter_all_cards():
+	for card in cards:
+		if not is_instance_valid(card):
+			continue
+
+		var direction = Vector3(randf() * 2.0 - 1.0, 0, randf() * 2.0 - 1.0).normalized()
+		var drop_position = global_position + Vector3.UP * 30 + direction * randf_range(1.5, 3.5)
+		
+		card.global_position = drop_position
+		card.drop_to_ground()
+
+	cards.clear()
+
+
+### FILE: res://scripts/field_stack.gd ###
+# field_stack.gd
+extends DeckStack
+class_name FieldStack #Community Center Piles
+
+#TODO signal gamemaster about points
+#TODO flip deck at KING, turn into coin spawning fountain
+
+var suitRankBobberScene = preload("res://scenes/suit_rank_bobber.tscn")
+var suitRankBobber_instance: Node3D = null
+signal card_added_to_goal(card: Node3D)
+
+func _ready():
+	team_only = false
+	suitRankBobber_instance = suitRankBobberScene.instantiate()
+	add_child(suitRankBobber_instance)
+	suitRankBobber_instance.position_offset = Vector3(0, 0.2, 0)
+	setHoverBob()
+	super._ready()
+
+func setHoverBob():
+	print("setHoverBob")
+	var top_card = get_top_card()
+	print("top ", top_card)
+	print("suitRankBobber_instance ", suitRankBobber_instance)
+	if top_card != null:
+		print("top2 ", top_card, top_card.suit, top_card.rank)
+		suitRankBobber_instance.set_card(top_card.suit, top_card.rank)
+	else:
+		suitRankBobber_instance.set_card("", "")
+
+func can_accept_card(card: Node3D) -> bool:
+	if not card:
+		return false
+
+	print("asdf1 ", card.rank, cards.is_empty(), card.rank == "A")
+	if cards.is_empty():
+		return card.rank == "A"
+	print("asdf2")
+	var top_card = get_top_card()
+	print("asdf3", top_card)
+	var same_suit = card.suit == top_card.suit
+	print("asdf4")
+	var correct_rank = card.get_rank_value() == top_card.get_rank_value() + 1
+
+	print("asdf5", same_suit, correct_rank)
+	return same_suit and correct_rank
+
+func can_remove_card(card: Node3D) -> bool:
+	return false
+
+func interaction_available(player: Player) -> bool:
+	if player.carried_card != null:
+		return can_accept_card(player.carried_card)
+	else:
+		return false
+
+func add_card(card: Node3D):
+	super.add_card(card)
+	setHoverBob()
+
+#func add_card(card: Node3D) -> void:
+	#if not can_accept_card(card):
+		#return
+	#
+	#cards.append(card)
+	#card.physics_off()
+	#
+	#var t := get_card_transform(cards.size() - 1)
+	#card.global_transform = t
+#
+	#card.mount_target = self
+	#card.mount_offset = Transform3D(Basis(), Vector3.ZERO)
+	#card.change_state(card.CardState.ON_STACK)
+	#card.set_face_up(true)
+#
+	#emit_signal("card_added_to_goal", card)
+
+#func remove_top_card() -> Node3D:
+	## Prevent removing cards from goal stack
+	#return null
+
+
+### FILE: res://scripts/flip_stack.gd ###
+extends DeckStack
+class_name FlipStack
+#playable stack that recieves the 3 or remaining cards flipped off the stock stack
+#flipping controlled by team_master.gd
+
+func interaction_available(player: Player) -> bool:
+	if player.carried_card != null: #player carrying a card
+		return can_accept_card(player.carried_card)
+	else:
+		return can_remove_card(get_top_card())
+#
+	#if player.carried_card != null: #player carrying a card
+		#if locked and locked_by_card == player.carried_card:
+			#return true
+	#else:
+		#if cards.is_empty() or team != card.team:
+			#
+	#
+	#return false
+	#if player.team != team:
+		#return false
+	#if player.carried_card != null: #player carrying a card
+		#if locked && locked_by_card != player.carried_card:
+			#return false
+	#else: 
+	#return !cards.is_empty()
+
+func can_remove_card(card: Node3D) -> bool:
+	if card == null:
+		return false
+	if team != card.team:
+		return false
+	return !locked
+
+func can_accept_card(card: Node3D) -> bool:
+	if locked and locked_by_card == card:
+		return true
+	return false
+
+func add_card(card: Node3D):
+	card.set_face_up(true)
+	super.add_card(card)
+
+
+### FILE: res://scripts/goal_stack.gd ###
+extends DeckStack
+class_name GoalStack
+#Priscilla Pounce Pile (13)
+const max_stack_cards = 13;
+
+func can_accept_card(card: Node3D) -> bool:
+	#never add to this deck, unless we're returning the locked
+	if locked and locked_by_card == card:
+		return true
+	return false
+
+func can_remove_card(card: Node3D) -> bool:
+	if cards.is_empty() || locked:
+		return false
+	return true
+
+func interaction_available(player: Player) -> bool:
+	if team_only && player.team != team:
+		return false
+	if player.carried_card != null: #player carrying a card
+		if cards.size() >= max_stack_cards:
+			return false
+		if locked:
+			return locked_by_card == player.carried_card
+		return true
+	else: #player not carrying a card
+		return !cards.is_empty()
+
+func add_card(card: Node3D):
+	card.set_face_up(false)
+	super.add_card(card)
+
+
+### FILE: res://scripts/heart.gd ###
+extends Area3D
+
+var time := 0.0
+var grabbed := false
+
+# Collecting coins
+
+func _on_body_entered(body):
+	if body.has_method("collect_heart") and !grabbed:
+		
+		body.collect_heart()
+		
+		Audio.play("res://sounds/coin.ogg") # Play sound
+		
+		$heart.queue_free() # Make invisible
+		$Particles.emitting = false # Stop emitting stars
+		
+		grabbed = true
+
+# Rotating, animating up and down
+
+func _process(delta):
+	
+	rotate_y(2 * delta) # Rotation
+	position.y += (cos(time * 5) * 1) * delta # Sine movement
+	
+	time += delta
+
+
+### FILE: res://scripts/heart_bar.gd ###
+extends Control
+
+@export var heart_empty_texture: Texture2D
+@export var heart_half_texture: Texture2D
+@export var heart_full_texture: Texture2D
+
+var health: int = 6  # Max health in half-hearts (6 = 3 full hearts)
+var health_max: int = 6
+@onready var container = $Hearts
+
+func _ready():
+	update_hearts()
+
+func set_health(val: int, val_max: int):
+	health = clamp(val, 0, health_max)
+	health_max = max(1, val_max)
+	update_hearts()
+
+
+func update_hearts():
+	print(container)
+	if !container:
+		return
+	for child in container.get_children():
+		child.queue_free()
+
+	var hearts_needed = int(ceil(health_max / 2.0))
+
+	for i in range(hearts_needed):
+		var heart = TextureRect.new()
+		#heart.expand = true
+		heart.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		heart.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		heart.custom_minimum_size = Vector2(64, 64)
+
+		var heart_index = i * 2
+
+		if health >= heart_index + 2:
+			heart.texture = heart_full_texture
+		elif health == heart_index + 1:
+			heart.texture = heart_half_texture
+		else:
+			heart.texture = heart_empty_texture
+
+		container.add_child(heart)
+
+
+### FILE: res://scripts/hud.gd ###
+extends CanvasLayer
+#var ring
+
+@onready var interact_ring = $ControlLayoutFullRect/ControlBottomRight/Interact/Prompt_A/Ring
+@onready var stamina_ring = $ControlLayoutFullRect/ControlTopRight/Ring
+@onready var interact = $ControlLayoutFullRect/ControlBottomRight/Interact
+@onready var interact_prompt = $ControlLayoutFullRect/ControlBottomRight/Interact/Prompt
+@onready var coins_text = $ControlLayoutFullRect/ControlBottomLeft/ControlCoins/Coins
+@onready var heartbar = $ControlLayoutFullRect/ControlTopLeft/HeartBar
+
+#func connect_to_player(player):
+#	print("Connecting ", self.name ," to player: ", player.name, " asdf ", $Coins)
+#	player.connect("coin_collected", Callable(self, "_on_coin_collected"))
+func _ready():
+	print("HUD ready: ", name, " (ref: ", self, ")")
+	#ring = $Ring
+
+func set_aring_percent(val: float):
+	interact_ring.percent = val
+
+func set_stamina_percent(val: float):
+	stamina_ring.percent = val
+
+func set_health(val: int, val_max: int):
+	heartbar.set_health(val, val_max)
+
+func update_coins(coins):
+	print(">>> ", name, " got coin update: ", coins)
+	coins_text.text = str(coins)
+
+
+### FILE: res://scripts/jump_pad.gd ###
+extends Node3D
+
+@export var bounce_force := 20.0
+
+@onready var area: Area3D = $Area3D
+
+func _ready():
+	area.body_entered.connect(_on_body_entered)
+
+func _on_body_entered(body):
+	print("_on_body_entered ", self)
+	if body is Player:
+		body.gravity = -bounce_force
+
+
+### FILE: res://scripts/master.gd ###
+extends Node
+
+enum LaunchMode { DEV_DIRECT, MAIN_MENU }
+
+#var launch_mode := LaunchMode.MAIN_MENU
+var launch_mode := LaunchMode.DEV_DIRECT
+var dev_scene_path := "res://scenes/arena1.tscn"
+var landing_scene_path := "res://scenes/Menu/landing.tscn"
+var priscilla1 := "res://scenes/arena1.tscn"
+var player_count := 1
+var team_backs := {
+	"A": "CardBack001",
+	"B": "CardBack003"
+}
+
+
+### FILE: res://scripts/player.gd ###
+extends CharacterBody3D
+class_name Player
+signal coin_collected(coins: int)
+
+@export_subgroup("Components")
+@export_subgroup("Properties")
+@export var player_id := 1
+@export var movement_speed := 250
+@export var jump_strength := 7
+@export var team: String
+
+var hud: Node
+var sub_viewport: SubViewportContainer
+var view_camera: Node3D #assigned by game_master.gd
+var marker: Node3D #assigned by game_master.gd
+
+# --- Card Carry System
+var carried_card: Node3D = null
+var nearby_card: Node3D = null  # Closest interactable card
+var card_hold_offset: Vector3 = Vector3(0, 1.0, 0)
+var interaction_radius: float = 2.0
+
+@onready var pickup_area = $PickupArea
+var nearby_interactables: Array[Node3D] = []
+var active_hold_target: Node = null
+
+@onready var mesh_parts: Array[MeshInstance3D] = get_meshes_in_children($Character/character/root)
+#@onready var shared_mat: StandardMaterial3D = $Character/character/root/torso.mesh.surface_get_material(0) as StandardMaterial3D
+
+# Cached input action names
+var input_left: String
+var input_right: String
+var input_forward: String
+var input_back: String
+var input_jump: String
+var input_ground_pound: String
+var input_interact: String
+var input_crouch: String
+
+
+var movement_velocity: Vector3
+var rotation_direction: float
+var gravity := 0.0
+var previously_floored := false
+var jump_single := true
+var jump_double := true
+
+var _coins := 100
+var coins:
+	get: return _coins
+	set(value):
+		_coins = value
+		hud.update_coins(_coins)
+
+var spawn_position: Vector3
+
+var is_crouching = false
+var double_jump_stamina_cost = 4
+var ground_pound_stamina_cost = 8
+var crouch_jump_strength = 12  # More powerful than normal jump
+var crouch_jump_stamina_cost = 30
+var stamina_max :float = 64
+var stamina :float = 64
+var stamina_regen_rate :float = 3  # Stamina per second
+
+var health: int = 5
+var health_max: int = 8
+
+# Ground Pound variables
+var is_ground_pounding = false
+var ground_pound_started = false
+var ground_pound_gravity_multiplier = 4.0
+
+@onready var particles_trail = $ParticlesTrail
+@onready var sound_footsteps = $SoundFootsteps
+@onready var model = $Character
+@onready var animation = $Character/AnimationPlayer
+
+func is_holding_card():
+	return carried_card != null
+
+func _ready():
+	#update_interaction_marker()
+	# Setup input strings
+	input_left = "move_left_p" + str(player_id)
+	input_right = "move_right_p" + str(player_id)
+	input_forward = "move_forward_p" + str(player_id)
+	input_back = "move_back_p" + str(player_id)
+	input_jump = "jump_p" + str(player_id)
+	input_ground_pound = "right_bumper_p" + str(player_id)
+	input_interact = "interact_p" + str(player_id)
+	input_crouch = "crouch_p" + str(player_id)
+
+	var playerTexture = null
+	if player_id % 2 == 1:
+		playerTexture = load("res://models/Textures/colormapStarter.png")
+	else:
+		playerTexture = load("res://models/MarbleRun/Textures/colormap.png")
+
+	print("player ", player_id, playerTexture)
+
+	for mesh in mesh_parts:
+		var material = mesh.material_override
+		if material == null:
+			material = StandardMaterial3D.new()
+		else:
+			material = material.duplicate() # Create a unique copy
+		mesh.material_override = material
+		material.albedo_texture = playerTexture
+
+	spawn_position = global_transform.origin
+	pickup_area.area_entered.connect(_on_pickup_area_body_entered)
+	pickup_area.area_exited.connect(_on_pickup_area_body_exited)
+
+func setup(): #called by master
+	hud.update_coins(coins)
+	hud.set_health(health, health_max)
+
+func _on_pickup_area_body_entered(area):
+	#print("_on_pickup_area_body_entered", area)
+	if area.is_in_group("interactables"):
+		nearby_interactables.append(area)
+	elif area.get_parent().is_in_group("interactables"):
+		nearby_interactables.append(area.get_parent())
+	#update_interaction_marker()
+
+func _on_pickup_area_body_exited(area):
+	#print("_on_pickup_area_body_exited", area)
+	if area.is_in_group("interactables"):
+		nearby_interactables.erase(area)
+	elif area.get_parent().is_in_group("interactables"):
+		nearby_interactables.erase(area.get_parent())
+	#update_interaction_marker()
+
+#delete????
+#func update_interaction_marker():
+	#var closest = get_closest_interactable()
+	#marker.visible = false
+	#if closest:
+		##var pos = get_marker_position();
+		#if closest.interaction_available(self):
+			#marker.global_transform.origin = closest.get_marker_position(self)
+			##marker.global_transform.origin = closest.global_transform.origin
+			#marker.visible = true
+
+func handle_interactables(delta):
+	var closest = get_closest_interactable()
+	
+	marker.visible = false
+	
+	if closest != null:
+		if closest is HoldInteractable :
+			hud.interact.visible = true
+			hud.interact_prompt.text = closest.prompt_text
+		if closest.interaction_available(self):
+			marker.global_transform.origin = closest.get_marker_position(self)
+			marker.visible = true
+		#find out if it has a prompt and what type
+		#display prompt
+	else:
+		hud.interact.visible = false
+		#disable all prompt
+	
+	if active_hold_target != null && Input.is_action_pressed(input_interact) && nearby_interactables.has(active_hold_target):
+		hud.set_aring_percent(active_hold_target.get_hold_progress(player_id))
+		#print("holding ", active_hold_target.get_hold_progress(player_id), "  ", active_hold_target)
+	elif carried_card == null and closest:
+		if closest.has_method("start_holding"):
+			if Input.is_action_pressed(input_interact):
+				closest.start_holding(player_id, self)
+				active_hold_target = closest
+			elif Input.is_action_just_released(input_interact):
+				closest.stop_holding(player_id)
+				hud.set_aring_percent(0)
+				active_hold_target = null
+				
+	if not Input.is_action_just_pressed(input_interact):
+		return
+	print(nearby_interactables)
+	print(input_interact, " closest: ", closest, "  ", carried_card)
+
+	if carried_card == null:
+		# Not holding a card — try interacting normally
+		print("carried_card == null: ", carried_card)
+		if closest and closest.has_method("interact"):
+			closest.interact(self)
+	else:
+		print("Holding a card ")
+		# Holding a card — try to drop onto something valid
+		if closest:
+			if closest.is_in_group("deck_stacks"):
+				print("drop_card_onto_stack")
+				drop_card_onto_stack(closest)
+			elif closest.is_in_group("cards"):
+				print("pass-drop")
+				drop_card()
+				pass  # Already holding a card — maybe deny
+			elif closest.has_method("interact"):
+				print("interact")
+				closest.interact(self)
+		else:
+			print("drop_card ")
+			# No valid target — drop to world
+			drop_card()
+
+
+#!!!! Could also have some kind of event for anything close to returns it's like HUD info, or more generic than that
+#I want sort order by distance
+#then work through closest to furthest
+#then each interaction slot type get's filled in if its still open
+func get_closest_interactable() -> Node3D:
+	var closest = null
+	var closest_dist = INF
+
+	for interactable in nearby_interactables:
+		if interactable and interactable.interaction_available(self) and interactable != carried_card:
+			var dist = global_position.distance_to(interactable.global_position)
+			if dist < closest_dist:
+				closest = interactable
+				closest_dist = dist
+
+	return closest
+
+
+func _physics_process(delta):
+	handle_controls(delta)
+	handle_gravity(delta)
+	handle_effects(delta)
+	
+	# Regenerate stamina slowly
+	stamina += stamina_regen_rate * delta
+	stamina = clamp(stamina, 0, stamina_max)
+	hud.set_stamina_percent(stamina / stamina_max)
+
+	# Movement
+	var applied_velocity: Vector3 = velocity.lerp(movement_velocity, delta * 10)
+	applied_velocity.y = -gravity
+	velocity = applied_velocity
+	move_and_slide()
+
+	# Check collisions and push RigidBody3Ds (e.g., marbles)
+	for i in range(get_slide_collision_count()):
+		var collision = get_slide_collision(i)
+		var body = collision.get_collider()
+		if body is RigidBody3D:
+			var push_force = velocity.normalized() * 3.0
+			body.apply_impulse(Vector3.ZERO, push_force)
+
+	# Rotation
+	if Vector2(velocity.z, velocity.x).length() > 0:
+		rotation_direction = Vector2(velocity.z, velocity.x).angle()
+	rotation.y = lerp_angle(rotation.y, rotation_direction, delta * 10)
+
+	# Respawn if fallen
+	if position.y < -10:
+		respawn()
+
+	# Animation scaling on landing
+	model.scale = model.scale.lerp(Vector3(1, 1, 1), delta * 10)
+
+	if is_on_floor() and gravity > 2 and !previously_floored:
+		model.scale = Vector3(1.25, 0.75, 1.25)
+		Audio.play("res://sounds/land.ogg")
+
+	previously_floored = is_on_floor()
+	handle_interactables(delta)
+
+
+func handle_controls(delta):
+	var input := Vector3.ZERO
+
+	input.x = Input.get_action_strength(input_right) - Input.get_action_strength(input_left)
+	input.z = Input.get_action_strength(input_back) - Input.get_action_strength(input_forward)
+	input = input.rotated(Vector3.UP, view_camera.rotation.y)
+
+	if input.length() > 1:
+		input = input.normalized()
+
+	movement_velocity = input * movement_speed * delta
+
+	# Crouching
+	is_crouching = Input.is_action_pressed(input_crouch)
+
+	# Jumping
+	if Input.is_action_just_pressed(input_jump):
+		if jump_single or jump_double:
+			jump_action()
+
+	# Ground Pound
+	if !is_on_floor() and !is_ground_pounding and Input.is_action_just_pressed(input_ground_pound):
+		start_ground_pound()
+
+func handle_gravity(delta):
+	if is_ground_pounding:
+		gravity += 25 * ground_pound_gravity_multiplier * delta
+	else:
+		gravity += 25 * delta
+
+	if gravity > 0 and is_on_floor():
+		if is_ground_pounding:
+			land_ground_pound()
+		jump_single = true
+		gravity = 0
+
+func jump_action():
+	Audio.play("res://sounds/jump.ogg")
+
+	if is_crouching and stamina >= crouch_jump_stamina_cost:
+		# Do a crouch super jump
+		stamina -= crouch_jump_stamina_cost
+		gravity = -crouch_jump_strength
+		model.scale = Vector3(0.4, 1.6, 0.4)  # Bigger squash/stretch
+	else:
+		# Normal jump
+		gravity = -jump_strength
+		model.scale = Vector3(0.5, 1.5, 0.5)
+
+	if jump_single:
+		jump_single = false
+		jump_double = true
+	else:
+		# Player is using the double jump
+		if stamina >= double_jump_stamina_cost:
+			stamina -= double_jump_stamina_cost
+			jump_double = false  # Consumes the double jump
+		else:
+			# Not enough stamina, cancel the double jump
+			return
+
+
+func start_ground_pound():
+	if stamina >= ground_pound_stamina_cost:
+		is_ground_pounding = true
+		ground_pound_started = true
+		gravity = 0
+		stamina -= ground_pound_stamina_cost
+		#animation.play("ground_pound_spin")  # if you want an animation
+	else:
+		# Not enough stamina to ground pound
+		print("Not enough stamina to ground pound")
+
+func land_ground_pound():
+	is_ground_pounding = false
+	Audio.play("res://sounds/land.ogg")
+	model.scale = Vector3(1.5, 0.5, 1.5)
+
+func handle_effects(delta):
+	particles_trail.emitting = false
+	sound_footsteps.stream_paused = true
+
+	if is_on_floor():
+		var horizontal_velocity = Vector2(velocity.x, velocity.z)
+		var speed_factor = horizontal_velocity.length() / movement_speed / delta
+
+		if speed_factor > 0.05:
+			if animation.current_animation != "walk":
+				animation.play("walk", 0.1)
+
+			if speed_factor > 0.3:
+				sound_footsteps.stream_paused = false
+				sound_footsteps.pitch_scale = speed_factor
+
+			if speed_factor > 0.75:
+				particles_trail.emitting = true
+		elif animation.current_animation != "idle":
+			animation.play("idle", 0.1)
+	elif animation.current_animation != "jump" and !is_ground_pounding:
+		animation.play("jump", 0.1)
+
+func collect_stamina():
+	stamina = clamp(stamina + 100, 0, stamina_max);
+
+func collect_coin():
+	coins += 1
+
+func collect_heart():
+	health = min(health + 2, health_max)
+	hud.set_health(health, health_max)
+
+
+#func find_nearby_card() -> Node3D:
+	#var cards = get_tree().get_nodes_in_group("cards")  # We'll add "cards" group to cards
+	#var closest_card = null
+	#var closest_distance = interaction_radius
+#
+	#for card in cards:
+		#if card and card.state == card.CardState.FREE_FLOATING and not card.locked:
+			#var dist = global_position.distance_to(card.global_position)
+			#if dist < closest_distance:
+				#closest_distance = dist
+				#closest_card = card
+	#return closest_card
+
+
+func pick_up_card(card: Node3D):
+	if card.team != team:
+		print("Cannot pick up card from another team.")
+		return
+	carried_card = card
+	#card.pick_up(self)  # Calls the Card.gd function
+	card.pick_up(self, $Character/character/root/torso/antenna) # Pass the Antenna as mount point
+	#update_interaction_marker()
+	#Audio.play("res://sounds/card-place-2.ogg")
+	Audio.playRandom(Audio.CardPlaces)
+	print("Picked up", card.rank, "of", card.suit)
+
+func drop_card():
+	if carried_card:
+		carried_card.drop_to_ground()
+		carried_card = null
+		#Audio.play("res://sounds/card-place-3.ogg")
+		Audio.playRandom(Audio.CardPlaces)
+		#update_interaction_marker()
+
+func drop_card_onto_stack(stack):
+	Audio.playRandom(Audio.CardShoves)
+	if !is_holding_card():
+		return
+		
+	# Unlock the stack the card came from, if applicable
+	if carried_card.source_deckstack != null:
+		carried_card.source_deckstack.unlock_stack()
+		
+	stack.add_card(carried_card)
+
+	# Step 1: Detach from player
+	carried_card.carrier_player = null
+	carried_card.carrier_target = null
+	carried_card = null
+
+func respawn():
+	if health <= 0:
+		health = 4
+	global_transform.origin = spawn_position
+
+var invincible = false
+var invincibility_duration := 0.6
+func take_damage(amount: int, source_pos: Vector3):
+	print("tage_damage ", amount, source_pos)
+	if invincible:
+		return
+
+	Audio.play("res://sounds/fall.ogg")
+
+	health = max(0, health - amount)
+	if health <= 0:
+		respawn()
+	hud.set_health(health, health_max)
+
+	# Flash white and apply knockback
+	flash_white()
+	apply_knockback(source_pos)
+
+	# Begin invincibility
+	invincible = true
+	await get_tree().create_timer(invincibility_duration).timeout
+	invincible = false
+
+func apply_knockback(source_pos: Vector3):
+	var direction = (global_position - source_pos).normalized()
+	direction.y = 0  # Flatten to horizontal
+	velocity += direction * 20.0  # Knockback away from source
+	velocity.y = 6.0  # Add upward launch directly
+
+
+
+func get_meshes_in_children(node: Node) -> Array[MeshInstance3D]:
+	var result: Array[MeshInstance3D] = []
+	for child in node.get_children():
+		if child is MeshInstance3D:
+			result.append(child)
+		if child is Node:
+			result += get_meshes_in_children(child)
+	return result
+
+#maybe: turn into shader
+func flash_white():
+	var flash_mat := StandardMaterial3D.new()
+	flash_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	flash_mat.albedo_color = Color.from_rgba8(200, 200, 200, 200)
+	flash_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	flash_mat.albedo_texture = null
+	flash_mat.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
+
+	for mesh in mesh_parts:
+		mesh.material_overlay = flash_mat
+	await get_tree().create_timer(0.05).timeout
+	for mesh in mesh_parts:
+		mesh.material_overlay = null
+	await get_tree().create_timer(0.05).timeout
+	
+	for mesh in mesh_parts:
+		mesh.material_overlay = flash_mat
+	await get_tree().create_timer(0.05).timeout
+	for mesh in mesh_parts:
+		mesh.material_overlay = null
+	await get_tree().create_timer(0.05).timeout
+	
+	for mesh in mesh_parts:
+		mesh.material_overlay = flash_mat
+	await get_tree().create_timer(0.05).timeout
+	for mesh in mesh_parts:
+		mesh.material_overlay = null
+	await get_tree().create_timer(0.05).timeout
+
+
+### FILE: res://scripts/playing_card.gd ###
+extends Node3D
+
+const front_material_index := 0
+const back_material_index := 1
+const edge_material_index := 2
+const margin = 1.5 # 1 / 64.0  # ~0.5px into the texture, tweak as needed
+
+@export var card_front_shader_material: ShaderMaterial
+@export var edgeColor : Color = Color.WHITE
+@export var suit : String = "hearts"
+@export var rank : String = "K"
+
+# Base paths
+const TEXTURE_PATH = "res://models/cards/textures/"
+const FRONT_TEXTURE_FORMAT = "%s_%s.png" # example: "card_hearts_A.png"
+const BACK_TEXTURE_NAME = "card_back.png"
+
+# Node reference
+@onready var mesh = $Cube  # Adjust this path if your mesh is named differently
+
+func _ready():
+	if mesh == null:
+		push_error("CardMesh not found!")
+	else:
+		# Set default textures (optional)
+		set_edge_color(edgeColor)
+		set_card(suit, rank)
+
+func set_card(new_suit: String, new_rank: String) -> void:
+	suit = new_suit
+	rank = new_rank
+
+	var front_texture_path = TEXTURE_PATH + FRONT_TEXTURE_FORMAT % [ "card_" + suit, rank ]
+	var back_texture_path = TEXTURE_PATH + BACK_TEXTURE_NAME
+
+	var front_texture = load(front_texture_path)
+	var back_texture = load(back_texture_path)
+
+	if front_texture and back_texture:
+		var front_material = card_front_shader_material.duplicate()
+		front_material.set_shader_parameter("albedo_texture", front_texture)
+		front_material.set_shader_parameter(
+			"uv_offset",
+			Vector2(
+				(11.0 + margin) / 64.0,
+				(2.0 + margin) / 64.0
+			)
+		)
+		front_material.set_shader_parameter(
+			"uv_scale",
+			Vector2(
+				(42.0 - (margin * 2)) / 64.0,
+				(60.0 - (margin * 2)) / 64.0
+			)
+		)
+
+		mesh.set_surface_override_material(front_material_index, front_material)
+		front_material.set_shader_parameter("albedo_texture", front_texture)
+
+		var back_material = card_front_shader_material.duplicate()
+		back_material.set_shader_parameter("albedo_texture", back_texture)
+		back_material.set_shader_parameter(
+			"uv_offset",
+			Vector2(
+				(11.0 + margin) / 64.0,
+				(2.0 + margin) / 64.0
+			)
+		)
+		back_material.set_shader_parameter(
+			"uv_scale",
+			Vector2(
+				(42.0 - (margin * 2)) / 64.0,
+				(60.0 - (margin * 2)) / 64.0
+			)
+		)
+		mesh.set_surface_override_material(back_material_index, back_material)
+		back_material.set_shader_parameter("albedo_texture", back_texture)
+		
+	else:
+		push_error("Card textures not found for %s %s" % [suit, rank])
+
+
+func set_edge_color(color: Color) -> void:
+	edgeColor = color
+	var edge_material = mesh.get_surface_override_material(edge_material_index)
+	if edge_material == null:
+		edge_material = mesh.mesh.surface_get_material(edge_material_index).duplicate()
+		mesh.set_surface_override_material(edge_material_index, edge_material)
+		
+	if edge_material:
+		edge_material.albedo_color = edgeColor
+
+
+### FILE: res://scripts/RingUI.gd ###
+@tool
+extends Control
+
+
+
+@export_range(0.0, 1.0)
+var percent: float = 0:
+	set(value):
+		percent = value
+		queue_redraw()
+		
+@export
+var radius: float = 30.0:
+	set(value):
+		radius = value
+		queue_redraw()
+
+@export
+var width: float = 10.0:
+	set(value):
+		width = value
+		queue_redraw()
+
+@export
+var fillColor: Color = Color.GREEN:
+	set(value):
+		fillColor = value
+		queue_redraw()
+@export
+var backColor: Color = Color.DARK_GRAY:
+	set(value):
+		backColor = value
+		queue_redraw()
+
+func _ready():
+	queue_redraw()
+
+#func _get_minimum_size() -> Vector2:
+	#return Vector2(200, 200)
+
+func _draw():
+	# Draw background circle for reference
+	draw_arc(size / 2, radius, 0, TAU, 64, backColor, width)
+
+	# Draw stamina arc
+	var center = size / 2
+	var start_angle = deg_to_rad(0)
+	var angle_length = deg_to_rad(360.0 * percent)
+
+	draw_arc(center, radius, start_angle, angle_length, 64, fillColor, width)
+
+	# Draw bounding rect (debug)
+	#draw_rect(Rect2(Vector2.ZERO, size), Color(1, 0, 0, 0.1), true)
+
+
+### FILE: res://scripts/SolitairePathStack.gd ###
+# SolitairePathStack.gd
+class_name SolitairePathStack
+extends DeckStack
+
+@onready var visualizer := $DecalPath
+@export var max_cards: int = 13
+
+func set_area_to_end():
+	pickup_area.global_transform = visualizer.get_card_transform(cards.size() - 1)
+
+func get_marker_position(player: Player) -> Vector3:
+	if player.carried_card == null:
+		return visualizer.get_card_transform(cards.size()-1).origin
+	else:
+		return visualizer.get_card_transform(cards.size()).origin
+
+func interaction_available(player: Player) -> bool:
+	if player.team != team:
+		return false
+	if locked && player.carried_card != locked_by_card:
+		return false
+
+	if player.carried_card != null:
+		return can_accept_card(player.carried_card)
+	return !cards.is_empty()
+
+func can_accept_card(card: Node3D) -> bool:
+	if cards.size() >= max_cards || card.team != team || (locked && card != locked_by_card):
+		return false
+	if cards.is_empty():
+		return true
+
+	var top = get_top_card()
+	var colors_different = card.get_color() != top.get_color()
+	var ranks_correct = card.get_rank_value() == top.get_rank_value() - 1
+	print(card.get_rank_value(), card.get_color(), " ", top.get_rank_value() , top.get_color())
+	#return true
+	return colors_different and ranks_correct
+
+func add_card(card: Node3D) -> void:
+	super.add_card(card)
+	set_area_to_end()
+
+func remove_top_card(lock_the_stack: bool =  true) -> Node3D:
+	var card := super.remove_top_card(lock_the_stack)
+	set_area_to_end() #todo, move the lock?
+	return card
+	
+func remove_all_cards(lock_the_stack: bool = true) -> Array:
+	if cards.is_empty():
+		return []
+	var removed_cards = cards.duplicate()
+	cards.clear()
+	if lock_the_stack and removed_cards.size() > 0:
+		lock_stack(removed_cards[0])  # Assume bottom card as locker
+	return removed_cards
+
+
+func get_card_transform(index: int) -> Transform3D:
+	return visualizer.get_card_transform(index)
+
+func update_card_links():
+	for i in range(cards.size() - 1):
+		var lower = cards[i]
+		var upper = cards[i + 1]
+		var valid = lower.get_rank_value() == upper.get_rank_value() + 1 and lower.color != upper.color
+		if valid:
+			lower.attached_cards = [upper]
+		else:
+			lower.attached_cards = []
+
+
+#func get_card_position(index: int) -> Vector3:
+	#print("solitaire card pos")
+	#return visualizer.get_card_transform(index).origin
+#
+#func get_card_rotation(index: int) -> Basis:
+	#return visualizer.get_card_transform(index).basis
+
+
+### FILE: res://scripts/solitaire_path.gd ###
+@tool
+extends Node3D
+
+var pending_rebuild := false
+var rebuild_timer := 0.0
+const REBUILD_DELAY := 0.5  # seconds to wait after last edit
+
+@export var path: Path3D
+@export var decal_scene: PackedScene
+var decal_count: int = 13
+
+var decals: Array[Node3D] = []
+var curve_connected: bool = false
+
+func _ready():
+	_rebuild_decals()
+	if Engine.is_editor_hint():
+		_connect_curve()
+
+func _enter_tree():
+	_connect_curve()
+	
+func _exit_tree():
+	_disconnect_curve()
+
+func get_card_transform(index: int) -> Transform3D:
+	if not path or not path.curve or decal_count <= 1:
+		return Transform3D(Basis(), global_position)
+
+	var curve := path.curve
+	var path_length := curve.get_baked_length()
+
+	var t := float(index) / float(decal_count - 1)
+	var distance_along_path := t * path_length
+	var local_transform := curve.sample_baked_with_rotation(distance_along_path)
+	var global_transform := path.global_transform * local_transform
+
+	var position = global_transform.origin
+	var direction = global_transform.basis.x.normalized()
+
+	var basis = Basis()
+	basis.y = Vector3.UP
+	basis.x = direction
+	basis.z = basis.x.cross(basis.y).normalized()
+	basis.x = basis.y.cross(basis.z).normalized()
+
+	# Apply a small backward tilt (negative Z rotation in local space)
+	var tilt_angle = deg_to_rad(-3)  # adjust angle as needed
+	var tilt_axis = basis.x.normalized()  # tilt around the local X axis
+	basis = Basis(tilt_axis, tilt_angle) * basis
+
+	return Transform3D(basis, position)
+
+
+
+func _process(delta):
+	if not Engine.is_editor_hint():
+		return
+
+	if pending_rebuild:
+		rebuild_timer += delta
+		if rebuild_timer >= REBUILD_DELAY:
+			#print("Rebuilding decals now!")
+			_rebuild_decals()
+			pending_rebuild = false
+
+func _connect_curve():
+	_disconnect_curve()
+	if path and path.curve:
+		path.curve.changed.connect(_on_curve_changed)
+		curve_connected = true
+
+func _disconnect_curve():
+	if curve_connected and path and path.curve:
+		path.curve.changed.disconnect(_on_curve_changed)
+	curve_connected = false
+	
+func _on_curve_changed():
+	if not Engine.is_editor_hint():
+		return
+
+	#print("Curve changed! Scheduling decal rebuild...")
+	pending_rebuild = true
+	rebuild_timer = 0.0  # reset timer
+
+func _notification(what):
+	if not Engine.is_editor_hint():
+		return
+
+	if what == NOTIFICATION_TRANSFORM_CHANGED:
+		_on_transform_changed()
+
+func _on_transform_changed():
+	print("Parent Node moved! Scheduling decal rebuild...")
+	pending_rebuild = true
+	rebuild_timer = 0.0  # reset delay timer
+
+func _rebuild_decals():
+	if not path or not decal_scene or not path.curve:
+		return
+
+	path.curve.bake_interval = 0.1
+
+	var curve = path.curve
+	var path_length = curve.get_baked_length()
+
+	# Only spawn more decals if needed
+	while decals.size() < decal_count:
+		var decal_instance = decal_scene.instantiate()
+		add_child(decal_instance)
+		decals.append(decal_instance)
+
+	# If there are too many decals, hide extras
+	for i in range(decals.size()):
+		var decal_instance = decals[i]
+		if i >= decal_count:
+			decal_instance.visible = false
+			continue
+
+		decal_instance.visible = true
+		decal_instance.get_child(0).sorting_offset = -i
+
+		var t = i / float(decal_count - 1)
+		var distance_along_path = t * path_length
+
+		var local_transform = curve.sample_baked_with_rotation(distance_along_path)
+		var global_transform = path.global_transform * local_transform
+		var position = global_transform.origin
+		var direction = global_transform.basis.x.normalized()
+
+		var basis = Basis()
+		basis.y = -Vector3.UP
+		basis.x = direction
+		basis.z = basis.x.cross(basis.y).normalized()
+		basis.x = basis.y.cross(basis.z).normalized()
+
+		var flipped_basis = basis.rotated(Vector3.UP, PI)
+		decal_instance.global_transform = Transform3D(flipped_basis, position)
+
+
+### FILE: res://scripts/spawn_flull_deck.gd ###
+extends Node3D
+
+@export var card_scene: PackedScene  # Your Card.tscn scene
+@export var spacing: Vector3 = Vector3(2.5, 0, 3.5)  # distance between cards
+
+var suits = ["hearts", "diamonds", "clubs", "spades"]
+var ranks = ["A", "02", "03", "04", "05", "06", "07", "08", "09", "10", "J", "Q", "K"]
+
+func _ready() -> void:
+	spawn_deck()
+
+func spawn_deck() -> void:
+	print("spawn_deck")
+	var card_index = 0
+	for suit in suits:
+		for rank in ranks:
+			#print(suit, rank,)
+			var spinandbob = card_scene.instantiate()
+			add_child(spinandbob)
+			spinandbob.id = card_index
+			
+			# Calculate grid position (relative to this node's position)
+			var row = card_index / 13
+			var col = card_index % 13
+
+			spinandbob.base_position = global_position + Vector3(col * spacing.x, 0, row * spacing.z)
+			
+			var card = spinandbob.find_child("PlayingCard")
+			#card.suit = suit
+			#card.rank = rank
+			#print(card_index, suit, rank, row, col, spinandbob.base_position, spinandbob)
+
+			# Set the card face
+			if card.has_method("set_card"):
+				card.set_card(suit, rank)
+
+			card_index += 1
+
+
+### FILE: res://scripts/spin_and_bob.gd ###
+extends Node3D
+var players: Array = []
+@export var spin_speed := 40.0
+@export var bob_height := 0.2
+@export var bob_speed := 1.0
+@export var detection_distance := 5.0
+@export var facePlayer := false
+
+var id := -1;
+var bob_timer := 0.0
+var base_position := Vector3.ZERO
+
+func _ready() -> void:
+	base_position = global_position
+	players = get_tree().get_nodes_in_group("players")
+	#print(base_position, players)
+
+func _process(delta: float) -> void:
+	# Always bobbing
+	bob_timer += delta * bob_speed
+	var offset_y = (sin(bob_timer) * 0.5 + 0.5) * bob_height
+	global_position = base_position + Vector3(0, offset_y, 0)
+
+	if !facePlayer:
+		rotate_y(deg_to_rad(spin_speed * delta))
+		return
+
+	players = get_tree().get_nodes_in_group("players")
+	if players.is_empty():
+		return
+
+	var closest_player = get_closest_player()
+	if closest_player:
+		#get_child(0).set_edge_color(Color.GREEN)
+		face_player(closest_player, delta)
+	else:
+		#get_child(0).set_edge_color(Color.DARK_GOLDENROD)
+		rotate_y(deg_to_rad(spin_speed * delta))
+
+func get_closest_player() -> Node3D:
+	var closest_player = null
+	var closest_dist = detection_distance
+
+	for player in players:
+		if not player:  # Player might have been deleted
+			continue
+		var dist = global_position.distance_to(player.global_position)
+		if dist <= closest_dist:
+			closest_dist = dist
+			closest_player = player
+
+	return closest_player
+
+func face_player(player: Node3D, delta: float) -> void:
+	var to_player = (player.global_position - global_position).normalized()
+	var target_rotation = atan2(to_player.x, to_player.z)
+	var current_yaw = rotation.y
+	var new_yaw = lerp_angle(current_yaw, target_rotation, delta * 2.0)
+	rotation.y = new_yaw
+
+
+### FILE: res://scripts/stock_stack.gd ###
+extends DeckStack
+class_name StockStack
+#stack that is in your "hand", which you flip 3 onto the flip stack that you may play from
+#flipping controlled by team_master.gd
+
+func can_accept_card(card: Node3D) -> bool:
+	return true  # Allow cycling cards to be returned
+
+func can_remove_card(card: Node3D) -> bool:
+	return false  # Never allow removal from here
+
+func add_card(card: Node3D):
+	#card.set_face_up(false)
+	super.add_card(card)
+
+func interaction_available(player: Player) -> bool:
+	return false
+	#if player.carried_card != null:
+		#return true
+	#else:
+		#return !cards.is_empty()
+
+func get_card_transform(index: int) -> Transform3D:
+	var transform := super.get_card_transform(index)
+	transform.basis = Basis(Vector3.BACK, PI) * transform.basis
+	return transform
+
+
+### FILE: res://scripts/sub_viewport_container.gd ###
+extends SubViewportContainer
+
+func _notification(what):
+	print("view not: ", what)
+	if what == NOTIFICATION_RESIZED:
+		$SubViewport.size = size
+
+
+### FILE: res://scripts/suit_rank_bobber.gd ###
+extends Node3D
+
+@export var suit: String = "Spades"
+@export var rank: String = "A"
+
+const pale_red = Color(0.8, 0.2, 0.2, 0.8)
+#const dark_gray = Color(0.2, 0.2, 0.2, 0.8)
+const dark_gray = Color(0.2, 0.2, 0.5, 0.8)
+
+const LAYER_2 = 1 << 1  # Layer 2 to avoid decals
+var position_offset: Vector3 = Vector3.ZERO
+var base_position: Vector3 = Vector3.ZERO
+
+
+var card_meshes_scene = preload("res://BlenderAsset/PlayingCardRanks.blend")
+var card_meshes_instance: Node = null
+
+static var suit_cache: Dictionary = {}
+static var rank_cache: Dictionary = {}
+var current_visuals: Array = []
+
+func _ready() -> void:
+	card_meshes_instance = card_meshes_scene.instantiate()
+	cache_meshes()
+	set_card(suit, rank)
+	base_position = position
+
+func cache_meshes():
+	if suit_cache.size() == 0:
+		for s in ["Hearts", "Diamonds", "Clubs", "Spades"]:
+			var node = card_meshes_instance.get_node_or_null("Suit_" + s)
+			if node:
+				suit_cache[s] = node.duplicate(true)
+
+	if rank_cache.size() == 0:
+		for r in ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"]:
+			var node = card_meshes_instance.get_node_or_null("Rank_" + r)
+			if node:
+				rank_cache[r] = node.duplicate(true)
+
+func clear_visuals():
+	for node in current_visuals:
+		if node and node.is_inside_tree():
+			remove_child(node)
+			node.queue_free()
+	current_visuals.clear()
+
+func set_card(new_suit: String, new_rank: String) -> void:
+	clear_visuals()
+
+	suit = new_suit
+	rank = new_rank
+
+	if suit == "" or rank == "":
+		visible = false
+		return
+	visible = true
+
+	var suit_source = suit_cache.get(suit)
+	var suit_mesh = null
+	if suit_source:
+		suit_mesh = suit_source.duplicate(true)
+
+	var rank_source = rank_cache.get(rank)
+	var rank_mesh = null
+	if rank_source:
+		rank_mesh = rank_source.duplicate(true)
+
+	if not suit_mesh:
+		print("Missing mesh for suit: ", suit)
+		return
+	if not rank_mesh:
+		print("Missing mesh for rank: ", rank)
+		return
+
+	suit_mesh.transform.origin = Vector3(0, 0, 0)
+	rank_mesh.transform.origin = Vector3(0, 0.8, 0)
+
+	#if suit_mesh is MeshInstance3D:
+	suit_mesh.layers = LAYER_2
+	#if rank_mesh is MeshInstance3D:
+	rank_mesh.layers = LAYER_2
+
+	var color = pale_red if (suit == "Diamonds" or suit == "Hearts") else dark_gray
+
+	var suit_material = StandardMaterial3D.new()
+	suit_material.albedo_color = color
+	#suit_material.metallic = 0.2
+	#suit_material.roughness = 0.3
+	#suit_material.emission = color * 0.2
+	suit_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	suit_material.flags_transparent = true
+	
+	var rank_material = StandardMaterial3D.new()
+	rank_material.albedo_color = color
+	rank_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	rank_material.flags_transparent = true
+
+	suit_mesh.set_surface_override_material(0, suit_material)
+	rank_mesh.set_surface_override_material(0, rank_material)
+
+	add_child(suit_mesh)
+	add_child(rank_mesh)
+	current_visuals.append(suit_mesh)
+	current_visuals.append(rank_mesh)
+
+func _process(delta: float) -> void:
+	rotate_y(delta * 1.5)
+	var bob = sin(Time.get_ticks_msec() / 400.0) * 0.1
+	position.x = base_position.x + position_offset.x
+	position.y = base_position.y + position_offset.y + bob
+	position.z = base_position.z + position_offset.z
+
+
+### FILE: res://scripts/view.gd ###
+extends Node3D
+
+@onready var camera = $Camera
+
+@export_group("Zoom")
+@export var zoom_levels := [6.0, 10.0, 16.0]  # Close, Medium, Far
+@export var zoom_transition_speed := 8.0
+
+@export_group("Rotation")
+@export var rotation_speed := 120.0
+@export var auto_align_strength := 3.5  # Follow behind player movement
+
+var target: Node3D
+var player_id := 1
+var sub_viewport: SubViewportContainer
+
+var camera_rotation: Vector3
+var zoom_index := 1  # start at medium
+var current_zoom := 10.0
+var desired_zoom := 10.0
+
+# Input actions
+var input_left := ""
+var input_right := ""
+var input_up := ""
+var input_down := ""
+var input_zoom_toggle := ""
+
+var snap_camera := false  # Tracks if snap is requested
+
+
+func assign_player(player):
+	target = player
+	player_id = player.player_id
+	sub_viewport = player.sub_viewport
+
+	input_left = "camera_left_p%d" % player_id
+	input_right = "camera_right_p%d" % player_id
+	input_up = "camera_up_p%d" % player_id
+	input_down = "camera_down_p%d" % player_id
+	input_zoom_toggle = "camera_toggle_zoom_p%d" % player_id
+
+func _ready():
+	camera_rotation = rotation_degrees
+	camera.current = true
+	desired_zoom = zoom_levels[zoom_index]
+	current_zoom = desired_zoom
+
+func _physics_process(delta):
+	if not target:
+		return
+
+	handle_input(delta)
+
+	# Smooth follow and orbit
+	position = position.lerp(target.position, delta * 4)
+	rotation_degrees = rotation_degrees.lerp(camera_rotation, delta * 6)
+	camera.position = camera.position.lerp(Vector3(0, 0, current_zoom), delta * zoom_transition_speed)
+
+func handle_input(delta):
+	var input_vec = Vector2(
+		Input.get_action_strength(input_right) - Input.get_action_strength(input_left),
+		Input.get_action_strength(input_down) - Input.get_action_strength(input_up)
+	)
+
+	var is_orbiting = input_vec.length() > 0.1
+	var snap_pressed = Input.is_action_just_pressed("camera_snap_p%d" % player_id)
+
+	if is_orbiting:
+		# Manual orbit via stick
+		camera_rotation.y += input_vec.x * rotation_speed * delta
+		camera_rotation.x += input_vec.y * rotation_speed * delta
+		camera_rotation.x = clamp(camera_rotation.x, -80, -10)
+		snap_camera = false  # cancel snap if orbiting
+
+	elif target and target.has_method("get_velocity"):
+		var velocity = target.get_velocity()
+
+		if snap_pressed:
+			# Immediately start snapping camera behind player
+			snap_camera = true
+
+		if velocity.length() > 0.1:
+			var desired_yaw = rad_to_deg(atan2(-velocity.x, -velocity.z))
+
+			if snap_camera:
+				# Fast alignment when snapping
+				camera_rotation.y = lerp_angle(camera_rotation.y, desired_yaw, delta * 10.0)
+
+				# Close enough? Stop snapping
+				if abs(wrapf(camera_rotation.y - desired_yaw, -180.0, 180.0)) < 3.0:
+					snap_camera = false
+			else:
+				# Slow soft-follow alignment
+				camera_rotation.y = lerp_angle(camera_rotation.y, desired_yaw, delta * 1.5)
+
+	# Optional: fixed zoom
+	current_zoom = lerp(current_zoom, zoom_levels[zoom_index], delta * zoom_transition_speed)
+

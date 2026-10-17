@@ -1,0 +1,41 @@
+[gd_scene load_steps=7 format=3 uid="uid://bk3bw8gnvwrwg"]
+
+[ext_resource type="Script" uid="uid://bo1jabc1aurbh" path="res://scripts/suit_rank_bobber.gd" id="1_0wl7x"]
+[ext_resource type="Texture2D" uid="uid://bs6puxrivhkk2" path="res://sprites/particle.png" id="2_fvr5l"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_qkpxi"]
+transparency = 1
+vertex_color_use_as_albedo = true
+albedo_texture = ExtResource("2_fvr5l")
+billboard_mode = 1
+billboard_keep_scale = true
+proximity_fade_enabled = true
+
+[sub_resource type="QuadMesh" id="QuadMesh_5q0nq"]
+
+[sub_resource type="Curve" id="Curve_dgi5k"]
+_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(0.504298, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="Gradient" id="Gradient_j8jky"]
+colors = PackedColorArray(0.996094, 0.910156, 0.351563, 1, 1, 1, 1, 1)
+
+[node name="SuitRankBobber" type="Node3D"]
+script = ExtResource("1_0wl7x")
+
+[node name="Particles" type="CPUParticles3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.447834, 0)
+visible = false
+layers = 2
+material_override = SubResource("StandardMaterial3D_qkpxi")
+mesh = SubResource("QuadMesh_5q0nq")
+direction = Vector3(1, 1, 1)
+spread = 180.0
+gravity = Vector3(0, 0, 0)
+initial_velocity_max = 1.0
+damping_min = 0.5
+damping_max = 0.5
+scale_amount_min = 0.15
+scale_amount_max = 0.15
+scale_amount_curve = SubResource("Curve_dgi5k")
+color_ramp = SubResource("Gradient_j8jky")

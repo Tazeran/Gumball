@@ -1,0 +1,12 @@
+[gd_scene load_steps=4 format=3 uid="uid://de8jxuvworkou"]
+
+[ext_resource type="PackedScene" uid="uid://dtjvjdjl8cs6e" path="res://models/flagStarter.glb" id="1_2iksx"]
+[ext_resource type="Texture2D" uid="uid://0odt7cvj574e" path="res://models/Textures/colormapStarter.png" id="2_r1rfj"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_vukel"]
+albedo_texture = ExtResource("2_r1rfj")
+
+[node name="flag" instance=ExtResource("1_2iksx")]
+
+[node name="flag2" parent="." index="0"]
+surface_material_override/0 = SubResource("StandardMaterial3D_vukel")

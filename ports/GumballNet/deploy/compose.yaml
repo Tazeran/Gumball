@@ -1,0 +1,14 @@
+services:
+  gumball-server:
+    build:
+      context: ..
+      dockerfile: deploy/Containerfile
+    container_name: gumball-server
+    restart: unless-stopped
+    ports:
+      - "42837:42837/udp"
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m
+    security_opt:
+      - no-new-privileges:true

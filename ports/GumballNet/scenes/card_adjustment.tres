@@ -1,0 +1,9 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3 uid="uid://dqoaewwg2evym"]
+
+[ext_resource type="Shader" uid="uid://dofaea7s7ic3c" path="res://scenes/card_adjustment.gdshader" id="1_td1qy"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_td1qy")
+shader_parameter/uv_offset = Vector2(0, 0)
+shader_parameter/uv_scale = Vector2(1, 1)

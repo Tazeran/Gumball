@@ -1,0 +1,204 @@
+[gd_scene load_steps=5 format=3 uid="uid://dd1mxollwvwbp"]
+
+[ext_resource type="Script" uid="uid://d2bmmchslim04" path="res://scenes/Menu/landing.gd" id="1_2gpfn"]
+[ext_resource type="Environment" uid="uid://bqnqgflivjvue" path="res://scenes/main-environment.tres" id="2_5jwiw"]
+[ext_resource type="Script" uid="uid://c5bruw0f3y3wq" path="res://scripts/controller_visualizer.gd" id="3_82mrq"]
+[ext_resource type="PackedScene" uid="uid://dy017k58p20sk" path="res://objects/Base/cloud.tscn" id="3_eiytl"]
+
+[node name="Landing" type="Node3D"]
+script = ExtResource("1_2gpfn")
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+transform = Transform3D(-0.422618, -0.694272, 0.582564, 0, 0.642788, 0.766044, -0.906308, 0.323744, -0.271654, 0, 5.37368, 0)
+shadow_enabled = true
+shadow_opacity = 0.75
+
+[node name="Environment" type="WorldEnvironment" parent="."]
+environment = ExtResource("2_5jwiw")
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="UI Control" type="Control" parent="CanvasLayer"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+metadata/_edit_use_anchors_ = true
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/UI Control"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -23.0
+offset_top = -50.5
+offset_right = 23.0
+offset_bottom = 50.5
+grow_horizontal = 2
+grow_vertical = 2
+alignment = 1
+
+[node name="DoNothing" type="Button" parent="CanvasLayer/UI Control/VBoxContainer"]
+layout_mode = 2
+text = "Do Nothing"
+
+[node name="ButtonStart1" type="Button" parent="CanvasLayer/UI Control/VBoxContainer"]
+layout_mode = 2
+text = "Start 1p"
+
+[node name="ButtonStart2" type="Button" parent="CanvasLayer/UI Control/VBoxContainer"]
+layout_mode = 2
+text = "Start 2p"
+
+[node name="ButtonStart3" type="Button" parent="CanvasLayer/UI Control/VBoxContainer"]
+layout_mode = 2
+text = "Start 3p"
+
+[node name="ButtonStart4" type="Button" parent="CanvasLayer/UI Control/VBoxContainer"]
+layout_mode = 2
+text = "Start 4p"
+
+[node name="ButtonQuit" type="Button" parent="CanvasLayer/UI Control/VBoxContainer"]
+layout_mode = 2
+text = "Quit"
+
+[node name="Label" type="Label" parent="CanvasLayer/UI Control"]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 23.0
+
+[node name="GamepadVisualizer1" type="Control" parent="CanvasLayer"]
+layout_mode = 3
+anchors_preset = 0
+offset_left = 272.0
+offset_top = 75.0
+offset_right = 312.0
+offset_bottom = 115.0
+script = ExtResource("3_82mrq")
+
+[node name="GamepadVisualizer2" type="Control" parent="CanvasLayer"]
+layout_mode = 3
+anchors_preset = 0
+offset_left = 361.0
+offset_top = 75.0
+offset_right = 401.0
+offset_bottom = 115.0
+script = ExtResource("3_82mrq")
+device = 1
+
+[node name="GamepadVisualizer3" type="Control" parent="CanvasLayer"]
+layout_mode = 3
+anchors_preset = 0
+offset_left = 272.0
+offset_top = 155.0
+offset_right = 312.0
+offset_bottom = 195.0
+script = ExtResource("3_82mrq")
+device = 2
+
+[node name="GamepadVisualizer4" type="Control" parent="CanvasLayer"]
+layout_mode = 3
+anchors_preset = 0
+offset_left = 361.0
+offset_top = 155.0
+offset_right = 401.0
+offset_bottom = 195.0
+script = ExtResource("3_82mrq")
+device = 3
+
+[node name="GamepadVisualizer5" type="Control" parent="CanvasLayer"]
+layout_mode = 3
+anchors_preset = 0
+offset_left = 272.0
+offset_top = 237.0
+offset_right = 312.0
+offset_bottom = 277.0
+script = ExtResource("3_82mrq")
+device = 4
+
+[node name="GamepadVisualizer6" type="Control" parent="CanvasLayer"]
+layout_mode = 3
+anchors_preset = 0
+offset_left = 361.0
+offset_top = 237.0
+offset_right = 401.0
+offset_bottom = 277.0
+script = ExtResource("3_82mrq")
+device = 5
+
+[node name="GamepadVisualizer7" type="Control" parent="CanvasLayer"]
+layout_mode = 3
+anchors_preset = 0
+offset_left = 272.0
+offset_top = 317.0
+offset_right = 312.0
+offset_bottom = 357.0
+script = ExtResource("3_82mrq")
+device = 6
+
+[node name="GamepadVisualizer8" type="Control" parent="CanvasLayer"]
+layout_mode = 3
+anchors_preset = 0
+offset_left = 361.0
+offset_top = 317.0
+offset_right = 401.0
+offset_bottom = 357.0
+script = ExtResource("3_82mrq")
+device = 7
+
+[node name="Clouds" type="Node3D" parent="."]
+
+[node name="cube8" parent="Clouds" instance=ExtResource("3_eiytl")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -26.1291, 1.10741, -10.0257)
+
+[node name="cube9" parent="Clouds" instance=ExtResource("3_eiytl")]
+transform = Transform3D(1.27593, -0.401864, 0.422933, 0.471408, 1.30937, -0.178025, -0.343721, 0.304009, 1.32582, -24.3432, 1.37146, -11.5529)
+
+[node name="cube10" parent="Clouds" instance=ExtResource("3_eiytl")]
+transform = Transform3D(1.32811, 0.370441, 0.259369, -0.293866, 1.3186, -0.37854, -0.34372, 0.30401, 1.32582, -20.8476, 2.03819, -3.85388)
+
+[node name="cube11" parent="Clouds" instance=ExtResource("3_eiytl")]
+transform = Transform3D(0.476646, 0.924607, 0.941422, -0.929853, 0.945559, -0.457882, -0.93624, -0.468385, 0.934042, -12.7572, 2.03819, 2.4462)
+
+[node name="cube12" parent="Clouds" instance=ExtResource("3_eiytl")]
+transform = Transform3D(-1.02876, -0.695523, 0.652886, -0.929853, 0.945557, -0.457881, -0.213027, -0.768461, -1.15432, -12.4915, 2.79508, 4.68)
+
+[node name="cube13" parent="Clouds" instance=ExtResource("3_eiytl")]
+transform = Transform3D(1.56209, -1.37982, 1.71508, 1.97375, 1.80907, -0.342241, -0.974547, 1.4522, 2.05595, -24.5769, 2.03819, -4.15872)
+
+[node name="cube14" parent="Clouds" instance=ExtResource("3_eiytl")]
+transform = Transform3D(1.56209, -1.37982, 1.71508, 1.97375, 1.80907, -0.342241, -0.974547, 1.4522, 2.05595, -17.4417, 2.03819, 1.00202)
+
+[node name="cube15" parent="Clouds" instance=ExtResource("3_eiytl")]
+transform = Transform3D(0.994164, 0, -0.107878, 0, 1, 0, 0.107878, 0, 0.994164, 16.3713, 1.10741, -48.3331)
+
+[node name="cube16" parent="Clouds" instance=ExtResource("3_eiytl")]
+transform = Transform3D(1.30556, -0.432315, 0.277438, 0.471408, 1.30937, -0.178025, -0.20407, 0.258883, 1.36371, 18.3115, 1.37146, -49.6587)
+
+[node name="cube17" parent="Clouds" instance=ExtResource("3_eiytl")]
+transform = Transform3D(1.35744, 0.335483, 0.114829, -0.293866, 1.3186, -0.37854, -0.19844, 0.342198, 1.34606, 23.6436, 2.03819, -43.493)
+
+[node name="cube18" parent="Clouds" instance=ExtResource("3_eiytl")]
+transform = Transform3D(0.574864, 0.96974, 0.835166, -0.929853, 0.945559, -0.457882, -0.879357, -0.365907, 1.03015, 24.9682, 2.03819, -32.9509)
+
+[node name="cube24" parent="Clouds" instance=ExtResource("3_eiytl")]
+transform = Transform3D(0.574864, 0.96974, 0.835166, -0.929853, 0.945559, -0.457882, -0.879357, -0.365907, 1.03015, 19.6441, 2.03819, -1.33253)
+
+[node name="cube19" parent="Clouds" instance=ExtResource("3_eiytl")]
+transform = Transform3D(-0.999775, -0.608564, 0.773601, -0.929853, 0.945557, -0.457881, -0.322764, -0.839008, -1.07715, 24.9914, 2.79508, -30.7015)
+
+[node name="cube20" parent="Clouds" instance=ExtResource("3_eiytl")]
+transform = Transform3D(1.65811, -1.52843, 1.48328, 1.97375, 1.80907, -0.342241, -0.800345, 1.29487, 2.22897, 19.5447, 2.03819, -44.964)
+
+[node name="cube22" parent="Clouds" instance=ExtResource("3_eiytl")]
+transform = Transform3D(0.788272, -2.09918, 1.50252, 2.45431, 1.09647, 0.244281, -0.800345, 1.29487, 2.22897, -18.0416, 2.03819, -44.964)
+
+[node name="cube23" parent="Clouds" instance=ExtResource("3_eiytl")]
+transform = Transform3D(0.788272, -2.09918, 1.50252, 2.45431, 1.09647, 0.244281, -0.800345, 1.29487, 2.22897, 18.0209, 2.03819, 1.0987)
+
+[node name="cube21" parent="Clouds" instance=ExtResource("3_eiytl")]
+transform = Transform3D(1.65811, -1.52843, 1.48328, 1.97375, 1.80907, -0.342241, -0.800345, 1.29487, 2.22897, 26.0814, 2.03819, -39.0637)

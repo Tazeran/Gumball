@@ -1,0 +1,21 @@
+[gd_scene load_steps=5 format=3 uid="uid://ltrxr6l3f6ya"]
+
+[ext_resource type="PackedScene" uid="uid://bqfcgw8r3ku4y" path="res://models/lock.glb" id="1_s433i"]
+[ext_resource type="Shader" uid="uid://bphv8861vdyuj" path="res://hologram1.gdshader" id="2_40mgl"]
+[ext_resource type="Texture2D" uid="uid://bnty6oqhxv0kn" path="res://models/Textures/colormap.png" id="3_40mgl"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_hpkde"]
+render_priority = 0
+shader = ExtResource("2_40mgl")
+shader_parameter/albedo_texture = ExtResource("3_40mgl")
+shader_parameter/alpha = 0.7
+shader_parameter/tint_color = Color(0.2, 0.6, 1, 1)
+shader_parameter/fresnel_strength = 0.5
+shader_parameter/fresnel_power = 2.0
+shader_parameter/line_speed = 6.0
+shader_parameter/line_density = 160.0
+
+[node name="lock2" instance=ExtResource("1_s433i")]
+
+[node name="lock" parent="." index="0"]
+material_override = SubResource("ShaderMaterial_hpkde")

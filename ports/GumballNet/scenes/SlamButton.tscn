@@ -1,0 +1,17 @@
+[gd_scene load_steps=4 format=3 uid="uid://l05a2g6khn0s"]
+
+[ext_resource type="PackedScene" uid="uid://c8shjc827766r" path="res://models/button-square.glb" id="1_ostwv"]
+[ext_resource type="Script" uid="uid://b4f1eaigq5cbx" path="res://scripts/button_square.gd" id="2_u2ejs"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_ostwv"]
+size = Vector3(0.397949, 0.215153, 0.396118)
+
+[node name="SlamButton" instance=ExtResource("1_ostwv")]
+script = ExtResource("2_u2ejs")
+
+[node name="Area3D" type="Area3D" parent="." index="0"]
+collision_mask = 5
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.000244141, 0.16651, 0.00128174)
+shape = SubResource("BoxShape3D_ostwv")

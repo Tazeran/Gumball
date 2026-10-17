@@ -1,0 +1,25 @@
+[gd_scene load_steps=7 format=3 uid="uid://b5mhmde28541f"]
+
+[ext_resource type="Texture2D" uid="uid://bnty6oqhxv0kn" path="res://models/Textures/colormap.png" id="1_m371n"]
+[ext_resource type="Script" uid="uid://b1op1mkfrm8lq" path="res://objects/basic_marble.gd" id="1_y6ld5"]
+
+[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_y6ld5"]
+bounce = 0.5
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_y6ld5"]
+
+[sub_resource type="SphereMesh" id="SphereMesh_wlbdx"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_72565"]
+albedo_texture = ExtResource("1_m371n")
+
+[node name="RigidBody3D" type="RigidBody3D"]
+physics_material_override = SubResource("PhysicsMaterial_y6ld5")
+script = ExtResource("1_y6ld5")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("SphereShape3D_y6ld5")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("SphereMesh_wlbdx")
+surface_material_override/0 = SubResource("StandardMaterial3D_72565")
