@@ -2041,7 +2041,7 @@ team = "B"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -15.7872, 3.67301, -19.0889)
 
 [node name="MarbleSpawner" type="Node3D" parent="."]
-transform = Transform3D(0.992102, 0, 0.125437, 0, 1, 0, -0.125437, 0, 0.992102, 18.3832, 8.35181, 29.034)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 27.96923, 11.959964, 31.335684)
 script = ExtResource("49_aextj")
 marble_scene = ExtResource("50_oewck")
 
