@@ -47,6 +47,7 @@ var network_target_rotation_y := 0.0
 var network_target_velocity := Vector3.ZERO
 var network_state_received := false
 var network_send_accumulator := 0.0
+var stamina_prediction_grace := 0.0
 const NETWORK_SEND_INTERVAL := 0.05
 
 
@@ -308,6 +309,7 @@ func get_closest_interactable() -> Node3D:
 
 
 func _physics_process(delta):
+	stamina_prediction_grace = maxf(0.0, stamina_prediction_grace - delta)
 	if is_network_remote:
 		if network_state_received:
 			global_position = global_position.lerp(network_target_position, minf(delta * 14.0, 1.0))
@@ -439,7 +441,7 @@ func jump_action():
 
 	if is_crouching and stamina >= crouch_jump_stamina_cost:
 		# Do a crouch super jump
-		stamina -= crouch_jump_stamina_cost
+		_spend_stamina(crouch_jump_stamina_cost, "crouch_jump")
 		gravity = -crouch_jump_strength
 		model.scale = Vector3(0.4, 1.6, 0.4)  # Bigger squash/stretch
 	else:
@@ -453,7 +455,7 @@ func jump_action():
 	else:
 		# Player is using the double jump
 		if stamina >= double_jump_stamina_cost:
-			stamina -= double_jump_stamina_cost
+			_spend_stamina(double_jump_stamina_cost, "double_jump")
 			jump_double = false  # Consumes the double jump
 		else:
 			# Not enough stamina, cancel the double jump
@@ -466,7 +468,7 @@ func start_ground_pound():
 		ground_pound_started = true
 		gravity = 0
 		ground_pound_impact_speed = 0.0
-		stamina -= ground_pound_stamina_cost
+		_spend_stamina(ground_pound_stamina_cost, "ground_pound")
 		#animation.play("ground_pound_spin")  # if you want an animation
 	else:
 		# Not enough stamina to ground pound
@@ -519,6 +521,20 @@ func handle_effects(delta):
 
 func collect_stamina():
 	stamina = clamp(stamina + 100, 0, stamina_max);
+
+func _spend_stamina(amount: float, action: String) -> void:
+	stamina = maxf(0.0, stamina - amount)
+	stamina_prediction_grace = 0.5
+	if network_session and accepts_local_input and not bool(network_session.get("IsDedicatedServer")):
+		network_session.call("RequestStaminaSpend", player_id, action)
+
+func apply_authoritative_stamina(value: float) -> void:
+	# Ignore a briefly stale server value that would undo a locally predicted
+	# action. Lower values are always accepted, and normal reconciliation resumes
+	# after the reliable spend command has had time to reach the server.
+	if accepts_local_input and stamina_prediction_grace > 0.0 and value > stamina:
+		return
+	stamina = value
 
 func collect_coin():
 	coins += 1

@@ -16,6 +16,7 @@ var _session: Node
 var _online := false
 var _dedicated := false
 var _world_frame_timer := 0.0
+var _ground_pound_authorized: Dictionary = {}
 
 func _ready() -> void:
 	_session = get_node_or_null("/root/NetworkSession")
@@ -52,6 +53,7 @@ func _ready() -> void:
 		_session.connect("WorldStateReceived", _on_world_state_received)
 		_session.connect("WorldFrameReceived", _on_world_frame_received)
 		_session.connect("GroundPoundRequested", _on_ground_pound_requested)
+		_session.connect("StaminaSpentRequested", _on_stamina_spent_requested)
 	else:
 		for slot in range(1, Master.player_count + 1):
 			local_slots.append(slot)
@@ -71,6 +73,8 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	if not _dedicated:
 		return
+	for player in _online_players.values():
+		player.stamina = minf(player.stamina + player.stamina_regen_rate * delta, player.stamina_max)
 	_world_frame_timer -= delta
 	if _world_frame_timer <= 0.0:
 		_world_frame_timer = 0.1
@@ -125,7 +129,7 @@ func _on_world_frame_received(json: String) -> void:
 		var player: Player = _online_players.get(int(data.slot))
 		if player:
 			player.health = int(data.health)
-			player.stamina = float(data.stamina)
+			player.apply_authoritative_stamina(float(data.stamina))
 			if player.coins != int(data.coins):
 				player.coins = int(data.coins)
 	if frame.has("enemies"):
@@ -222,9 +226,9 @@ func _on_ground_pound_requested(slot: int, position: Vector3, impact_speed: floa
 	if not _dedicated or not _online_players.has(slot):
 		return
 	var player: Player = _online_players[slot]
-	if player.global_position.distance_to(position) > 3.0 or player.stamina < player.ground_pound_stamina_cost:
+	if not _ground_pound_authorized.get(slot, false) or player.global_position.distance_to(position) > 3.0:
 		return
-	player.stamina -= player.ground_pound_stamina_cost
+	_ground_pound_authorized.erase(slot)
 	for enemy in get_tree().get_nodes_in_group("enemies"):
 		var offset: Vector3 = enemy.global_position - position
 		if Vector2(offset.x, offset.z).length() <= player.ground_pound_impact_radius and absf(offset.y) <= 1.6:
@@ -234,6 +238,22 @@ func _on_ground_pound_requested(slot: int, position: Vector3, impact_speed: floa
 			button.press()
 	await get_tree().process_frame
 	_broadcast_world_state()
+
+func _on_stamina_spent_requested(slot: int, action: String) -> void:
+	if not _dedicated or not _online_players.has(slot):
+		return
+	var player: Player = _online_players[slot]
+	var cost := 0.0
+	match action:
+		"double_jump": cost = player.double_jump_stamina_cost
+		"crouch_jump": cost = player.crouch_jump_stamina_cost
+		"ground_pound": cost = player.ground_pound_stamina_cost
+		_: return
+	if player.stamina < cost:
+		return
+	player.stamina -= cost
+	if action == "ground_pound":
+		_ground_pound_authorized[slot] = true
 
 func _on_world_snapshot_requested(peer_id: int) -> void:
 	if _dedicated:
