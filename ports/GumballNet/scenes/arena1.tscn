@@ -2041,12 +2041,21 @@ team = "B"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -15.7872, 3.67301, -19.0889)
 
 [node name="MarbleSpawner" type="Node3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 27.96923, 11.959964, 31.335684)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 27.96923, 30.334965, 31.335684)
 script = ExtResource("49_aextj")
 marble_scene = ExtResource("50_oewck")
 
 [node name="helix-large-left2" parent="." instance=ExtResource("51_6542j")]
 transform = Transform3D(2.45, 0, 0, 0, 2.45, 0, 0, 0, 2.45, 27.96923, 5.1849637, 25.210684)
+
+[node name="helix-large-left3" parent="." instance=ExtResource("51_6542j")]
+transform = Transform3D(2.45, 0, 0, 0, 2.45, 0, 0, 0, 2.45, 27.96923, 11.309964, 25.210684)
+
+[node name="helix-large-left4" parent="." instance=ExtResource("51_6542j")]
+transform = Transform3D(2.45, 0, 0, 0, 2.45, 0, 0, 0, 2.45, 27.96923, 17.434965, 25.210684)
+
+[node name="helix-large-left5" parent="." instance=ExtResource("51_6542j")]
+transform = Transform3D(2.45, 0, 0, 0, 2.45, 0, 0, 0, 2.45, 27.96923, 23.559965, 25.210684)
 
 [node name="SpawnFlullDeck" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.01, -18.864)
