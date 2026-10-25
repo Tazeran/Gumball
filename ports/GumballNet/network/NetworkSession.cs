@@ -17,10 +17,12 @@ public partial class NetworkSession : Node
 
     [Signal] public delegate void StatusChangedEventHandler(string message);
     [Signal] public delegate void PlayerAssignmentChangedEventHandler(int slot, bool lobbyOwner);
+    [Signal] public delegate void RosterChangedEventHandler(int[] activeSlots);
 
     public bool IsDedicatedServer { get; private set; }
     public int LocalPlayerSlot { get; private set; }
     public int[] LocalPlayerSlots { get; private set; } = Array.Empty<int>();
+    public int[] ActivePlayerSlots { get; private set; } = Array.Empty<int>();
     public bool IsLobbyOwner { get; private set; }
     public int LocalControllerDevice { get; private set; }
     public int[] LocalControllerDevices { get; private set; } = [0];
@@ -124,7 +126,9 @@ public partial class NetworkSession : Node
         Multiplayer.MultiplayerPeer = new OfflineMultiplayerPeer();
         LocalPlayerSlot = 0;
         LocalPlayerSlots = Array.Empty<int>();
+        ActivePlayerSlots = Array.Empty<int>();
         IsLobbyOwner = false;
+        EmitSignal(SignalName.RosterChanged, ActivePlayerSlots);
     }
 
     public Error EnterMatch()
@@ -174,6 +178,7 @@ public partial class NetworkSession : Node
         }
 
         GD.Print($"Peer {peerId} left; slots {string.Join(',', slots)} are available.");
+        BroadcastRoster();
     }
 
     private void OnConnectedToServer()
@@ -232,7 +237,26 @@ public partial class NetworkSession : Node
         if (_lobbyOwnerPeerId == 0)
             _lobbyOwnerPeerId = peerId;
         RpcId(peerId, nameof(ReceiveAssignment), slots.ToArray(), peerId == _lobbyOwnerPeerId);
+        BroadcastRoster();
         GD.Print($"Peer {peerId} joined with slots {string.Join(',', slots)}.");
+    }
+
+    [Rpc(MultiplayerApi.RpcMode.Authority, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+    private void ReceiveRoster(int[] activeSlots)
+    {
+        ActivePlayerSlots = activeSlots;
+        EmitSignal(SignalName.RosterChanged, activeSlots);
+    }
+
+    private void BroadcastRoster()
+    {
+        var activeSlots = new List<int>();
+        foreach (var slots in _peerSlots.Values)
+            activeSlots.AddRange(slots);
+        activeSlots.Sort();
+        ActivePlayerSlots = activeSlots.ToArray();
+        EmitSignal(SignalName.RosterChanged, ActivePlayerSlots);
+        Rpc(nameof(ReceiveRoster), ActivePlayerSlots);
     }
 
     [Rpc(MultiplayerApi.RpcMode.Authority, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
