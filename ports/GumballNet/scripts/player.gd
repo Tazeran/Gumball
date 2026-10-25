@@ -37,6 +37,8 @@ var input_jump: String
 var input_ground_pound: String
 var input_interact: String
 var input_crouch: String
+var accepts_local_input := true
+var local_controller_device := -1
 
 
 var movement_velocity: Vector3
@@ -85,15 +87,26 @@ func is_holding_card():
 
 func _ready():
 	#update_interaction_marker()
-	# Setup input strings
-	input_left = "move_left_p" + str(player_id)
-	input_right = "move_right_p" + str(player_id)
-	input_forward = "move_forward_p" + str(player_id)
-	input_back = "move_back_p" + str(player_id)
-	input_jump = "jump_p" + str(player_id)
-	input_ground_pound = "right_bumper_p" + str(player_id)
-	input_interact = "interact_p" + str(player_id)
-	input_crouch = "crouch_p" + str(player_id)
+	# Online clients only read input for their assigned player. The command-line
+	# controller device selects which existing per-device input map that player uses.
+	var input_player_id := player_id
+	var network_session := get_node_or_null("/root/NetworkSession")
+	if network_session:
+		var online_slot := int(network_session.get("LocalPlayerSlot"))
+		if online_slot > 0:
+			accepts_local_input = player_id == online_slot
+			local_controller_device = int(network_session.get("LocalControllerDevice"))
+			if accepts_local_input:
+				input_player_id = local_controller_device + 1
+
+	input_left = "move_left_p" + str(input_player_id)
+	input_right = "move_right_p" + str(input_player_id)
+	input_forward = "move_forward_p" + str(input_player_id)
+	input_back = "move_back_p" + str(input_player_id)
+	input_jump = "jump_p" + str(input_player_id)
+	input_ground_pound = "right_bumper_p" + str(input_player_id)
+	input_interact = "interact_p" + str(input_player_id)
+	input_crouch = "crouch_p" + str(input_player_id)
 
 	var playerTexture = null
 	if player_id % 2 == 1:
@@ -302,6 +315,11 @@ func _physics_process(delta):
 
 
 func handle_controls(delta):
+	if not accepts_local_input:
+		movement_velocity = Vector3.ZERO
+		is_crouching = false
+		return
+
 	var input := Vector3.ZERO
 
 	input.x = Input.get_action_strength(input_right) - Input.get_action_strength(input_left)

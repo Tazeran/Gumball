@@ -20,6 +20,7 @@ public partial class NetworkSession : Node
     public bool IsDedicatedServer { get; private set; }
     public int LocalPlayerSlot { get; private set; }
     public bool IsLobbyOwner { get; private set; }
+    public int LocalControllerDevice { get; private set; }
 
     private readonly Dictionary<long, int> _peerSlots = new();
     private readonly Queue<int> _freeSlots = new();
@@ -40,12 +41,24 @@ public partial class NetworkSession : Node
         var commandLineArgs = new List<string>(OS.GetCmdlineArgs());
         commandLineArgs.AddRange(OS.GetCmdlineUserArgs());
 
+        foreach (var arg in commandLineArgs)
+        {
+            if (!arg.StartsWith("--controller=", StringComparison.Ordinal))
+                continue;
+
+            if (int.TryParse(arg["--controller=".Length..], out var device) && device is >= 0 and <= 7)
+                LocalControllerDevice = device;
+            else
+                GD.PushWarning($"Ignoring invalid controller option '{arg}'. Expected --controller=0 through 7.");
+        }
+
         IsDedicatedServer = commandLineArgs.Contains("--server")
             || OS.HasFeature("dedicated_server");
         if (IsDedicatedServer)
             StartDedicatedServer();
         else
         {
+            GD.Print($"GumballNet client using controller device {LocalControllerDevice}.");
             CallDeferred(nameof(CreateOnlineMenu));
             foreach (var arg in commandLineArgs)
             {
@@ -186,7 +199,9 @@ public partial class NetworkSession : Node
         IsLobbyOwner = lobbyOwner;
         EmitSignal(SignalName.PlayerAssignmentChanged, slot, lobbyOwner);
         EmitSignal(SignalName.StatusChanged,
-            lobbyOwner ? $"Connected as player {slot} (lobby owner)." : $"Connected as player {slot}.");
+            lobbyOwner
+                ? $"Connected as player {slot} (lobby owner), using controller {LocalControllerDevice + 1}."
+                : $"Connected as player {slot}, using controller {LocalControllerDevice + 1}.");
     }
 
     [Rpc(MultiplayerApi.RpcMode.Authority, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]

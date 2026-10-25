@@ -44,7 +44,14 @@ and select **Join Online Match**. Local testing uses `127.0.0.1`.
 On Windows, double-click `start-local-match.bat`. It starts:
 
 1. One headless authoritative server on UDP `42837`
-2. Two graphical clients that automatically connect to `127.0.0.1`
+2. Client 1 connected to `127.0.0.1`, using controller device `0`
+3. Client 2 connected to `127.0.0.1`, using controller device `1`
+
+The client helper accepts a controller device number, so it can also be run
+manually as `run-local-client.bat 0` or `run-local-client.bat 1`. The equivalent
+Godot user argument is `--controller=0` through `--controller=7`. Godot numbers
+the first connected controller as device `0`, even though it is described to the
+player as controller 1.
 
 The server is deliberately a separate process rather than one client acting as
 host. This matches the production Podman deployment and exposes authority bugs

@@ -31,10 +31,10 @@ echo Waiting briefly for the server to bind its port...
 ping 127.0.0.1 -n 3 >nul
 
 echo Starting client 1...
-start "GumballNet Client 1" "%PROJECT_DIR%\run-local-client.bat"
+start "GumballNet Client 1 - Controller 1" "%PROJECT_DIR%\run-local-client.bat" 0
 
 echo Starting client 2...
-start "GumballNet Client 2" "%PROJECT_DIR%\run-local-client.bat"
+start "GumballNet Client 2 - Controller 2" "%PROJECT_DIR%\run-local-client.bat" 1
 
 echo.
 echo Local match launched: one server and two clients.
