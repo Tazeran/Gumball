@@ -8,9 +8,9 @@ rem The trailing dot prevents %~dp0's final backslash from escaping a quoted arg
 set "PROJECT_DIR=%~dp0."
 
 rem Development window layout. Adjust these for your monitor resolution.
-set "CLIENT_SIZE=900x700"
+set "CLIENT_SIZE=1840x1035"
 set "CLIENT_1_POSITION=20,40"
-set "CLIENT_2_POSITION=960,40"
+set "CLIENT_2_POSITION=1940,40"
 set "CLIENT_SCREEN=0"
 
 if not exist "%GODOT_CONSOLE%" (
