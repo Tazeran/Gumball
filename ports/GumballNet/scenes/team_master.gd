@@ -19,6 +19,7 @@ const MAX_CYCLE_CARDS = 3
 var deck: Deck
 
 func _ready():
+	_configure_team_objects()
 	cycleInteractable.interaction_available_delegate = Callable(self, "_cycle_interaction_available")
 	reshuffleInteractable.interaction_available_delegate = Callable(self, "_reshuffle_interaction_available")
 
@@ -38,14 +39,7 @@ func spawn_card(card_data, stack: DeckStack) -> void:
 
 func deal_hand():
 	# TODO: cleanup old cards if replaying, make it's own function
-	goalStack.team = team_name
-	stockStack.team = team_name
-	flipStack.team = team_name
-	cycleInteractable.team = team_name
-	solitaireStack1.team = team_name
-	solitaireStack2.team = team_name
-	solitaireStack3.team = team_name
-	solitaireStack4.team = team_name
+	_configure_team_objects()
 
 	deck = Deck.new()
 	deck.create_full_deck()
@@ -65,6 +59,18 @@ func deal_hand():
 
 	#stockStack.scatter_all_cards()
 	#goalStack.scatter_all_cards()
+
+func _configure_team_objects() -> void:
+	# This is gameplay metadata, not dealing. Clients need it too so their
+	# interaction prompts can evaluate the same team rules as the server.
+	goalStack.team = team_name
+	stockStack.team = team_name
+	flipStack.team = team_name
+	cycleInteractable.team = team_name
+	solitaireStack1.team = team_name
+	solitaireStack2.team = team_name
+	solitaireStack3.team = team_name
+	solitaireStack4.team = team_name
 
 
 func verify_full_deck() -> bool:
