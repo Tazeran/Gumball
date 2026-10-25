@@ -30,6 +30,18 @@ public partial class OnlineMenu : CanvasLayer
         _address.GrabFocus();
     }
 
+    public override void _Input(InputEvent @event)
+    {
+        if (@event is not InputEventJoypadButton && @event is not InputEventJoypadMotion)
+            return;
+
+        // Godot's built-in Control navigation otherwise reacts to every gamepad
+        // connected to the computer. A development client should only consume
+        // the controller devices assigned to its local seats.
+        if (Array.IndexOf(Session.LocalControllerDevices, @event.Device) < 0)
+            GetViewport().SetInputAsHandled();
+    }
+
     public override void _UnhandledInput(InputEvent @event)
     {
         if (!_inMatch || !@event.IsActionPressed("ui_cancel"))
