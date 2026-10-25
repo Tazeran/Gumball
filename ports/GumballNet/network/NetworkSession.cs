@@ -128,6 +128,11 @@ public partial class NetworkSession : Node
         if (GetTree().CurrentScene?.SceneFilePath == ArenaScene)
             return Error.Ok;
 
+        // The legacy arena removes player nodes above Master.player_count.
+        // Online mode must retain every network slot so a client assigned slot
+        // 2, 3, or 4 has a corresponding player node to control/replicate.
+        GetNode("/root/Master").Set("player_count", MaxPlayers);
+
         var result = GetTree().ChangeSceneToFile(ArenaScene);
         if (result != Error.Ok)
             EmitSignal(SignalName.StatusChanged, $"Unable to load the match: {result}");

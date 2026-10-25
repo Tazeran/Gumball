@@ -22,6 +22,7 @@ public partial class Bootstrap : Node
                 return;
 
             GD.Print("Starting the authoritative match scene without client UI.");
+            GetNode("/root/Master").Set("player_count", NetworkSession.MaxPlayers);
             GetTree().ChangeSceneToFile(NetworkSession.ArenaScene);
             return;
         }

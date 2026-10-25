@@ -53,14 +53,21 @@ Godot user argument is `--controller=0` through `--controller=7`. Godot numbers
 the first connected controller as device `0`, even though it is described to the
 player as controller 1.
 
+Before launching, the script closes existing Godot processes running this
+specific GumballNet project. It does not intentionally close Godot editors or
+other projects. If an unrelated program still owns UDP `42837`, the launcher
+stops and reports the conflict rather than terminating that program.
+
 The server is deliberately a separate process rather than one client acting as
 host. This matches the production Podman deployment and exposes authority bugs
 during local testing.
 
 The helper processes start from the Godot installation directory. Godot 4.7.2
 can otherwise incorrectly report that `GodotSharp/Api/Debug` is missing even
-when that directory is beside the executable. If the launcher reports that UDP
-`42837` is already in use, close the console from the previous local server
-before starting another match.
+when that directory is beside the executable.
+
+Only the dedicated server normally keeps a console window open. The other two
+windows are graphical clients. `run-local-client.bat` remains available when a
+diagnostic client console is useful.
 
 For deployment instructions, see `deploy/README.md`.
