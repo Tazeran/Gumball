@@ -49,6 +49,10 @@ var _death_materials: Array[ShaderMaterial] = []
 var _death_start_skin_rotation := Vector3.ZERO
 var _death_start_skin_scale := Vector3.ONE
 var _death_finished := false
+var _is_network_proxy := false
+var _network_target_position := Vector3.ZERO
+var _network_target_yaw := 0.0
+var _network_moving := false
 var network_spawner_path := ""
 
 
@@ -64,9 +68,20 @@ func _ready() -> void:
 	_skin.idle()
 	_death_start_skin_rotation = _skin.rotation
 	_death_start_skin_scale = _skin.scale
+	_is_network_proxy = _is_online_client()
+	_network_target_position = global_position
+	_network_target_yaw = rotation.y
 
 
 func _process(delta: float) -> void:
+	if _is_network_proxy and _alive:
+		var blend := 1.0 - exp(-14.0 * delta)
+		global_position = global_position.lerp(_network_target_position, blend)
+		rotation.y = lerp_angle(rotation.y, _network_target_yaw, blend)
+		if _network_moving:
+			_skin.walk()
+		else:
+			_skin.idle()
 	if _alive or _death_finished:
 		return
 	_death_elapsed = minf(_death_elapsed + delta, _death_total_duration())
@@ -304,6 +319,18 @@ func get_network_death_progress() -> float:
 	return clampf(_death_elapsed / _death_total_duration(), 0.0, 1.0)
 
 
+func apply_network_state(target_position: Vector3, target_yaw: float, moving: bool, death_progress: float) -> void:
+	_is_network_proxy = true
+	_network_target_position = target_position
+	_network_target_yaw = target_yaw
+	_network_moving = moving
+	if global_position.distance_squared_to(target_position) > 36.0:
+		global_position = target_position
+		rotation.y = target_yaw
+	if death_progress > 0.0:
+		apply_network_death(death_progress)
+
+
 func apply_network_death(progress: float) -> void:
 	if _alive:
 		_begin_defeat()
@@ -320,6 +347,12 @@ func _death_total_duration() -> float:
 func _has_world_authority() -> bool:
 	var session = get_node_or_null("/root/NetworkSession")
 	return session == null or bool(session.get("IsDedicatedServer")) or Array(session.get("LocalPlayerSlots")).is_empty()
+
+
+func _is_online_client() -> bool:
+	var session = get_node_or_null("/root/NetworkSession")
+	return session != null and not bool(session.get("IsDedicatedServer")) \
+		and not Array(session.get("LocalPlayerSlots")).is_empty()
 
 
 func _on_detection_body_entered(body: Node3D) -> void:
