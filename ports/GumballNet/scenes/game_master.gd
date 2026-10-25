@@ -412,7 +412,11 @@ func _on_player_health_changed(slot: int, health: int, source_position: Vector3,
 func _on_player_team_changed(slot: int, team: String) -> void:
 	var player: Player = _online_players.get(slot)
 	if player:
-		player.apply_team(team, _team_spawn_position(slot, team), true)
+		# Joining peers cause the server to rebroadcast the complete team table.
+		# Only a real team change should teleport an existing player; otherwise
+		# every join would send the whole roster back to its spawn points.
+		var team_actually_changed := player.team != team
+		player.apply_team(team, _team_spawn_position(slot, team), team_actually_changed)
 
 func _apply_online_roster(active_slots: Array[int]) -> void:
 	for existing_slot in _online_players.keys():
