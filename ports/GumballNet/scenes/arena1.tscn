@@ -1,4 +1,4 @@
-[gd_scene load_steps=74 format=3 uid="uid://bqqgyqafm7xwp"]
+[gd_scene format=3 uid="uid://bqqgyqafm7xwp"]
 
 [ext_resource type="Script" uid="uid://ssthegxvlm2c" path="res://scripts/sub_viewport_container.gd" id="1_d5vfk"]
 [ext_resource type="Script" uid="uid://cv2hyc71eithw" path="res://scripts/hud.gd" id="2_g5r4m"]
@@ -128,14 +128,14 @@ shader_parameter/water_texture_scale = 40.0
 [sub_resource type="PlaneMesh" id="PlaneMesh_1v6qk"]
 size = Vector2(300, 300)
 
-[node name="Root" type="Node3D" node_paths=PackedStringArray("TeamMasterA", "TeamMasterB")]
+[node name="Root" type="Node3D" unique_id=862130223 node_paths=PackedStringArray("TeamMasterA", "TeamMasterB")]
 script = ExtResource("29_i02ga")
 TeamMasterA = NodePath("Teams/TeamMasterA")
 TeamMasterB = NodePath("Teams/TeamMasterB")
 
-[node name="Teams" type="Node3D" parent="."]
+[node name="Teams" type="Node3D" parent="." unique_id=1126944086]
 
-[node name="TeamMasterA" type="Node3D" parent="Teams" node_paths=PackedStringArray("goalStack", "solitaireStack1", "solitaireStack2", "solitaireStack3", "solitaireStack4", "stockStack", "flipStack", "cycleInteractable", "reshuffleInteractable")]
+[node name="TeamMasterA" type="Node3D" parent="Teams" unique_id=407973036 node_paths=PackedStringArray("goalStack", "solitaireStack1", "solitaireStack2", "solitaireStack3", "solitaireStack4", "stockStack", "flipStack", "cycleInteractable", "reshuffleInteractable")]
 script = ExtResource("30_d38fq")
 card_scene = ExtResource("31_lfqxg")
 team_name = "A"
@@ -149,7 +149,7 @@ flipStack = NodePath("../../FlipStackA")
 cycleInteractable = NodePath("../../HoldInteractAreaTeamFlipA")
 reshuffleInteractable = NodePath("../../HoldInteractAreaTeamReshuffleA")
 
-[node name="TeamMasterB" type="Node3D" parent="Teams" node_paths=PackedStringArray("goalStack", "solitaireStack1", "solitaireStack2", "solitaireStack3", "solitaireStack4", "stockStack", "flipStack", "cycleInteractable", "reshuffleInteractable")]
+[node name="TeamMasterB" type="Node3D" parent="Teams" unique_id=1489318543 node_paths=PackedStringArray("goalStack", "solitaireStack1", "solitaireStack2", "solitaireStack3", "solitaireStack4", "stockStack", "flipStack", "cycleInteractable", "reshuffleInteractable")]
 script = ExtResource("30_d38fq")
 card_scene = ExtResource("31_lfqxg")
 team_name = "B"
@@ -163,7 +163,7 @@ flipStack = NodePath("../../FlipStackB")
 cycleInteractable = NodePath("../../HoldInteractAreaTeamFlipB")
 reshuffleInteractable = NodePath("../../HoldInteractAreaTeamReshuffleB")
 
-[node name="UI Control" type="Control" parent="."]
+[node name="UI Control" type="Control" parent="." unique_id=117271458]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -172,7 +172,7 @@ grow_horizontal = 2
 grow_vertical = 2
 metadata/_edit_use_anchors_ = true
 
-[node name="GridContainer" type="GridContainer" parent="UI Control"]
+[node name="GridContainer" type="GridContainer" parent="UI Control" unique_id=1005047558]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -181,22 +181,22 @@ grow_horizontal = 2
 grow_vertical = 2
 columns = 2
 
-[node name="SubViewportContainer1" type="SubViewportContainer" parent="UI Control/GridContainer"]
+[node name="SubViewportContainer1" type="SubViewportContainer" parent="UI Control/GridContainer" unique_id=1093266772]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 stretch = true
 script = ExtResource("1_d5vfk")
 
-[node name="SubViewport" type="SubViewport" parent="UI Control/GridContainer/SubViewportContainer1"]
+[node name="SubViewport" type="SubViewport" parent="UI Control/GridContainer/SubViewportContainer1" unique_id=265695741]
 handle_input_locally = false
 size = Vector2i(638, 358)
 render_target_update_mode = 4
 
-[node name="HUD" type="CanvasLayer" parent="UI Control/GridContainer/SubViewportContainer1/SubViewport"]
+[node name="HUD" type="CanvasLayer" parent="UI Control/GridContainer/SubViewportContainer1/SubViewport" unique_id=194908857]
 script = ExtResource("2_g5r4m")
 
-[node name="ControlLayoutFullRect" type="Control" parent="UI Control/GridContainer/SubViewportContainer1/SubViewport/HUD"]
+[node name="ControlLayoutFullRect" type="Control" parent="UI Control/GridContainer/SubViewportContainer1/SubViewport/HUD" unique_id=21461621]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -204,21 +204,21 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="ControlTopLeft" type="Control" parent="UI Control/GridContainer/SubViewportContainer1/SubViewport/HUD/ControlLayoutFullRect"]
+[node name="ControlTopLeft" type="Control" parent="UI Control/GridContainer/SubViewportContainer1/SubViewport/HUD/ControlLayoutFullRect" unique_id=282841333]
 layout_mode = 1
 anchors_preset = 0
 
-[node name="Prompt_A" type="Sprite2D" parent="UI Control/GridContainer/SubViewportContainer1/SubViewport/HUD/ControlLayoutFullRect/ControlTopLeft"]
+[node name="Prompt_A" type="Sprite2D" parent="UI Control/GridContainer/SubViewportContainer1/SubViewport/HUD/ControlLayoutFullRect/ControlTopLeft" unique_id=1479780242]
 visible = false
 position = Vector2(32, 32)
 texture = ExtResource("5_6p8n1")
 
-[node name="Prompt_A2" type="Sprite2D" parent="UI Control/GridContainer/SubViewportContainer1/SubViewport/HUD/ControlLayoutFullRect/ControlTopLeft"]
+[node name="Prompt_A2" type="Sprite2D" parent="UI Control/GridContainer/SubViewportContainer1/SubViewport/HUD/ControlLayoutFullRect/ControlTopLeft" unique_id=1066090432]
 visible = false
 position = Vector2(83, 81)
 texture = ExtResource("5_6p8n1")
 
-[node name="HeartBar" type="Control" parent="UI Control/GridContainer/SubViewportContainer1/SubViewport/HUD/ControlLayoutFullRect/ControlTopLeft"]
+[node name="HeartBar" type="Control" parent="UI Control/GridContainer/SubViewportContainer1/SubViewport/HUD/ControlLayoutFullRect/ControlTopLeft" unique_id=2080586046]
 anchors_preset = 0
 offset_left = 10.0
 offset_top = 11.0
@@ -229,41 +229,41 @@ heart_empty_texture = ExtResource("8_tkup3")
 heart_half_texture = ExtResource("9_d0k0q")
 heart_full_texture = ExtResource("10_oxis5")
 
-[node name="Hearts" type="HFlowContainer" parent="UI Control/GridContainer/SubViewportContainer1/SubViewport/HUD/ControlLayoutFullRect/ControlTopLeft/HeartBar"]
+[node name="Hearts" type="HFlowContainer" parent="UI Control/GridContainer/SubViewportContainer1/SubViewport/HUD/ControlLayoutFullRect/ControlTopLeft/HeartBar" unique_id=1304969027]
 layout_mode = 1
 offset_right = 512.0
 offset_bottom = 260.0
 
-[node name="Icon" type="TextureRect" parent="UI Control/GridContainer/SubViewportContainer1/SubViewport/HUD/ControlLayoutFullRect/ControlTopLeft/HeartBar/Hearts"]
+[node name="Icon" type="TextureRect" parent="UI Control/GridContainer/SubViewportContainer1/SubViewport/HUD/ControlLayoutFullRect/ControlTopLeft/HeartBar/Hearts" unique_id=1892527697]
 layout_mode = 2
 texture = ExtResource("10_oxis5")
 
-[node name="Icon3" type="TextureRect" parent="UI Control/GridContainer/SubViewportContainer1/SubViewport/HUD/ControlLayoutFullRect/ControlTopLeft/HeartBar/Hearts"]
+[node name="Icon3" type="TextureRect" parent="UI Control/GridContainer/SubViewportContainer1/SubViewport/HUD/ControlLayoutFullRect/ControlTopLeft/HeartBar/Hearts" unique_id=842356218]
 layout_mode = 2
 texture = ExtResource("9_d0k0q")
 
-[node name="Icon2" type="TextureRect" parent="UI Control/GridContainer/SubViewportContainer1/SubViewport/HUD/ControlLayoutFullRect/ControlTopLeft/HeartBar/Hearts"]
+[node name="Icon2" type="TextureRect" parent="UI Control/GridContainer/SubViewportContainer1/SubViewport/HUD/ControlLayoutFullRect/ControlTopLeft/HeartBar/Hearts" unique_id=465498273]
 layout_mode = 2
 texture = ExtResource("8_tkup3")
 
-[node name="ControlTopRight" type="Control" parent="UI Control/GridContainer/SubViewportContainer1/SubViewport/HUD/ControlLayoutFullRect"]
+[node name="ControlTopRight" type="Control" parent="UI Control/GridContainer/SubViewportContainer1/SubViewport/HUD/ControlLayoutFullRect" unique_id=1981312267]
 layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
 grow_horizontal = 0
 
-[node name="Prompt_A" type="Sprite2D" parent="UI Control/GridContainer/SubViewportContainer1/SubViewport/HUD/ControlLayoutFullRect/ControlTopRight"]
+[node name="Prompt_A" type="Sprite2D" parent="UI Control/GridContainer/SubViewportContainer1/SubViewport/HUD/ControlLayoutFullRect/ControlTopRight" unique_id=1255623867]
 visible = false
 position = Vector2(-32, 32)
 texture = ExtResource("5_6p8n1")
 
-[node name="Prompt_A2" type="Sprite2D" parent="UI Control/GridContainer/SubViewportContainer1/SubViewport/HUD/ControlLayoutFullRect/ControlTopRight"]
+[node name="Prompt_A2" type="Sprite2D" parent="UI Control/GridContainer/SubViewportContainer1/SubViewport/HUD/ControlLayoutFullRect/ControlTopRight" unique_id=1206967324]
 visible = false
 position = Vector2(-87, 67)
 texture = ExtResource("5_6p8n1")
 
-[node name="Ring" type="Control" parent="UI Control/GridContainer/SubViewportContainer1/SubViewport/HUD/ControlLayoutFullRect/ControlTopRight"]
+[node name="Ring" type="Control" parent="UI Control/GridContainer/SubViewportContainer1/SubViewport/HUD/ControlLayoutFullRect/ControlTopRight" unique_id=950894500]
 anchors_preset = 0
 offset_left = -137.0
 offset_top = -63.0
@@ -272,7 +272,7 @@ offset_bottom = 137.0
 script = ExtResource("6_ixbdd")
 percent = 0.735
 
-[node name="ControlBottomRight" type="Control" parent="UI Control/GridContainer/SubViewportContainer1/SubViewport/HUD/ControlLayoutFullRect"]
+[node name="ControlBottomRight" type="Control" parent="UI Control/GridContainer/SubViewportContainer1/SubViewport/HUD/ControlLayoutFullRect" unique_id=1225085619]
 layout_mode = 1
 anchors_preset = 3
 anchor_left = 1.0
@@ -282,17 +282,17 @@ anchor_bottom = 1.0
 grow_horizontal = 0
 grow_vertical = 0
 
-[node name="Prompt_A" type="Sprite2D" parent="UI Control/GridContainer/SubViewportContainer1/SubViewport/HUD/ControlLayoutFullRect/ControlBottomRight"]
+[node name="Prompt_A" type="Sprite2D" parent="UI Control/GridContainer/SubViewportContainer1/SubViewport/HUD/ControlLayoutFullRect/ControlBottomRight" unique_id=1520049601]
 visible = false
 position = Vector2(-113, -78)
 texture = ExtResource("5_6p8n1")
 
-[node name="Prompt_A2" type="Sprite2D" parent="UI Control/GridContainer/SubViewportContainer1/SubViewport/HUD/ControlLayoutFullRect/ControlBottomRight"]
+[node name="Prompt_A2" type="Sprite2D" parent="UI Control/GridContainer/SubViewportContainer1/SubViewport/HUD/ControlLayoutFullRect/ControlBottomRight" unique_id=15299013]
 visible = false
 position = Vector2(-32, -32)
 texture = ExtResource("5_6p8n1")
 
-[node name="Interact" type="Control" parent="UI Control/GridContainer/SubViewportContainer1/SubViewport/HUD/ControlLayoutFullRect/ControlBottomRight"]
+[node name="Interact" type="Control" parent="UI Control/GridContainer/SubViewportContainer1/SubViewport/HUD/ControlLayoutFullRect/ControlBottomRight" unique_id=1759129134]
 layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
@@ -304,11 +304,11 @@ offset_right = -338.0
 grow_horizontal = 2
 grow_vertical = 0
 
-[node name="Prompt_A" type="Sprite2D" parent="UI Control/GridContainer/SubViewportContainer1/SubViewport/HUD/ControlLayoutFullRect/ControlBottomRight/Interact"]
+[node name="Prompt_A" type="Sprite2D" parent="UI Control/GridContainer/SubViewportContainer1/SubViewport/HUD/ControlLayoutFullRect/ControlBottomRight/Interact" unique_id=1184612295]
 position = Vector2(74, -36)
 texture = ExtResource("5_6p8n1")
 
-[node name="Ring" type="Control" parent="UI Control/GridContainer/SubViewportContainer1/SubViewport/HUD/ControlLayoutFullRect/ControlBottomRight/Interact/Prompt_A"]
+[node name="Ring" type="Control" parent="UI Control/GridContainer/SubViewportContainer1/SubViewport/HUD/ControlLayoutFullRect/ControlBottomRight/Interact/Prompt_A" unique_id=120231282]
 z_index = -1
 layout_mode = 3
 anchors_preset = 0
@@ -319,7 +319,7 @@ offset_bottom = 100.0
 script = ExtResource("6_ixbdd")
 radius = 24.72
 
-[node name="Prompt" type="Label" parent="UI Control/GridContainer/SubViewportContainer1/SubViewport/HUD/ControlLayoutFullRect/ControlBottomRight/Interact"]
+[node name="Prompt" type="Label" parent="UI Control/GridContainer/SubViewportContainer1/SubViewport/HUD/ControlLayoutFullRect/ControlBottomRight/Interact" unique_id=1976691837]
 layout_mode = 0
 offset_left = 109.0
 offset_top = -68.0
@@ -328,31 +328,31 @@ offset_bottom = -9.0
 label_settings = SubResource("LabelSettings_vc5cj")
 vertical_alignment = 1
 
-[node name="ControlBottomLeft" type="Control" parent="UI Control/GridContainer/SubViewportContainer1/SubViewport/HUD/ControlLayoutFullRect"]
+[node name="ControlBottomLeft" type="Control" parent="UI Control/GridContainer/SubViewportContainer1/SubViewport/HUD/ControlLayoutFullRect" unique_id=1119230803]
 layout_mode = 1
 anchors_preset = 2
 anchor_top = 1.0
 anchor_bottom = 1.0
 grow_vertical = 0
 
-[node name="Prompt_A" type="Sprite2D" parent="UI Control/GridContainer/SubViewportContainer1/SubViewport/HUD/ControlLayoutFullRect/ControlBottomLeft"]
+[node name="Prompt_A" type="Sprite2D" parent="UI Control/GridContainer/SubViewportContainer1/SubViewport/HUD/ControlLayoutFullRect/ControlBottomLeft" unique_id=1013028922]
 visible = false
 position = Vector2(32, -32)
 texture = ExtResource("5_6p8n1")
 
-[node name="Prompt_A2" type="Sprite2D" parent="UI Control/GridContainer/SubViewportContainer1/SubViewport/HUD/ControlLayoutFullRect/ControlBottomLeft"]
+[node name="Prompt_A2" type="Sprite2D" parent="UI Control/GridContainer/SubViewportContainer1/SubViewport/HUD/ControlLayoutFullRect/ControlBottomLeft" unique_id=1565575247]
 visible = false
 position = Vector2(96, -84)
 texture = ExtResource("5_6p8n1")
 
-[node name="ControlCoins" type="Control" parent="UI Control/GridContainer/SubViewportContainer1/SubViewport/HUD/ControlLayoutFullRect/ControlBottomLeft"]
+[node name="ControlCoins" type="Control" parent="UI Control/GridContainer/SubViewportContainer1/SubViewport/HUD/ControlLayoutFullRect/ControlBottomLeft" unique_id=1911096805]
 anchors_preset = 0
 offset_left = 1.0
 offset_top = -52.0
 offset_right = 41.0
 offset_bottom = -12.0
 
-[node name="Icon" type="TextureRect" parent="UI Control/GridContainer/SubViewportContainer1/SubViewport/HUD/ControlLayoutFullRect/ControlBottomLeft/ControlCoins"]
+[node name="Icon" type="TextureRect" parent="UI Control/GridContainer/SubViewportContainer1/SubViewport/HUD/ControlLayoutFullRect/ControlBottomLeft/ControlCoins" unique_id=544666916]
 layout_mode = 0
 offset_left = 2.00001
 offset_top = -1.99999
@@ -361,7 +361,7 @@ offset_bottom = 254.0
 scale = Vector2(0.2, 0.2)
 texture = ExtResource("3_ta3ms")
 
-[node name="x" type="Label" parent="UI Control/GridContainer/SubViewportContainer1/SubViewport/HUD/ControlLayoutFullRect/ControlBottomLeft/ControlCoins"]
+[node name="x" type="Label" parent="UI Control/GridContainer/SubViewportContainer1/SubViewport/HUD/ControlLayoutFullRect/ControlBottomLeft/ControlCoins" unique_id=1671094484]
 layout_mode = 0
 offset_left = 57.0
 offset_top = -5.0
@@ -370,7 +370,7 @@ offset_bottom = 54.0
 text = "×"
 label_settings = SubResource("LabelSettings_38ys3")
 
-[node name="Coins" type="Label" parent="UI Control/GridContainer/SubViewportContainer1/SubViewport/HUD/ControlLayoutFullRect/ControlBottomLeft/ControlCoins"]
+[node name="Coins" type="Label" parent="UI Control/GridContainer/SubViewportContainer1/SubViewport/HUD/ControlLayoutFullRect/ControlBottomLeft/ControlCoins" unique_id=1985391382]
 layout_mode = 0
 offset_left = 89.0
 offset_top = -5.0
@@ -379,16 +379,16 @@ offset_bottom = 54.0
 text = "0"
 label_settings = SubResource("LabelSettings_38ys3")
 
-[node name="View" type="Node3D" parent="UI Control/GridContainer/SubViewportContainer1/SubViewport"]
+[node name="View" type="Node3D" parent="UI Control/GridContainer/SubViewportContainer1/SubViewport" unique_id=877832311]
 transform = Transform3D(0.707107, -0.298836, 0.640856, 0, 0.906308, 0.422618, -0.707107, -0.298836, 0.640856, 0, 0, 0)
 script = ExtResource("11_sack0")
 
-[node name="Camera" type="Camera3D" parent="UI Control/GridContainer/SubViewportContainer1/SubViewport/View"]
+[node name="Camera" type="Camera3D" parent="UI Control/GridContainer/SubViewportContainer1/SubViewport/View" unique_id=392744813]
 transform = Transform3D(0.9999998, 0, 0, 0, 1, -3.5762787e-07, 0, 0, 1.0000007, 3.1370993, -0.58029103, 19.783558)
 current = true
 fov = 40.0
 
-[node name="SubViewportContainer2" type="SubViewportContainer" parent="UI Control/GridContainer"]
+[node name="SubViewportContainer2" type="SubViewportContainer" parent="UI Control/GridContainer" unique_id=1399691832]
 visible = false
 layout_mode = 2
 size_flags_horizontal = 3
@@ -396,15 +396,15 @@ size_flags_vertical = 3
 stretch = true
 script = ExtResource("1_d5vfk")
 
-[node name="SubViewport" type="SubViewport" parent="UI Control/GridContainer/SubViewportContainer2"]
+[node name="SubViewport" type="SubViewport" parent="UI Control/GridContainer/SubViewportContainer2" unique_id=1828226848]
 handle_input_locally = false
 size = Vector2i(2, 2)
 render_target_update_mode = 0
 
-[node name="HUD" type="CanvasLayer" parent="UI Control/GridContainer/SubViewportContainer2/SubViewport"]
+[node name="HUD" type="CanvasLayer" parent="UI Control/GridContainer/SubViewportContainer2/SubViewport" unique_id=1542560171]
 script = ExtResource("2_g5r4m")
 
-[node name="ControlLayoutFullRect" type="Control" parent="UI Control/GridContainer/SubViewportContainer2/SubViewport/HUD"]
+[node name="ControlLayoutFullRect" type="Control" parent="UI Control/GridContainer/SubViewportContainer2/SubViewport/HUD" unique_id=2045789668]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -412,21 +412,21 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="ControlTopLeft" type="Control" parent="UI Control/GridContainer/SubViewportContainer2/SubViewport/HUD/ControlLayoutFullRect"]
+[node name="ControlTopLeft" type="Control" parent="UI Control/GridContainer/SubViewportContainer2/SubViewport/HUD/ControlLayoutFullRect" unique_id=609583636]
 layout_mode = 1
 anchors_preset = 0
 
-[node name="Prompt_A" type="Sprite2D" parent="UI Control/GridContainer/SubViewportContainer2/SubViewport/HUD/ControlLayoutFullRect/ControlTopLeft"]
+[node name="Prompt_A" type="Sprite2D" parent="UI Control/GridContainer/SubViewportContainer2/SubViewport/HUD/ControlLayoutFullRect/ControlTopLeft" unique_id=1001458356]
 visible = false
 position = Vector2(32, 32)
 texture = ExtResource("5_6p8n1")
 
-[node name="Prompt_A2" type="Sprite2D" parent="UI Control/GridContainer/SubViewportContainer2/SubViewport/HUD/ControlLayoutFullRect/ControlTopLeft"]
+[node name="Prompt_A2" type="Sprite2D" parent="UI Control/GridContainer/SubViewportContainer2/SubViewport/HUD/ControlLayoutFullRect/ControlTopLeft" unique_id=585207260]
 visible = false
 position = Vector2(83, 81)
 texture = ExtResource("5_6p8n1")
 
-[node name="HeartBar" type="Control" parent="UI Control/GridContainer/SubViewportContainer2/SubViewport/HUD/ControlLayoutFullRect/ControlTopLeft"]
+[node name="HeartBar" type="Control" parent="UI Control/GridContainer/SubViewportContainer2/SubViewport/HUD/ControlLayoutFullRect/ControlTopLeft" unique_id=549838851]
 anchors_preset = 0
 offset_left = 10.0
 offset_top = 11.0
@@ -437,41 +437,41 @@ heart_empty_texture = ExtResource("8_tkup3")
 heart_half_texture = ExtResource("9_d0k0q")
 heart_full_texture = ExtResource("10_oxis5")
 
-[node name="Hearts" type="HFlowContainer" parent="UI Control/GridContainer/SubViewportContainer2/SubViewport/HUD/ControlLayoutFullRect/ControlTopLeft/HeartBar"]
+[node name="Hearts" type="HFlowContainer" parent="UI Control/GridContainer/SubViewportContainer2/SubViewport/HUD/ControlLayoutFullRect/ControlTopLeft/HeartBar" unique_id=2105149949]
 layout_mode = 1
 offset_right = 512.0
 offset_bottom = 260.0
 
-[node name="Icon" type="TextureRect" parent="UI Control/GridContainer/SubViewportContainer2/SubViewport/HUD/ControlLayoutFullRect/ControlTopLeft/HeartBar/Hearts"]
+[node name="Icon" type="TextureRect" parent="UI Control/GridContainer/SubViewportContainer2/SubViewport/HUD/ControlLayoutFullRect/ControlTopLeft/HeartBar/Hearts" unique_id=2056673781]
 layout_mode = 2
 texture = ExtResource("10_oxis5")
 
-[node name="Icon3" type="TextureRect" parent="UI Control/GridContainer/SubViewportContainer2/SubViewport/HUD/ControlLayoutFullRect/ControlTopLeft/HeartBar/Hearts"]
+[node name="Icon3" type="TextureRect" parent="UI Control/GridContainer/SubViewportContainer2/SubViewport/HUD/ControlLayoutFullRect/ControlTopLeft/HeartBar/Hearts" unique_id=1726915898]
 layout_mode = 2
 texture = ExtResource("9_d0k0q")
 
-[node name="Icon2" type="TextureRect" parent="UI Control/GridContainer/SubViewportContainer2/SubViewport/HUD/ControlLayoutFullRect/ControlTopLeft/HeartBar/Hearts"]
+[node name="Icon2" type="TextureRect" parent="UI Control/GridContainer/SubViewportContainer2/SubViewport/HUD/ControlLayoutFullRect/ControlTopLeft/HeartBar/Hearts" unique_id=1759751590]
 layout_mode = 2
 texture = ExtResource("8_tkup3")
 
-[node name="ControlTopRight" type="Control" parent="UI Control/GridContainer/SubViewportContainer2/SubViewport/HUD/ControlLayoutFullRect"]
+[node name="ControlTopRight" type="Control" parent="UI Control/GridContainer/SubViewportContainer2/SubViewport/HUD/ControlLayoutFullRect" unique_id=1956055007]
 layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
 grow_horizontal = 0
 
-[node name="Prompt_A" type="Sprite2D" parent="UI Control/GridContainer/SubViewportContainer2/SubViewport/HUD/ControlLayoutFullRect/ControlTopRight"]
+[node name="Prompt_A" type="Sprite2D" parent="UI Control/GridContainer/SubViewportContainer2/SubViewport/HUD/ControlLayoutFullRect/ControlTopRight" unique_id=462604888]
 visible = false
 position = Vector2(-32, 32)
 texture = ExtResource("5_6p8n1")
 
-[node name="Prompt_A2" type="Sprite2D" parent="UI Control/GridContainer/SubViewportContainer2/SubViewport/HUD/ControlLayoutFullRect/ControlTopRight"]
+[node name="Prompt_A2" type="Sprite2D" parent="UI Control/GridContainer/SubViewportContainer2/SubViewport/HUD/ControlLayoutFullRect/ControlTopRight" unique_id=1763967104]
 visible = false
 position = Vector2(-87, 67)
 texture = ExtResource("5_6p8n1")
 
-[node name="Ring" type="Control" parent="UI Control/GridContainer/SubViewportContainer2/SubViewport/HUD/ControlLayoutFullRect/ControlTopRight"]
+[node name="Ring" type="Control" parent="UI Control/GridContainer/SubViewportContainer2/SubViewport/HUD/ControlLayoutFullRect/ControlTopRight" unique_id=136802098]
 anchors_preset = 0
 offset_left = -137.0
 offset_top = -63.0
@@ -480,7 +480,7 @@ offset_bottom = 137.0
 script = ExtResource("6_ixbdd")
 percent = 0.735
 
-[node name="ControlBottomRight" type="Control" parent="UI Control/GridContainer/SubViewportContainer2/SubViewport/HUD/ControlLayoutFullRect"]
+[node name="ControlBottomRight" type="Control" parent="UI Control/GridContainer/SubViewportContainer2/SubViewport/HUD/ControlLayoutFullRect" unique_id=394289345]
 layout_mode = 1
 anchors_preset = 3
 anchor_left = 1.0
@@ -490,17 +490,17 @@ anchor_bottom = 1.0
 grow_horizontal = 0
 grow_vertical = 0
 
-[node name="Prompt_A" type="Sprite2D" parent="UI Control/GridContainer/SubViewportContainer2/SubViewport/HUD/ControlLayoutFullRect/ControlBottomRight"]
+[node name="Prompt_A" type="Sprite2D" parent="UI Control/GridContainer/SubViewportContainer2/SubViewport/HUD/ControlLayoutFullRect/ControlBottomRight" unique_id=975965290]
 visible = false
 position = Vector2(-113, -78)
 texture = ExtResource("5_6p8n1")
 
-[node name="Prompt_A2" type="Sprite2D" parent="UI Control/GridContainer/SubViewportContainer2/SubViewport/HUD/ControlLayoutFullRect/ControlBottomRight"]
+[node name="Prompt_A2" type="Sprite2D" parent="UI Control/GridContainer/SubViewportContainer2/SubViewport/HUD/ControlLayoutFullRect/ControlBottomRight" unique_id=1168080669]
 visible = false
 position = Vector2(-32, -32)
 texture = ExtResource("5_6p8n1")
 
-[node name="Interact" type="Control" parent="UI Control/GridContainer/SubViewportContainer2/SubViewport/HUD/ControlLayoutFullRect/ControlBottomRight"]
+[node name="Interact" type="Control" parent="UI Control/GridContainer/SubViewportContainer2/SubViewport/HUD/ControlLayoutFullRect/ControlBottomRight" unique_id=806088293]
 layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
@@ -512,11 +512,11 @@ offset_right = -338.0
 grow_horizontal = 2
 grow_vertical = 0
 
-[node name="Prompt_A" type="Sprite2D" parent="UI Control/GridContainer/SubViewportContainer2/SubViewport/HUD/ControlLayoutFullRect/ControlBottomRight/Interact"]
+[node name="Prompt_A" type="Sprite2D" parent="UI Control/GridContainer/SubViewportContainer2/SubViewport/HUD/ControlLayoutFullRect/ControlBottomRight/Interact" unique_id=1807843051]
 position = Vector2(74, -36)
 texture = ExtResource("5_6p8n1")
 
-[node name="Ring" type="Control" parent="UI Control/GridContainer/SubViewportContainer2/SubViewport/HUD/ControlLayoutFullRect/ControlBottomRight/Interact/Prompt_A"]
+[node name="Ring" type="Control" parent="UI Control/GridContainer/SubViewportContainer2/SubViewport/HUD/ControlLayoutFullRect/ControlBottomRight/Interact/Prompt_A" unique_id=1906577831]
 z_index = -1
 layout_mode = 3
 anchors_preset = 0
@@ -527,7 +527,7 @@ offset_bottom = 100.0
 script = ExtResource("6_ixbdd")
 radius = 24.72
 
-[node name="Prompt" type="Label" parent="UI Control/GridContainer/SubViewportContainer2/SubViewport/HUD/ControlLayoutFullRect/ControlBottomRight/Interact"]
+[node name="Prompt" type="Label" parent="UI Control/GridContainer/SubViewportContainer2/SubViewport/HUD/ControlLayoutFullRect/ControlBottomRight/Interact" unique_id=166356641]
 layout_mode = 0
 offset_left = 109.0
 offset_top = -68.0
@@ -536,31 +536,31 @@ offset_bottom = -9.0
 label_settings = SubResource("LabelSettings_vc5cj")
 vertical_alignment = 1
 
-[node name="ControlBottomLeft" type="Control" parent="UI Control/GridContainer/SubViewportContainer2/SubViewport/HUD/ControlLayoutFullRect"]
+[node name="ControlBottomLeft" type="Control" parent="UI Control/GridContainer/SubViewportContainer2/SubViewport/HUD/ControlLayoutFullRect" unique_id=1439555195]
 layout_mode = 1
 anchors_preset = 2
 anchor_top = 1.0
 anchor_bottom = 1.0
 grow_vertical = 0
 
-[node name="Prompt_A" type="Sprite2D" parent="UI Control/GridContainer/SubViewportContainer2/SubViewport/HUD/ControlLayoutFullRect/ControlBottomLeft"]
+[node name="Prompt_A" type="Sprite2D" parent="UI Control/GridContainer/SubViewportContainer2/SubViewport/HUD/ControlLayoutFullRect/ControlBottomLeft" unique_id=705397405]
 visible = false
 position = Vector2(32, -32)
 texture = ExtResource("5_6p8n1")
 
-[node name="Prompt_A2" type="Sprite2D" parent="UI Control/GridContainer/SubViewportContainer2/SubViewport/HUD/ControlLayoutFullRect/ControlBottomLeft"]
+[node name="Prompt_A2" type="Sprite2D" parent="UI Control/GridContainer/SubViewportContainer2/SubViewport/HUD/ControlLayoutFullRect/ControlBottomLeft" unique_id=1946718634]
 visible = false
 position = Vector2(96, -84)
 texture = ExtResource("5_6p8n1")
 
-[node name="ControlCoins" type="Control" parent="UI Control/GridContainer/SubViewportContainer2/SubViewport/HUD/ControlLayoutFullRect/ControlBottomLeft"]
+[node name="ControlCoins" type="Control" parent="UI Control/GridContainer/SubViewportContainer2/SubViewport/HUD/ControlLayoutFullRect/ControlBottomLeft" unique_id=1169171009]
 anchors_preset = 0
 offset_left = 1.0
 offset_top = -52.0
 offset_right = 41.0
 offset_bottom = -12.0
 
-[node name="Icon" type="TextureRect" parent="UI Control/GridContainer/SubViewportContainer2/SubViewport/HUD/ControlLayoutFullRect/ControlBottomLeft/ControlCoins"]
+[node name="Icon" type="TextureRect" parent="UI Control/GridContainer/SubViewportContainer2/SubViewport/HUD/ControlLayoutFullRect/ControlBottomLeft/ControlCoins" unique_id=1043739642]
 layout_mode = 0
 offset_left = 2.00001
 offset_top = -1.99999
@@ -569,7 +569,7 @@ offset_bottom = 254.0
 scale = Vector2(0.2, 0.2)
 texture = ExtResource("3_ta3ms")
 
-[node name="x" type="Label" parent="UI Control/GridContainer/SubViewportContainer2/SubViewport/HUD/ControlLayoutFullRect/ControlBottomLeft/ControlCoins"]
+[node name="x" type="Label" parent="UI Control/GridContainer/SubViewportContainer2/SubViewport/HUD/ControlLayoutFullRect/ControlBottomLeft/ControlCoins" unique_id=1210075985]
 layout_mode = 0
 offset_left = 57.0
 offset_top = -5.0
@@ -578,7 +578,7 @@ offset_bottom = 54.0
 text = "×"
 label_settings = SubResource("LabelSettings_38ys3")
 
-[node name="Coins" type="Label" parent="UI Control/GridContainer/SubViewportContainer2/SubViewport/HUD/ControlLayoutFullRect/ControlBottomLeft/ControlCoins"]
+[node name="Coins" type="Label" parent="UI Control/GridContainer/SubViewportContainer2/SubViewport/HUD/ControlLayoutFullRect/ControlBottomLeft/ControlCoins" unique_id=1337758060]
 layout_mode = 0
 offset_left = 89.0
 offset_top = -5.0
@@ -587,31 +587,31 @@ offset_bottom = 54.0
 text = "0"
 label_settings = SubResource("LabelSettings_38ys3")
 
-[node name="View" type="Node3D" parent="UI Control/GridContainer/SubViewportContainer2/SubViewport"]
+[node name="View" type="Node3D" parent="UI Control/GridContainer/SubViewportContainer2/SubViewport" unique_id=1807112184]
 transform = Transform3D(0.707107, -0.298836, 0.640856, 0, 0.906308, 0.422618, -0.707107, -0.298836, 0.640856, 0, 0, 0)
 script = ExtResource("11_sack0")
 
-[node name="Camera" type="Camera3D" parent="UI Control/GridContainer/SubViewportContainer2/SubViewport/View"]
+[node name="Camera" type="Camera3D" parent="UI Control/GridContainer/SubViewportContainer2/SubViewport/View" unique_id=80068598]
 transform = Transform3D(0.9999998, 0, 0, 0, 1, -3.5762787e-07, 0, 0, 1.0000007, 3.1370993, -0.58029103, 19.783558)
 current = true
 fov = 40.0
 
-[node name="SubViewportContainer3" type="SubViewportContainer" parent="UI Control/GridContainer"]
+[node name="SubViewportContainer3" type="SubViewportContainer" parent="UI Control/GridContainer" unique_id=129146443]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 stretch = true
 script = ExtResource("1_d5vfk")
 
-[node name="SubViewport" type="SubViewport" parent="UI Control/GridContainer/SubViewportContainer3"]
+[node name="SubViewport" type="SubViewport" parent="UI Control/GridContainer/SubViewportContainer3" unique_id=169642055]
 handle_input_locally = false
 size = Vector2i(638, 358)
 render_target_update_mode = 4
 
-[node name="HUD" type="CanvasLayer" parent="UI Control/GridContainer/SubViewportContainer3/SubViewport"]
+[node name="HUD" type="CanvasLayer" parent="UI Control/GridContainer/SubViewportContainer3/SubViewport" unique_id=1651577136]
 script = ExtResource("2_g5r4m")
 
-[node name="ControlLayoutFullRect" type="Control" parent="UI Control/GridContainer/SubViewportContainer3/SubViewport/HUD"]
+[node name="ControlLayoutFullRect" type="Control" parent="UI Control/GridContainer/SubViewportContainer3/SubViewport/HUD" unique_id=34538986]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -619,21 +619,21 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="ControlTopLeft" type="Control" parent="UI Control/GridContainer/SubViewportContainer3/SubViewport/HUD/ControlLayoutFullRect"]
+[node name="ControlTopLeft" type="Control" parent="UI Control/GridContainer/SubViewportContainer3/SubViewport/HUD/ControlLayoutFullRect" unique_id=949630774]
 layout_mode = 1
 anchors_preset = 0
 
-[node name="Prompt_A" type="Sprite2D" parent="UI Control/GridContainer/SubViewportContainer3/SubViewport/HUD/ControlLayoutFullRect/ControlTopLeft"]
+[node name="Prompt_A" type="Sprite2D" parent="UI Control/GridContainer/SubViewportContainer3/SubViewport/HUD/ControlLayoutFullRect/ControlTopLeft" unique_id=481217766]
 visible = false
 position = Vector2(32, 32)
 texture = ExtResource("5_6p8n1")
 
-[node name="Prompt_A2" type="Sprite2D" parent="UI Control/GridContainer/SubViewportContainer3/SubViewport/HUD/ControlLayoutFullRect/ControlTopLeft"]
+[node name="Prompt_A2" type="Sprite2D" parent="UI Control/GridContainer/SubViewportContainer3/SubViewport/HUD/ControlLayoutFullRect/ControlTopLeft" unique_id=67931426]
 visible = false
 position = Vector2(83, 81)
 texture = ExtResource("5_6p8n1")
 
-[node name="HeartBar" type="Control" parent="UI Control/GridContainer/SubViewportContainer3/SubViewport/HUD/ControlLayoutFullRect/ControlTopLeft"]
+[node name="HeartBar" type="Control" parent="UI Control/GridContainer/SubViewportContainer3/SubViewport/HUD/ControlLayoutFullRect/ControlTopLeft" unique_id=467363048]
 anchors_preset = 0
 offset_left = 10.0
 offset_top = 11.0
@@ -644,41 +644,41 @@ heart_empty_texture = ExtResource("8_tkup3")
 heart_half_texture = ExtResource("9_d0k0q")
 heart_full_texture = ExtResource("10_oxis5")
 
-[node name="Hearts" type="HFlowContainer" parent="UI Control/GridContainer/SubViewportContainer3/SubViewport/HUD/ControlLayoutFullRect/ControlTopLeft/HeartBar"]
+[node name="Hearts" type="HFlowContainer" parent="UI Control/GridContainer/SubViewportContainer3/SubViewport/HUD/ControlLayoutFullRect/ControlTopLeft/HeartBar" unique_id=454713282]
 layout_mode = 1
 offset_right = 512.0
 offset_bottom = 260.0
 
-[node name="Icon" type="TextureRect" parent="UI Control/GridContainer/SubViewportContainer3/SubViewport/HUD/ControlLayoutFullRect/ControlTopLeft/HeartBar/Hearts"]
+[node name="Icon" type="TextureRect" parent="UI Control/GridContainer/SubViewportContainer3/SubViewport/HUD/ControlLayoutFullRect/ControlTopLeft/HeartBar/Hearts" unique_id=34039346]
 layout_mode = 2
 texture = ExtResource("10_oxis5")
 
-[node name="Icon3" type="TextureRect" parent="UI Control/GridContainer/SubViewportContainer3/SubViewport/HUD/ControlLayoutFullRect/ControlTopLeft/HeartBar/Hearts"]
+[node name="Icon3" type="TextureRect" parent="UI Control/GridContainer/SubViewportContainer3/SubViewport/HUD/ControlLayoutFullRect/ControlTopLeft/HeartBar/Hearts" unique_id=1960797757]
 layout_mode = 2
 texture = ExtResource("9_d0k0q")
 
-[node name="Icon2" type="TextureRect" parent="UI Control/GridContainer/SubViewportContainer3/SubViewport/HUD/ControlLayoutFullRect/ControlTopLeft/HeartBar/Hearts"]
+[node name="Icon2" type="TextureRect" parent="UI Control/GridContainer/SubViewportContainer3/SubViewport/HUD/ControlLayoutFullRect/ControlTopLeft/HeartBar/Hearts" unique_id=530290122]
 layout_mode = 2
 texture = ExtResource("8_tkup3")
 
-[node name="ControlTopRight" type="Control" parent="UI Control/GridContainer/SubViewportContainer3/SubViewport/HUD/ControlLayoutFullRect"]
+[node name="ControlTopRight" type="Control" parent="UI Control/GridContainer/SubViewportContainer3/SubViewport/HUD/ControlLayoutFullRect" unique_id=356961451]
 layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
 grow_horizontal = 0
 
-[node name="Prompt_A" type="Sprite2D" parent="UI Control/GridContainer/SubViewportContainer3/SubViewport/HUD/ControlLayoutFullRect/ControlTopRight"]
+[node name="Prompt_A" type="Sprite2D" parent="UI Control/GridContainer/SubViewportContainer3/SubViewport/HUD/ControlLayoutFullRect/ControlTopRight" unique_id=1040309993]
 visible = false
 position = Vector2(-32, 32)
 texture = ExtResource("5_6p8n1")
 
-[node name="Prompt_A2" type="Sprite2D" parent="UI Control/GridContainer/SubViewportContainer3/SubViewport/HUD/ControlLayoutFullRect/ControlTopRight"]
+[node name="Prompt_A2" type="Sprite2D" parent="UI Control/GridContainer/SubViewportContainer3/SubViewport/HUD/ControlLayoutFullRect/ControlTopRight" unique_id=1077681770]
 visible = false
 position = Vector2(-87, 67)
 texture = ExtResource("5_6p8n1")
 
-[node name="Ring" type="Control" parent="UI Control/GridContainer/SubViewportContainer3/SubViewport/HUD/ControlLayoutFullRect/ControlTopRight"]
+[node name="Ring" type="Control" parent="UI Control/GridContainer/SubViewportContainer3/SubViewport/HUD/ControlLayoutFullRect/ControlTopRight" unique_id=2088222696]
 anchors_preset = 0
 offset_left = -137.0
 offset_top = -63.0
@@ -687,7 +687,7 @@ offset_bottom = 137.0
 script = ExtResource("6_ixbdd")
 percent = 0.735
 
-[node name="ControlBottomRight" type="Control" parent="UI Control/GridContainer/SubViewportContainer3/SubViewport/HUD/ControlLayoutFullRect"]
+[node name="ControlBottomRight" type="Control" parent="UI Control/GridContainer/SubViewportContainer3/SubViewport/HUD/ControlLayoutFullRect" unique_id=1454524303]
 layout_mode = 1
 anchors_preset = 3
 anchor_left = 1.0
@@ -697,17 +697,17 @@ anchor_bottom = 1.0
 grow_horizontal = 0
 grow_vertical = 0
 
-[node name="Prompt_A" type="Sprite2D" parent="UI Control/GridContainer/SubViewportContainer3/SubViewport/HUD/ControlLayoutFullRect/ControlBottomRight"]
+[node name="Prompt_A" type="Sprite2D" parent="UI Control/GridContainer/SubViewportContainer3/SubViewport/HUD/ControlLayoutFullRect/ControlBottomRight" unique_id=449146690]
 visible = false
 position = Vector2(-113, -78)
 texture = ExtResource("5_6p8n1")
 
-[node name="Prompt_A2" type="Sprite2D" parent="UI Control/GridContainer/SubViewportContainer3/SubViewport/HUD/ControlLayoutFullRect/ControlBottomRight"]
+[node name="Prompt_A2" type="Sprite2D" parent="UI Control/GridContainer/SubViewportContainer3/SubViewport/HUD/ControlLayoutFullRect/ControlBottomRight" unique_id=87006668]
 visible = false
 position = Vector2(-32, -32)
 texture = ExtResource("5_6p8n1")
 
-[node name="Interact" type="Control" parent="UI Control/GridContainer/SubViewportContainer3/SubViewport/HUD/ControlLayoutFullRect/ControlBottomRight"]
+[node name="Interact" type="Control" parent="UI Control/GridContainer/SubViewportContainer3/SubViewport/HUD/ControlLayoutFullRect/ControlBottomRight" unique_id=2024207516]
 layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
@@ -719,11 +719,11 @@ offset_right = -338.0
 grow_horizontal = 2
 grow_vertical = 0
 
-[node name="Prompt_A" type="Sprite2D" parent="UI Control/GridContainer/SubViewportContainer3/SubViewport/HUD/ControlLayoutFullRect/ControlBottomRight/Interact"]
+[node name="Prompt_A" type="Sprite2D" parent="UI Control/GridContainer/SubViewportContainer3/SubViewport/HUD/ControlLayoutFullRect/ControlBottomRight/Interact" unique_id=1821963104]
 position = Vector2(74, -36)
 texture = ExtResource("5_6p8n1")
 
-[node name="Ring" type="Control" parent="UI Control/GridContainer/SubViewportContainer3/SubViewport/HUD/ControlLayoutFullRect/ControlBottomRight/Interact/Prompt_A"]
+[node name="Ring" type="Control" parent="UI Control/GridContainer/SubViewportContainer3/SubViewport/HUD/ControlLayoutFullRect/ControlBottomRight/Interact/Prompt_A" unique_id=1478740958]
 z_index = -1
 layout_mode = 3
 anchors_preset = 0
@@ -734,7 +734,7 @@ offset_bottom = 100.0
 script = ExtResource("6_ixbdd")
 radius = 24.72
 
-[node name="Prompt" type="Label" parent="UI Control/GridContainer/SubViewportContainer3/SubViewport/HUD/ControlLayoutFullRect/ControlBottomRight/Interact"]
+[node name="Prompt" type="Label" parent="UI Control/GridContainer/SubViewportContainer3/SubViewport/HUD/ControlLayoutFullRect/ControlBottomRight/Interact" unique_id=740357192]
 layout_mode = 0
 offset_left = 109.0
 offset_top = -68.0
@@ -743,31 +743,31 @@ offset_bottom = -9.0
 label_settings = SubResource("LabelSettings_vc5cj")
 vertical_alignment = 1
 
-[node name="ControlBottomLeft" type="Control" parent="UI Control/GridContainer/SubViewportContainer3/SubViewport/HUD/ControlLayoutFullRect"]
+[node name="ControlBottomLeft" type="Control" parent="UI Control/GridContainer/SubViewportContainer3/SubViewport/HUD/ControlLayoutFullRect" unique_id=1923552012]
 layout_mode = 1
 anchors_preset = 2
 anchor_top = 1.0
 anchor_bottom = 1.0
 grow_vertical = 0
 
-[node name="Prompt_A" type="Sprite2D" parent="UI Control/GridContainer/SubViewportContainer3/SubViewport/HUD/ControlLayoutFullRect/ControlBottomLeft"]
+[node name="Prompt_A" type="Sprite2D" parent="UI Control/GridContainer/SubViewportContainer3/SubViewport/HUD/ControlLayoutFullRect/ControlBottomLeft" unique_id=1828004921]
 visible = false
 position = Vector2(32, -32)
 texture = ExtResource("5_6p8n1")
 
-[node name="Prompt_A2" type="Sprite2D" parent="UI Control/GridContainer/SubViewportContainer3/SubViewport/HUD/ControlLayoutFullRect/ControlBottomLeft"]
+[node name="Prompt_A2" type="Sprite2D" parent="UI Control/GridContainer/SubViewportContainer3/SubViewport/HUD/ControlLayoutFullRect/ControlBottomLeft" unique_id=2001902593]
 visible = false
 position = Vector2(96, -84)
 texture = ExtResource("5_6p8n1")
 
-[node name="ControlCoins" type="Control" parent="UI Control/GridContainer/SubViewportContainer3/SubViewport/HUD/ControlLayoutFullRect/ControlBottomLeft"]
+[node name="ControlCoins" type="Control" parent="UI Control/GridContainer/SubViewportContainer3/SubViewport/HUD/ControlLayoutFullRect/ControlBottomLeft" unique_id=1460859616]
 anchors_preset = 0
 offset_left = 1.0
 offset_top = -52.0
 offset_right = 41.0
 offset_bottom = -12.0
 
-[node name="Icon" type="TextureRect" parent="UI Control/GridContainer/SubViewportContainer3/SubViewport/HUD/ControlLayoutFullRect/ControlBottomLeft/ControlCoins"]
+[node name="Icon" type="TextureRect" parent="UI Control/GridContainer/SubViewportContainer3/SubViewport/HUD/ControlLayoutFullRect/ControlBottomLeft/ControlCoins" unique_id=1125340104]
 layout_mode = 0
 offset_left = 2.00001
 offset_top = -1.99999
@@ -776,7 +776,7 @@ offset_bottom = 254.0
 scale = Vector2(0.2, 0.2)
 texture = ExtResource("3_ta3ms")
 
-[node name="x" type="Label" parent="UI Control/GridContainer/SubViewportContainer3/SubViewport/HUD/ControlLayoutFullRect/ControlBottomLeft/ControlCoins"]
+[node name="x" type="Label" parent="UI Control/GridContainer/SubViewportContainer3/SubViewport/HUD/ControlLayoutFullRect/ControlBottomLeft/ControlCoins" unique_id=1276761373]
 layout_mode = 0
 offset_left = 57.0
 offset_top = -5.0
@@ -785,7 +785,7 @@ offset_bottom = 54.0
 text = "×"
 label_settings = SubResource("LabelSettings_38ys3")
 
-[node name="Coins" type="Label" parent="UI Control/GridContainer/SubViewportContainer3/SubViewport/HUD/ControlLayoutFullRect/ControlBottomLeft/ControlCoins"]
+[node name="Coins" type="Label" parent="UI Control/GridContainer/SubViewportContainer3/SubViewport/HUD/ControlLayoutFullRect/ControlBottomLeft/ControlCoins" unique_id=2062199004]
 layout_mode = 0
 offset_left = 89.0
 offset_top = -5.0
@@ -794,31 +794,31 @@ offset_bottom = 54.0
 text = "0"
 label_settings = SubResource("LabelSettings_38ys3")
 
-[node name="View" type="Node3D" parent="UI Control/GridContainer/SubViewportContainer3/SubViewport"]
+[node name="View" type="Node3D" parent="UI Control/GridContainer/SubViewportContainer3/SubViewport" unique_id=150497639]
 transform = Transform3D(0.707107, -0.298836, 0.640856, 0, 0.906308, 0.422618, -0.707107, -0.298836, 0.640856, 0, 0, 0)
 script = ExtResource("11_sack0")
 
-[node name="Camera" type="Camera3D" parent="UI Control/GridContainer/SubViewportContainer3/SubViewport/View"]
+[node name="Camera" type="Camera3D" parent="UI Control/GridContainer/SubViewportContainer3/SubViewport/View" unique_id=464453491]
 transform = Transform3D(0.9999998, 0, 0, 0, 1, -3.5762787e-07, 0, 0, 1.0000007, 3.1370993, -0.58029103, 19.783558)
 current = true
 fov = 40.0
 
-[node name="SubViewportContainer4" type="SubViewportContainer" parent="UI Control/GridContainer"]
+[node name="SubViewportContainer4" type="SubViewportContainer" parent="UI Control/GridContainer" unique_id=1371424037]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 stretch = true
 script = ExtResource("1_d5vfk")
 
-[node name="SubViewport" type="SubViewport" parent="UI Control/GridContainer/SubViewportContainer4"]
+[node name="SubViewport" type="SubViewport" parent="UI Control/GridContainer/SubViewportContainer4" unique_id=1705992454]
 handle_input_locally = false
 size = Vector2i(638, 358)
 render_target_update_mode = 4
 
-[node name="HUD" type="CanvasLayer" parent="UI Control/GridContainer/SubViewportContainer4/SubViewport"]
+[node name="HUD" type="CanvasLayer" parent="UI Control/GridContainer/SubViewportContainer4/SubViewport" unique_id=769404443]
 script = ExtResource("2_g5r4m")
 
-[node name="ControlLayoutFullRect" type="Control" parent="UI Control/GridContainer/SubViewportContainer4/SubViewport/HUD"]
+[node name="ControlLayoutFullRect" type="Control" parent="UI Control/GridContainer/SubViewportContainer4/SubViewport/HUD" unique_id=1603589592]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -826,21 +826,21 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="ControlTopLeft" type="Control" parent="UI Control/GridContainer/SubViewportContainer4/SubViewport/HUD/ControlLayoutFullRect"]
+[node name="ControlTopLeft" type="Control" parent="UI Control/GridContainer/SubViewportContainer4/SubViewport/HUD/ControlLayoutFullRect" unique_id=14523286]
 layout_mode = 1
 anchors_preset = 0
 
-[node name="Prompt_A" type="Sprite2D" parent="UI Control/GridContainer/SubViewportContainer4/SubViewport/HUD/ControlLayoutFullRect/ControlTopLeft"]
+[node name="Prompt_A" type="Sprite2D" parent="UI Control/GridContainer/SubViewportContainer4/SubViewport/HUD/ControlLayoutFullRect/ControlTopLeft" unique_id=955929058]
 visible = false
 position = Vector2(32, 32)
 texture = ExtResource("5_6p8n1")
 
-[node name="Prompt_A2" type="Sprite2D" parent="UI Control/GridContainer/SubViewportContainer4/SubViewport/HUD/ControlLayoutFullRect/ControlTopLeft"]
+[node name="Prompt_A2" type="Sprite2D" parent="UI Control/GridContainer/SubViewportContainer4/SubViewport/HUD/ControlLayoutFullRect/ControlTopLeft" unique_id=987367324]
 visible = false
 position = Vector2(83, 81)
 texture = ExtResource("5_6p8n1")
 
-[node name="HeartBar" type="Control" parent="UI Control/GridContainer/SubViewportContainer4/SubViewport/HUD/ControlLayoutFullRect/ControlTopLeft"]
+[node name="HeartBar" type="Control" parent="UI Control/GridContainer/SubViewportContainer4/SubViewport/HUD/ControlLayoutFullRect/ControlTopLeft" unique_id=348617341]
 anchors_preset = 0
 offset_left = 10.0
 offset_top = 11.0
@@ -851,41 +851,41 @@ heart_empty_texture = ExtResource("8_tkup3")
 heart_half_texture = ExtResource("9_d0k0q")
 heart_full_texture = ExtResource("10_oxis5")
 
-[node name="Hearts" type="HFlowContainer" parent="UI Control/GridContainer/SubViewportContainer4/SubViewport/HUD/ControlLayoutFullRect/ControlTopLeft/HeartBar"]
+[node name="Hearts" type="HFlowContainer" parent="UI Control/GridContainer/SubViewportContainer4/SubViewport/HUD/ControlLayoutFullRect/ControlTopLeft/HeartBar" unique_id=919640851]
 layout_mode = 1
 offset_right = 512.0
 offset_bottom = 260.0
 
-[node name="Icon" type="TextureRect" parent="UI Control/GridContainer/SubViewportContainer4/SubViewport/HUD/ControlLayoutFullRect/ControlTopLeft/HeartBar/Hearts"]
+[node name="Icon" type="TextureRect" parent="UI Control/GridContainer/SubViewportContainer4/SubViewport/HUD/ControlLayoutFullRect/ControlTopLeft/HeartBar/Hearts" unique_id=2121091705]
 layout_mode = 2
 texture = ExtResource("10_oxis5")
 
-[node name="Icon3" type="TextureRect" parent="UI Control/GridContainer/SubViewportContainer4/SubViewport/HUD/ControlLayoutFullRect/ControlTopLeft/HeartBar/Hearts"]
+[node name="Icon3" type="TextureRect" parent="UI Control/GridContainer/SubViewportContainer4/SubViewport/HUD/ControlLayoutFullRect/ControlTopLeft/HeartBar/Hearts" unique_id=1939490621]
 layout_mode = 2
 texture = ExtResource("9_d0k0q")
 
-[node name="Icon2" type="TextureRect" parent="UI Control/GridContainer/SubViewportContainer4/SubViewport/HUD/ControlLayoutFullRect/ControlTopLeft/HeartBar/Hearts"]
+[node name="Icon2" type="TextureRect" parent="UI Control/GridContainer/SubViewportContainer4/SubViewport/HUD/ControlLayoutFullRect/ControlTopLeft/HeartBar/Hearts" unique_id=1350885173]
 layout_mode = 2
 texture = ExtResource("8_tkup3")
 
-[node name="ControlTopRight" type="Control" parent="UI Control/GridContainer/SubViewportContainer4/SubViewport/HUD/ControlLayoutFullRect"]
+[node name="ControlTopRight" type="Control" parent="UI Control/GridContainer/SubViewportContainer4/SubViewport/HUD/ControlLayoutFullRect" unique_id=1795037171]
 layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
 grow_horizontal = 0
 
-[node name="Prompt_A" type="Sprite2D" parent="UI Control/GridContainer/SubViewportContainer4/SubViewport/HUD/ControlLayoutFullRect/ControlTopRight"]
+[node name="Prompt_A" type="Sprite2D" parent="UI Control/GridContainer/SubViewportContainer4/SubViewport/HUD/ControlLayoutFullRect/ControlTopRight" unique_id=558358931]
 visible = false
 position = Vector2(-32, 32)
 texture = ExtResource("5_6p8n1")
 
-[node name="Prompt_A2" type="Sprite2D" parent="UI Control/GridContainer/SubViewportContainer4/SubViewport/HUD/ControlLayoutFullRect/ControlTopRight"]
+[node name="Prompt_A2" type="Sprite2D" parent="UI Control/GridContainer/SubViewportContainer4/SubViewport/HUD/ControlLayoutFullRect/ControlTopRight" unique_id=17549780]
 visible = false
 position = Vector2(-87, 67)
 texture = ExtResource("5_6p8n1")
 
-[node name="Ring" type="Control" parent="UI Control/GridContainer/SubViewportContainer4/SubViewport/HUD/ControlLayoutFullRect/ControlTopRight"]
+[node name="Ring" type="Control" parent="UI Control/GridContainer/SubViewportContainer4/SubViewport/HUD/ControlLayoutFullRect/ControlTopRight" unique_id=1135290491]
 anchors_preset = 0
 offset_left = -137.0
 offset_top = -63.0
@@ -894,7 +894,7 @@ offset_bottom = 137.0
 script = ExtResource("6_ixbdd")
 percent = 0.735
 
-[node name="ControlBottomRight" type="Control" parent="UI Control/GridContainer/SubViewportContainer4/SubViewport/HUD/ControlLayoutFullRect"]
+[node name="ControlBottomRight" type="Control" parent="UI Control/GridContainer/SubViewportContainer4/SubViewport/HUD/ControlLayoutFullRect" unique_id=1571812767]
 layout_mode = 1
 anchors_preset = 3
 anchor_left = 1.0
@@ -904,17 +904,17 @@ anchor_bottom = 1.0
 grow_horizontal = 0
 grow_vertical = 0
 
-[node name="Prompt_A" type="Sprite2D" parent="UI Control/GridContainer/SubViewportContainer4/SubViewport/HUD/ControlLayoutFullRect/ControlBottomRight"]
+[node name="Prompt_A" type="Sprite2D" parent="UI Control/GridContainer/SubViewportContainer4/SubViewport/HUD/ControlLayoutFullRect/ControlBottomRight" unique_id=717799365]
 visible = false
 position = Vector2(-113, -78)
 texture = ExtResource("5_6p8n1")
 
-[node name="Prompt_A2" type="Sprite2D" parent="UI Control/GridContainer/SubViewportContainer4/SubViewport/HUD/ControlLayoutFullRect/ControlBottomRight"]
+[node name="Prompt_A2" type="Sprite2D" parent="UI Control/GridContainer/SubViewportContainer4/SubViewport/HUD/ControlLayoutFullRect/ControlBottomRight" unique_id=1783675638]
 visible = false
 position = Vector2(-32, -32)
 texture = ExtResource("5_6p8n1")
 
-[node name="Interact" type="Control" parent="UI Control/GridContainer/SubViewportContainer4/SubViewport/HUD/ControlLayoutFullRect/ControlBottomRight"]
+[node name="Interact" type="Control" parent="UI Control/GridContainer/SubViewportContainer4/SubViewport/HUD/ControlLayoutFullRect/ControlBottomRight" unique_id=1810647456]
 layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
@@ -926,11 +926,11 @@ offset_right = -338.0
 grow_horizontal = 2
 grow_vertical = 0
 
-[node name="Prompt_A" type="Sprite2D" parent="UI Control/GridContainer/SubViewportContainer4/SubViewport/HUD/ControlLayoutFullRect/ControlBottomRight/Interact"]
+[node name="Prompt_A" type="Sprite2D" parent="UI Control/GridContainer/SubViewportContainer4/SubViewport/HUD/ControlLayoutFullRect/ControlBottomRight/Interact" unique_id=577050585]
 position = Vector2(74, -36)
 texture = ExtResource("5_6p8n1")
 
-[node name="Ring" type="Control" parent="UI Control/GridContainer/SubViewportContainer4/SubViewport/HUD/ControlLayoutFullRect/ControlBottomRight/Interact/Prompt_A"]
+[node name="Ring" type="Control" parent="UI Control/GridContainer/SubViewportContainer4/SubViewport/HUD/ControlLayoutFullRect/ControlBottomRight/Interact/Prompt_A" unique_id=2081795961]
 z_index = -1
 layout_mode = 3
 anchors_preset = 0
@@ -941,7 +941,7 @@ offset_bottom = 100.0
 script = ExtResource("6_ixbdd")
 radius = 24.72
 
-[node name="Prompt" type="Label" parent="UI Control/GridContainer/SubViewportContainer4/SubViewport/HUD/ControlLayoutFullRect/ControlBottomRight/Interact"]
+[node name="Prompt" type="Label" parent="UI Control/GridContainer/SubViewportContainer4/SubViewport/HUD/ControlLayoutFullRect/ControlBottomRight/Interact" unique_id=1101754777]
 layout_mode = 0
 offset_left = 109.0
 offset_top = -68.0
@@ -950,31 +950,31 @@ offset_bottom = -9.0
 label_settings = SubResource("LabelSettings_vc5cj")
 vertical_alignment = 1
 
-[node name="ControlBottomLeft" type="Control" parent="UI Control/GridContainer/SubViewportContainer4/SubViewport/HUD/ControlLayoutFullRect"]
+[node name="ControlBottomLeft" type="Control" parent="UI Control/GridContainer/SubViewportContainer4/SubViewport/HUD/ControlLayoutFullRect" unique_id=1228561388]
 layout_mode = 1
 anchors_preset = 2
 anchor_top = 1.0
 anchor_bottom = 1.0
 grow_vertical = 0
 
-[node name="Prompt_A" type="Sprite2D" parent="UI Control/GridContainer/SubViewportContainer4/SubViewport/HUD/ControlLayoutFullRect/ControlBottomLeft"]
+[node name="Prompt_A" type="Sprite2D" parent="UI Control/GridContainer/SubViewportContainer4/SubViewport/HUD/ControlLayoutFullRect/ControlBottomLeft" unique_id=2143308365]
 visible = false
 position = Vector2(32, -32)
 texture = ExtResource("5_6p8n1")
 
-[node name="Prompt_A2" type="Sprite2D" parent="UI Control/GridContainer/SubViewportContainer4/SubViewport/HUD/ControlLayoutFullRect/ControlBottomLeft"]
+[node name="Prompt_A2" type="Sprite2D" parent="UI Control/GridContainer/SubViewportContainer4/SubViewport/HUD/ControlLayoutFullRect/ControlBottomLeft" unique_id=1985032758]
 visible = false
 position = Vector2(96, -84)
 texture = ExtResource("5_6p8n1")
 
-[node name="ControlCoins" type="Control" parent="UI Control/GridContainer/SubViewportContainer4/SubViewport/HUD/ControlLayoutFullRect/ControlBottomLeft"]
+[node name="ControlCoins" type="Control" parent="UI Control/GridContainer/SubViewportContainer4/SubViewport/HUD/ControlLayoutFullRect/ControlBottomLeft" unique_id=1411468821]
 anchors_preset = 0
 offset_left = 1.0
 offset_top = -52.0
 offset_right = 41.0
 offset_bottom = -12.0
 
-[node name="Icon" type="TextureRect" parent="UI Control/GridContainer/SubViewportContainer4/SubViewport/HUD/ControlLayoutFullRect/ControlBottomLeft/ControlCoins"]
+[node name="Icon" type="TextureRect" parent="UI Control/GridContainer/SubViewportContainer4/SubViewport/HUD/ControlLayoutFullRect/ControlBottomLeft/ControlCoins" unique_id=2105026158]
 layout_mode = 0
 offset_left = 2.00001
 offset_top = -1.99999
@@ -983,7 +983,7 @@ offset_bottom = 254.0
 scale = Vector2(0.2, 0.2)
 texture = ExtResource("3_ta3ms")
 
-[node name="x" type="Label" parent="UI Control/GridContainer/SubViewportContainer4/SubViewport/HUD/ControlLayoutFullRect/ControlBottomLeft/ControlCoins"]
+[node name="x" type="Label" parent="UI Control/GridContainer/SubViewportContainer4/SubViewport/HUD/ControlLayoutFullRect/ControlBottomLeft/ControlCoins" unique_id=1069078556]
 layout_mode = 0
 offset_left = 57.0
 offset_top = -5.0
@@ -992,7 +992,7 @@ offset_bottom = 54.0
 text = "×"
 label_settings = SubResource("LabelSettings_38ys3")
 
-[node name="Coins" type="Label" parent="UI Control/GridContainer/SubViewportContainer4/SubViewport/HUD/ControlLayoutFullRect/ControlBottomLeft/ControlCoins"]
+[node name="Coins" type="Label" parent="UI Control/GridContainer/SubViewportContainer4/SubViewport/HUD/ControlLayoutFullRect/ControlBottomLeft/ControlCoins" unique_id=1911380377]
 layout_mode = 0
 offset_left = 89.0
 offset_top = -5.0
@@ -1001,613 +1001,613 @@ offset_bottom = 54.0
 text = "0"
 label_settings = SubResource("LabelSettings_38ys3")
 
-[node name="View" type="Node3D" parent="UI Control/GridContainer/SubViewportContainer4/SubViewport"]
+[node name="View" type="Node3D" parent="UI Control/GridContainer/SubViewportContainer4/SubViewport" unique_id=1753036655]
 transform = Transform3D(0.707107, -0.298836, 0.640856, 0, 0.906308, 0.422618, -0.707107, -0.298836, 0.640856, 0, 0, 0)
 script = ExtResource("11_sack0")
 
-[node name="Camera" type="Camera3D" parent="UI Control/GridContainer/SubViewportContainer4/SubViewport/View"]
+[node name="Camera" type="Camera3D" parent="UI Control/GridContainer/SubViewportContainer4/SubViewport/View" unique_id=1699920913]
 transform = Transform3D(0.9999998, 0, 0, 0, 1, -3.5762787e-07, 0, 0, 1.0000007, 3.1370993, -0.58029103, 19.783558)
 current = true
 fov = 40.0
 
-[node name="Sun" type="DirectionalLight3D" parent="."]
+[node name="Sun" type="DirectionalLight3D" parent="." unique_id=1877658139]
 transform = Transform3D(-0.422618, -0.694272, 0.582564, 0, 0.642788, 0.766044, -0.906308, 0.323744, -0.271654, 0, 5.37368, 0)
 shadow_enabled = true
 shadow_opacity = 0.75
 
-[node name="Environment" type="WorldEnvironment" parent="."]
+[node name="Environment" type="WorldEnvironment" parent="." unique_id=292640263]
 environment = ExtResource("12_lknpy")
 
-[node name="Clouds" type="Node3D" parent="."]
+[node name="Clouds" type="Node3D" parent="." unique_id=953829131]
 
-[node name="cube8" parent="Clouds" instance=ExtResource("13_qmpjp")]
+[node name="cube8" parent="Clouds" unique_id=925262496 instance=ExtResource("13_qmpjp")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -26.1291, 1.10741, -10.0257)
 
-[node name="cube9" parent="Clouds" instance=ExtResource("13_qmpjp")]
+[node name="cube9" parent="Clouds" unique_id=709677158 instance=ExtResource("13_qmpjp")]
 transform = Transform3D(1.27593, -0.401864, 0.422933, 0.471408, 1.30937, -0.178025, -0.343721, 0.304009, 1.32582, -24.3432, 1.37146, -11.5529)
 
-[node name="cube10" parent="Clouds" instance=ExtResource("13_qmpjp")]
+[node name="cube10" parent="Clouds" unique_id=1049192561 instance=ExtResource("13_qmpjp")]
 transform = Transform3D(1.32811, 0.370441, 0.259369, -0.293866, 1.3186, -0.37854, -0.34372, 0.30401, 1.32582, -20.8476, 2.03819, -3.85388)
 
-[node name="cube11" parent="Clouds" instance=ExtResource("13_qmpjp")]
+[node name="cube11" parent="Clouds" unique_id=662015080 instance=ExtResource("13_qmpjp")]
 transform = Transform3D(0.476646, 0.924607, 0.941422, -0.929853, 0.945559, -0.457882, -0.93624, -0.468385, 0.934042, -12.7572, 2.03819, 2.4462)
 
-[node name="cube12" parent="Clouds" instance=ExtResource("13_qmpjp")]
+[node name="cube12" parent="Clouds" unique_id=1755929766 instance=ExtResource("13_qmpjp")]
 transform = Transform3D(-1.02876, -0.695523, 0.652886, -0.929853, 0.945557, -0.457881, -0.213027, -0.768461, -1.15432, -12.4915, 2.79508, 4.68)
 
-[node name="cube13" parent="Clouds" instance=ExtResource("13_qmpjp")]
+[node name="cube13" parent="Clouds" unique_id=254641062 instance=ExtResource("13_qmpjp")]
 transform = Transform3D(1.56209, -1.37982, 1.71508, 1.97375, 1.80907, -0.342241, -0.974547, 1.4522, 2.05595, -24.5769, 2.03819, -4.15872)
 
-[node name="cube14" parent="Clouds" instance=ExtResource("13_qmpjp")]
+[node name="cube14" parent="Clouds" unique_id=2040815876 instance=ExtResource("13_qmpjp")]
 transform = Transform3D(1.56209, -1.37982, 1.71508, 1.97375, 1.80907, -0.342241, -0.974547, 1.4522, 2.05595, -17.4417, 2.03819, 1.00202)
 
-[node name="cube15" parent="Clouds" instance=ExtResource("13_qmpjp")]
+[node name="cube15" parent="Clouds" unique_id=604834196 instance=ExtResource("13_qmpjp")]
 transform = Transform3D(0.994164, 0, -0.107878, 0, 1, 0, 0.107878, 0, 0.994164, 16.3713, 1.10741, -48.3331)
 
-[node name="cube16" parent="Clouds" instance=ExtResource("13_qmpjp")]
+[node name="cube16" parent="Clouds" unique_id=498154774 instance=ExtResource("13_qmpjp")]
 transform = Transform3D(1.30556, -0.432315, 0.277438, 0.471408, 1.30937, -0.178025, -0.20407, 0.258883, 1.36371, 18.3115, 1.37146, -49.6587)
 
-[node name="cube17" parent="Clouds" instance=ExtResource("13_qmpjp")]
+[node name="cube17" parent="Clouds" unique_id=1132864147 instance=ExtResource("13_qmpjp")]
 transform = Transform3D(1.35744, 0.335483, 0.114829, -0.293866, 1.3186, -0.37854, -0.19844, 0.342198, 1.34606, 23.6436, 2.03819, -43.493)
 
-[node name="cube18" parent="Clouds" instance=ExtResource("13_qmpjp")]
+[node name="cube18" parent="Clouds" unique_id=1984755632 instance=ExtResource("13_qmpjp")]
 transform = Transform3D(0.574864, 0.96974, 0.835166, -0.929853, 0.945559, -0.457882, -0.879357, -0.365907, 1.03015, 24.9682, 2.03819, -32.9509)
 
-[node name="cube24" parent="Clouds" instance=ExtResource("13_qmpjp")]
+[node name="cube24" parent="Clouds" unique_id=898127612 instance=ExtResource("13_qmpjp")]
 transform = Transform3D(0.574864, 0.96974, 0.835166, -0.929853, 0.945559, -0.457882, -0.879357, -0.365907, 1.03015, 19.6441, 2.03819, -1.33253)
 
-[node name="cube19" parent="Clouds" instance=ExtResource("13_qmpjp")]
+[node name="cube19" parent="Clouds" unique_id=1462252885 instance=ExtResource("13_qmpjp")]
 transform = Transform3D(-0.999775, -0.608564, 0.773601, -0.929853, 0.945557, -0.457881, -0.322764, -0.839008, -1.07715, 24.9914, 2.79508, -30.7015)
 
-[node name="cube20" parent="Clouds" instance=ExtResource("13_qmpjp")]
+[node name="cube20" parent="Clouds" unique_id=1574347827 instance=ExtResource("13_qmpjp")]
 transform = Transform3D(1.65811, -1.52843, 1.48328, 1.97375, 1.80907, -0.342241, -0.800345, 1.29487, 2.22897, 19.5447, 2.03819, -44.964)
 
-[node name="cube22" parent="Clouds" instance=ExtResource("13_qmpjp")]
+[node name="cube22" parent="Clouds" unique_id=2146168247 instance=ExtResource("13_qmpjp")]
 transform = Transform3D(0.788272, -2.09918, 1.50252, 2.45431, 1.09647, 0.244281, -0.800345, 1.29487, 2.22897, -18.0416, 2.03819, -44.964)
 
-[node name="cube23" parent="Clouds" instance=ExtResource("13_qmpjp")]
+[node name="cube23" parent="Clouds" unique_id=303280982 instance=ExtResource("13_qmpjp")]
 transform = Transform3D(0.788272, -2.09918, 1.50252, 2.45431, 1.09647, 0.244281, -0.800345, 1.29487, 2.22897, 18.0209, 2.03819, 1.0987)
 
-[node name="cube21" parent="Clouds" instance=ExtResource("13_qmpjp")]
+[node name="cube21" parent="Clouds" unique_id=1998717842 instance=ExtResource("13_qmpjp")]
 transform = Transform3D(1.65811, -1.52843, 1.48328, 1.97375, 1.80907, -0.342241, -0.800345, 1.29487, 2.22897, 26.0814, 2.03819, -39.0637)
 
-[node name="Pickups" type="Node3D" parent="."]
+[node name="Pickups" type="Node3D" parent="." unique_id=2063026139]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.38246, -0.162452, -31.7031)
 
-[node name="coin11" parent="Pickups" instance=ExtResource("14_2ls70")]
+[node name="coin11" parent="Pickups" unique_id=1430850836 instance=ExtResource("14_2ls70")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 21.121431, 5.809724, 67.12688)
 
-[node name="coin12" parent="Pickups" instance=ExtResource("14_2ls70")]
+[node name="coin12" parent="Pickups" unique_id=13052850 instance=ExtResource("14_2ls70")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20.470331, 5.809724, 67.12688)
 
-[node name="coin13" parent="Pickups" instance=ExtResource("14_2ls70")]
+[node name="coin13" parent="Pickups" unique_id=904558752 instance=ExtResource("14_2ls70")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19.690432, 5.809724, 67.12688)
 
-[node name="coin14" parent="Pickups" instance=ExtResource("14_2ls70")]
+[node name="coin14" parent="Pickups" unique_id=1605021653 instance=ExtResource("14_2ls70")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18.847532, 5.809724, 67.12688)
 
-[node name="coin15" parent="Pickups" instance=ExtResource("14_2ls70")]
+[node name="coin15" parent="Pickups" unique_id=1063829697 instance=ExtResource("14_2ls70")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18.042482, 5.809724, 67.12688)
 
-[node name="coin26" parent="Pickups" instance=ExtResource("14_2ls70")]
+[node name="coin26" parent="Pickups" unique_id=1616966244 instance=ExtResource("14_2ls70")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9.23851, -0.463, 29.162)
 
-[node name="coin27" parent="Pickups" instance=ExtResource("14_2ls70")]
+[node name="coin27" parent="Pickups" unique_id=1346976261 instance=ExtResource("14_2ls70")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9.8896, -0.463, 29.162)
 
-[node name="coin28" parent="Pickups" instance=ExtResource("14_2ls70")]
+[node name="coin28" parent="Pickups" unique_id=1839669654 instance=ExtResource("14_2ls70")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.6695, -0.463, 29.162)
 
-[node name="coin29" parent="Pickups" instance=ExtResource("14_2ls70")]
+[node name="coin29" parent="Pickups" unique_id=2029788158 instance=ExtResource("14_2ls70")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11.5124, -0.463, 29.162)
 
-[node name="coin30" parent="Pickups" instance=ExtResource("14_2ls70")]
+[node name="coin30" parent="Pickups" unique_id=1309133473 instance=ExtResource("14_2ls70")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.3175, -0.463, 29.162)
 
-[node name="coin31" parent="Pickups" instance=ExtResource("14_2ls70")]
+[node name="coin31" parent="Pickups" unique_id=1316128900 instance=ExtResource("14_2ls70")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9.23851, -0.463, 28.3804)
 
-[node name="coin32" parent="Pickups" instance=ExtResource("14_2ls70")]
+[node name="coin32" parent="Pickups" unique_id=607007779 instance=ExtResource("14_2ls70")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9.8896, -0.463, 28.3804)
 
-[node name="coin33" parent="Pickups" instance=ExtResource("14_2ls70")]
+[node name="coin33" parent="Pickups" unique_id=1094340310 instance=ExtResource("14_2ls70")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.6695, -0.463, 28.3804)
 
-[node name="coin34" parent="Pickups" instance=ExtResource("14_2ls70")]
+[node name="coin34" parent="Pickups" unique_id=1811363479 instance=ExtResource("14_2ls70")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11.5124, -0.463, 28.3804)
 
-[node name="coin35" parent="Pickups" instance=ExtResource("14_2ls70")]
+[node name="coin35" parent="Pickups" unique_id=1705376686 instance=ExtResource("14_2ls70")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.3175, -0.463, 28.3804)
 
-[node name="coin36" parent="Pickups" instance=ExtResource("14_2ls70")]
+[node name="coin36" parent="Pickups" unique_id=1824544624 instance=ExtResource("14_2ls70")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9.23851, -0.463, 27.653)
 
-[node name="coin37" parent="Pickups" instance=ExtResource("14_2ls70")]
+[node name="coin37" parent="Pickups" unique_id=520707776 instance=ExtResource("14_2ls70")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9.8896, -0.463, 27.653)
 
-[node name="coin38" parent="Pickups" instance=ExtResource("14_2ls70")]
+[node name="coin38" parent="Pickups" unique_id=1395774834 instance=ExtResource("14_2ls70")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.6695, -0.463, 27.653)
 
-[node name="coin39" parent="Pickups" instance=ExtResource("14_2ls70")]
+[node name="coin39" parent="Pickups" unique_id=1670219525 instance=ExtResource("14_2ls70")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11.5124, -0.463, 27.653)
 
-[node name="coin40" parent="Pickups" instance=ExtResource("14_2ls70")]
+[node name="coin40" parent="Pickups" unique_id=1354641487 instance=ExtResource("14_2ls70")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.3175, -0.463, 27.653)
 
-[node name="coin41" parent="Pickups" instance=ExtResource("14_2ls70")]
+[node name="coin41" parent="Pickups" unique_id=1716187603 instance=ExtResource("14_2ls70")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.59705, -0.463495, 29.162)
 
-[node name="coin42" parent="Pickups" instance=ExtResource("14_2ls70")]
+[node name="coin42" parent="Pickups" unique_id=1027813323 instance=ExtResource("14_2ls70")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.94596, -0.463495, 29.162)
 
-[node name="coin43" parent="Pickups" instance=ExtResource("14_2ls70")]
+[node name="coin43" parent="Pickups" unique_id=525268037 instance=ExtResource("14_2ls70")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.16606, -0.463495, 29.162)
 
-[node name="coin44" parent="Pickups" instance=ExtResource("14_2ls70")]
+[node name="coin44" parent="Pickups" unique_id=1754640113 instance=ExtResource("14_2ls70")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.32316, -0.463495, 29.162)
 
-[node name="coin45" parent="Pickups" instance=ExtResource("14_2ls70")]
+[node name="coin45" parent="Pickups" unique_id=1215011589 instance=ExtResource("14_2ls70")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.51806, -0.463495, 29.162)
 
-[node name="coin46" parent="Pickups" instance=ExtResource("14_2ls70")]
+[node name="coin46" parent="Pickups" unique_id=118271011 instance=ExtResource("14_2ls70")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.59705, -0.463495, 28.3804)
 
-[node name="coin47" parent="Pickups" instance=ExtResource("14_2ls70")]
+[node name="coin47" parent="Pickups" unique_id=79041560 instance=ExtResource("14_2ls70")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.94596, -0.463495, 28.3804)
 
-[node name="coin48" parent="Pickups" instance=ExtResource("14_2ls70")]
+[node name="coin48" parent="Pickups" unique_id=634188727 instance=ExtResource("14_2ls70")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.16606, -0.463495, 28.3804)
 
-[node name="coin49" parent="Pickups" instance=ExtResource("14_2ls70")]
+[node name="coin49" parent="Pickups" unique_id=1578495066 instance=ExtResource("14_2ls70")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.32316, -0.463495, 28.3804)
 
-[node name="coin50" parent="Pickups" instance=ExtResource("14_2ls70")]
+[node name="coin50" parent="Pickups" unique_id=395337612 instance=ExtResource("14_2ls70")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.51806, -0.463495, 28.3804)
 
-[node name="coin51" parent="Pickups" instance=ExtResource("14_2ls70")]
+[node name="coin51" parent="Pickups" unique_id=1146091946 instance=ExtResource("14_2ls70")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.59705, -0.463495, 27.653)
 
-[node name="coin52" parent="Pickups" instance=ExtResource("14_2ls70")]
+[node name="coin52" parent="Pickups" unique_id=1844464086 instance=ExtResource("14_2ls70")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.94596, -0.463495, 27.653)
 
-[node name="coin53" parent="Pickups" instance=ExtResource("14_2ls70")]
+[node name="coin53" parent="Pickups" unique_id=1114040184 instance=ExtResource("14_2ls70")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.16606, -0.463495, 27.653)
 
-[node name="coin54" parent="Pickups" instance=ExtResource("14_2ls70")]
+[node name="coin54" parent="Pickups" unique_id=1733285375 instance=ExtResource("14_2ls70")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.32316, -0.463495, 27.653)
 
-[node name="coin55" parent="Pickups" instance=ExtResource("14_2ls70")]
+[node name="coin55" parent="Pickups" unique_id=567587465 instance=ExtResource("14_2ls70")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.51806, -0.463495, 27.653)
 
-[node name="coin16" parent="Pickups" instance=ExtResource("14_2ls70")]
+[node name="coin16" parent="Pickups" unique_id=826589525 instance=ExtResource("14_2ls70")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 25.032831, 11.477393, 61.020283)
 
-[node name="coin17" parent="Pickups" instance=ExtResource("14_2ls70")]
+[node name="coin17" parent="Pickups" unique_id=1566390922 instance=ExtResource("14_2ls70")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 24.381731, 11.477393, 61.020283)
 
-[node name="coin18" parent="Pickups" instance=ExtResource("14_2ls70")]
+[node name="coin18" parent="Pickups" unique_id=793681721 instance=ExtResource("14_2ls70")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 23.601831, 11.477393, 61.020283)
 
-[node name="coin19" parent="Pickups" instance=ExtResource("14_2ls70")]
+[node name="coin19" parent="Pickups" unique_id=786023056 instance=ExtResource("14_2ls70")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 22.758932, 11.477393, 61.020283)
 
-[node name="coin20" parent="Pickups" instance=ExtResource("14_2ls70")]
+[node name="coin20" parent="Pickups" unique_id=896746058 instance=ExtResource("14_2ls70")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 21.953833, 11.477393, 61.020283)
 
-[node name="coin21" parent="Pickups" instance=ExtResource("14_2ls70")]
+[node name="coin21" parent="Pickups" unique_id=2059604372 instance=ExtResource("14_2ls70")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 25.032831, 11.477393, 53.773582)
 
-[node name="coin22" parent="Pickups" instance=ExtResource("14_2ls70")]
+[node name="coin22" parent="Pickups" unique_id=1641561685 instance=ExtResource("14_2ls70")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 24.381731, 11.477393, 53.773582)
 
-[node name="coin23" parent="Pickups" instance=ExtResource("14_2ls70")]
+[node name="coin23" parent="Pickups" unique_id=164514098 instance=ExtResource("14_2ls70")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 23.601831, 11.477393, 53.773582)
 
-[node name="coin24" parent="Pickups" instance=ExtResource("14_2ls70")]
+[node name="coin24" parent="Pickups" unique_id=1342647639 instance=ExtResource("14_2ls70")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 22.758932, 11.477393, 53.773582)
 
-[node name="coin25" parent="Pickups" instance=ExtResource("14_2ls70")]
+[node name="coin25" parent="Pickups" unique_id=783887098 instance=ExtResource("14_2ls70")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 21.953833, 11.477393, 53.773582)
 
-[node name="coin6" parent="Pickups" instance=ExtResource("14_2ls70")]
+[node name="coin6" parent="Pickups" unique_id=981245593 instance=ExtResource("14_2ls70")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.9215217, 5.460034, 46.920883)
 
-[node name="flag2" parent="Pickups" instance=ExtResource("15_xo8s5")]
+[node name="flag2" parent="Pickups" unique_id=1126106350 instance=ExtResource("15_xo8s5")]
 transform = Transform3D(0.707107, 0, -0.707107, 0, 1, 0, 0.707107, 0, 0.707107, -10.317268, 7.252004, 51.733284)
 
-[node name="flag" parent="Pickups" instance=ExtResource("16_qpikb")]
+[node name="flag" parent="Pickups" unique_id=1506884169 instance=ExtResource("16_qpikb")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -16.5577, 1.73792, -0.654306)
 
-[node name="flag3" parent="Pickups" instance=ExtResource("17_wodw4")]
+[node name="flag3" parent="Pickups" unique_id=593887612 instance=ExtResource("17_wodw4")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.82304, 1.73726, -0.593306)
 
-[node name="flag4" parent="Pickups" instance=ExtResource("16_qpikb")]
+[node name="flag4" parent="Pickups" unique_id=1589765507 instance=ExtResource("16_qpikb")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -16.5577, 1.73792, 20.9681)
 
-[node name="flag5" parent="Pickups" instance=ExtResource("17_wodw4")]
+[node name="flag5" parent="Pickups" unique_id=980637551 instance=ExtResource("17_wodw4")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.82304, 1.73726, 21.0291)
 
-[node name="FallingPlatforms" type="Node3D" parent="."]
+[node name="FallingPlatforms" type="Node3D" parent="." unique_id=1563528176]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.38246, -0.162452, -31.7031)
 
-[node name="platform-falling" parent="FallingPlatforms" instance=ExtResource("18_fqp17")]
+[node name="platform-falling" parent="FallingPlatforms" unique_id=1707006652 instance=ExtResource("18_fqp17")]
 transform = Transform3D(0.984808, 0, 0.173648, 0, 1, 0, -0.173648, 0, 0.984808, -4.7209687, 4.19053, 59.001484)
 
-[node name="platform-falling2" parent="FallingPlatforms" instance=ExtResource("18_fqp17")]
+[node name="platform-falling2" parent="FallingPlatforms" unique_id=445811498 instance=ExtResource("18_fqp17")]
 transform = Transform3D(0.994522, 0, -0.104528, 0, 1, 0, 0.104528, 0, 0.994522, -7.7209687, 3.4561727, 59.001484)
 
-[node name="platform-falling7" parent="FallingPlatforms" instance=ExtResource("18_fqp17")]
+[node name="platform-falling7" parent="FallingPlatforms" unique_id=99379943 instance=ExtResource("18_fqp17")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.7291, -2.79382, -10.5577)
 
-[node name="platform-falling8" parent="FallingPlatforms" instance=ExtResource("18_fqp17")]
+[node name="platform-falling8" parent="FallingPlatforms" unique_id=580291175 instance=ExtResource("18_fqp17")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.7291, -2.79382, -13.0067)
 
-[node name="platform-falling9" parent="FallingPlatforms" instance=ExtResource("18_fqp17")]
+[node name="platform-falling9" parent="FallingPlatforms" unique_id=1697840032 instance=ExtResource("18_fqp17")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.7291, -2.79382, -15.4476)
 
-[node name="platform-falling10" parent="FallingPlatforms" instance=ExtResource("18_fqp17")]
+[node name="platform-falling10" parent="FallingPlatforms" unique_id=1917418367 instance=ExtResource("18_fqp17")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.7291, -2.79382, -17.9395)
 
-[node name="platform-falling11" parent="FallingPlatforms" instance=ExtResource("18_fqp17")]
+[node name="platform-falling11" parent="FallingPlatforms" unique_id=1613999574 instance=ExtResource("18_fqp17")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.7291, -2.79382, -20.3461)
 
-[node name="platform-falling12" parent="FallingPlatforms" instance=ExtResource("18_fqp17")]
+[node name="platform-falling12" parent="FallingPlatforms" unique_id=2052410085 instance=ExtResource("18_fqp17")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.23134, -2.79382, -10.5577)
 
-[node name="platform-falling13" parent="FallingPlatforms" instance=ExtResource("18_fqp17")]
+[node name="platform-falling13" parent="FallingPlatforms" unique_id=1767933129 instance=ExtResource("18_fqp17")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.23134, -2.79382, -13.0067)
 
-[node name="platform-falling14" parent="FallingPlatforms" instance=ExtResource("18_fqp17")]
+[node name="platform-falling14" parent="FallingPlatforms" unique_id=500830329 instance=ExtResource("18_fqp17")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.23134, -2.79382, -15.4476)
 
-[node name="platform-falling16" parent="FallingPlatforms" instance=ExtResource("18_fqp17")]
+[node name="platform-falling16" parent="FallingPlatforms" unique_id=279520968 instance=ExtResource("18_fqp17")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.23134, -2.79382, -20.3461)
 
-[node name="platform-falling17" parent="FallingPlatforms" instance=ExtResource("18_fqp17")]
+[node name="platform-falling17" parent="FallingPlatforms" unique_id=1647992467 instance=ExtResource("18_fqp17")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.78804, -2.79382, -10.5577)
 
-[node name="platform-falling18" parent="FallingPlatforms" instance=ExtResource("18_fqp17")]
+[node name="platform-falling18" parent="FallingPlatforms" unique_id=995181895 instance=ExtResource("18_fqp17")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.78804, -2.79382, -13.0067)
 
-[node name="platform-falling19" parent="FallingPlatforms" instance=ExtResource("18_fqp17")]
+[node name="platform-falling19" parent="FallingPlatforms" unique_id=1590425349 instance=ExtResource("18_fqp17")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.78804, -2.79382, -15.4476)
 
-[node name="platform-falling20" parent="FallingPlatforms" instance=ExtResource("18_fqp17")]
+[node name="platform-falling20" parent="FallingPlatforms" unique_id=368308967 instance=ExtResource("18_fqp17")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.78804, -2.79382, -17.9395)
 
-[node name="platform-falling21" parent="FallingPlatforms" instance=ExtResource("18_fqp17")]
+[node name="platform-falling21" parent="FallingPlatforms" unique_id=2132977667 instance=ExtResource("18_fqp17")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.78804, -2.79382, -20.3461)
 
-[node name="platform-falling22" parent="FallingPlatforms" instance=ExtResource("18_fqp17")]
+[node name="platform-falling22" parent="FallingPlatforms" unique_id=1726409053 instance=ExtResource("18_fqp17")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.33192, -2.79382, -10.5577)
 
-[node name="platform-falling23" parent="FallingPlatforms" instance=ExtResource("18_fqp17")]
+[node name="platform-falling23" parent="FallingPlatforms" unique_id=338804186 instance=ExtResource("18_fqp17")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.33192, -2.79382, -13.0067)
 
-[node name="platform-falling24" parent="FallingPlatforms" instance=ExtResource("18_fqp17")]
+[node name="platform-falling24" parent="FallingPlatforms" unique_id=312991578 instance=ExtResource("18_fqp17")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.33192, -2.79382, -15.4476)
 
-[node name="platform-falling25" parent="FallingPlatforms" instance=ExtResource("18_fqp17")]
+[node name="platform-falling25" parent="FallingPlatforms" unique_id=1136467806 instance=ExtResource("18_fqp17")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.33192, -2.79382, -17.9395)
 
-[node name="platform-falling26" parent="FallingPlatforms" instance=ExtResource("18_fqp17")]
+[node name="platform-falling26" parent="FallingPlatforms" unique_id=444694065 instance=ExtResource("18_fqp17")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.33192, -2.79382, -20.3461)
 
-[node name="platform-falling27" parent="FallingPlatforms" instance=ExtResource("18_fqp17")]
+[node name="platform-falling27" parent="FallingPlatforms" unique_id=1890984886 instance=ExtResource("18_fqp17")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.893228, -2.79382, -10.5577)
 
-[node name="platform-falling28" parent="FallingPlatforms" instance=ExtResource("18_fqp17")]
+[node name="platform-falling28" parent="FallingPlatforms" unique_id=1352845195 instance=ExtResource("18_fqp17")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.893228, -2.79382, -13.0067)
 
-[node name="platform-falling29" parent="FallingPlatforms" instance=ExtResource("18_fqp17")]
+[node name="platform-falling29" parent="FallingPlatforms" unique_id=1149552535 instance=ExtResource("18_fqp17")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.893228, -2.79382, -15.4476)
 
-[node name="platform-falling31" parent="FallingPlatforms" instance=ExtResource("18_fqp17")]
+[node name="platform-falling31" parent="FallingPlatforms" unique_id=604128918 instance=ExtResource("18_fqp17")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.893228, -2.79382, -20.3461)
 
-[node name="platform-falling32" parent="FallingPlatforms" instance=ExtResource("18_fqp17")]
+[node name="platform-falling32" parent="FallingPlatforms" unique_id=631969693 instance=ExtResource("18_fqp17")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.42353, -2.79382, -10.5577)
 
-[node name="platform-falling33" parent="FallingPlatforms" instance=ExtResource("18_fqp17")]
+[node name="platform-falling33" parent="FallingPlatforms" unique_id=1034015191 instance=ExtResource("18_fqp17")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.42353, -2.79382, -13.0067)
 
-[node name="platform-falling34" parent="FallingPlatforms" instance=ExtResource("18_fqp17")]
+[node name="platform-falling34" parent="FallingPlatforms" unique_id=517687366 instance=ExtResource("18_fqp17")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.42353, -2.79382, -15.4476)
 
-[node name="platform-falling35" parent="FallingPlatforms" instance=ExtResource("18_fqp17")]
+[node name="platform-falling35" parent="FallingPlatforms" unique_id=1667144567 instance=ExtResource("18_fqp17")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.42353, -2.79382, -17.9395)
 
-[node name="platform-falling36" parent="FallingPlatforms" instance=ExtResource("18_fqp17")]
+[node name="platform-falling36" parent="FallingPlatforms" unique_id=687047298 instance=ExtResource("18_fqp17")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.42353, -2.79382, -20.3461)
 
-[node name="NavigationRegion3D" type="NavigationRegion3D" parent="."]
+[node name="NavigationRegion3D" type="NavigationRegion3D" parent="." unique_id=556727715]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.38246, -0.162452, -31.7031)
 navigation_mesh = SubResource("NavigationMesh_dnhof")
 metadata/_edit_lock_ = true
 
-[node name="World" type="Node3D" parent="NavigationRegion3D"]
+[node name="World" type="Node3D" parent="NavigationRegion3D" unique_id=412765671]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.38246, 0.162452, 31.7031)
 
-[node name="platform" parent="NavigationRegion3D/World" instance=ExtResource("19_wtvos")]
+[node name="platform" parent="NavigationRegion3D/World" unique_id=962806808 instance=ExtResource("19_wtvos")]
 transform = Transform3D(0.993085, 0, -0.117399, 0, 1, 0, 0.117399, 0, 0.993085, -2.7368698, 3.6087837, 24.951584)
 
-[node name="platform5" parent="NavigationRegion3D/World" instance=ExtResource("19_wtvos")]
+[node name="platform5" parent="NavigationRegion3D/World" unique_id=1188177372 instance=ExtResource("19_wtvos")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.71551, -2.96486, -54.1099)
 
-[node name="platform6" parent="NavigationRegion3D/World" instance=ExtResource("19_wtvos")]
+[node name="platform6" parent="NavigationRegion3D/World" unique_id=1050479279 instance=ExtResource("19_wtvos")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.12659, -2.96487, -54.1099)
 
-[node name="platform7" parent="NavigationRegion3D/World" instance=ExtResource("19_wtvos")]
+[node name="platform7" parent="NavigationRegion3D/World" unique_id=1394542756 instance=ExtResource("19_wtvos")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 21.045, 1.19882, -21.3711)
 
-[node name="platform8" parent="NavigationRegion3D/World" instance=ExtResource("19_wtvos")]
+[node name="platform8" parent="NavigationRegion3D/World" unique_id=1280008472 instance=ExtResource("19_wtvos")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20.8624, 1.19882, -21.3711)
 
-[node name="platform4" parent="NavigationRegion3D/World" instance=ExtResource("19_wtvos")]
+[node name="platform4" parent="NavigationRegion3D/World" unique_id=1947095306 instance=ExtResource("19_wtvos")]
 transform = Transform3D(0.993085, 0, -0.117399, 0, 1, 0, 0.117399, 0, 0.993085, -6.3384686, 3.6087837, 27.298384)
 
-[node name="platform2" parent="NavigationRegion3D/World" instance=ExtResource("19_wtvos")]
+[node name="platform2" parent="NavigationRegion3D/World" unique_id=1753472853 instance=ExtResource("19_wtvos")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9.019369, 5.6087837, 23.030184)
 
-[node name="platform3" parent="NavigationRegion3D/World" instance=ExtResource("19_wtvos")]
+[node name="platform3" parent="NavigationRegion3D/World" unique_id=487487084 instance=ExtResource("19_wtvos")]
 transform = Transform3D(0.966237, 0, -0.257656, 0, 1, 0, 0.257656, 0, 0.966237, -9.019369, 6.6087837, 21.030184)
 
-[node name="platform-medium" parent="NavigationRegion3D/World" instance=ExtResource("20_t1dpd")]
+[node name="platform-medium" parent="NavigationRegion3D/World" unique_id=1895586070 instance=ExtResource("20_t1dpd")]
 transform = Transform3D(0.996134, 0, 0.0878512, 0, 1, 0, -0.0878512, 0, 0.996134, 0.34906006, 3.6087837, 24.413183)
 
-[node name="platform-medium4" parent="NavigationRegion3D/World" instance=ExtResource("20_t1dpd")]
+[node name="platform-medium4" parent="NavigationRegion3D/World" unique_id=1097747922 instance=ExtResource("20_t1dpd")]
 transform = Transform3D(0.929796, 0, -0.368076, 0, 1, 0, 0.368076, 0, 0.929796, -6.2806683, 4.6007247, 23.426683)
 
-[node name="platform-medium3" parent="NavigationRegion3D/World" instance=ExtResource("20_t1dpd")]
+[node name="platform-medium3" parent="NavigationRegion3D/World" unique_id=988631634 instance=ExtResource("20_t1dpd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.019367, 6.6087837, 20.030184)
 
-[node name="platform-toggle" parent="NavigationRegion3D/World" instance=ExtResource("20_t1dpd")]
+[node name="platform-toggle" parent="NavigationRegion3D/World" unique_id=1534339357 instance=ExtResource("20_t1dpd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.1782149, -1.0299975, 1.977612)
 script = ExtResource("24_ta3ms")
 
-[node name="platform-toggle2" parent="NavigationRegion3D/World" instance=ExtResource("20_t1dpd")]
+[node name="platform-toggle2" parent="NavigationRegion3D/World" unique_id=456499822 instance=ExtResource("20_t1dpd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.6162313, 0.4824835, 5.3930287)
 script = ExtResource("24_ta3ms")
 
-[node name="platform-toggle3" parent="NavigationRegion3D/World" instance=ExtResource("20_t1dpd")]
+[node name="platform-toggle3" parent="NavigationRegion3D/World" unique_id=2065004082 instance=ExtResource("20_t1dpd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.1974788, 2.1702857, 8.769661)
 script = ExtResource("24_ta3ms")
 
-[node name="platform-grass-large-round" parent="NavigationRegion3D/World" instance=ExtResource("21_ixpsf")]
+[node name="platform-grass-large-round" parent="NavigationRegion3D/World" unique_id=1767665370 instance=ExtResource("21_ixpsf")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -13.019371, 4.6087837, 24.030184)
 
-[node name="platform-grass-large-round2" parent="NavigationRegion3D/World" instance=ExtResource("21_ixpsf")]
+[node name="platform-grass-large-round2" parent="NavigationRegion3D/World" unique_id=1436376169 instance=ExtResource("21_ixpsf")]
 transform = Transform3D(2, 0, 0, 0, 1, 0, 0, 0, 2, 8.912317, 2.9119227, 8.212634)
 
-[node name="platform-grass-large-round4" parent="NavigationRegion3D/World" instance=ExtResource("21_ixpsf")]
+[node name="platform-grass-large-round4" parent="NavigationRegion3D/World" unique_id=1599050054 instance=ExtResource("21_ixpsf")]
 transform = Transform3D(2, 0, 0, 0, 1, 0, 0, 0, 2, 23.683533, 5.108854, 31.461483)
 
-[node name="platform-grass-large-round5" parent="NavigationRegion3D/World" instance=ExtResource("21_ixpsf")]
+[node name="platform-grass-large-round5" parent="NavigationRegion3D/World" unique_id=2041255591 instance=ExtResource("21_ixpsf")]
 transform = Transform3D(2, 0, 0, 0, 1, 0, 0, 0, 2, 19.1599, 3.0458083, 23.1948)
 
-[node name="platform-grass-large-round3" parent="NavigationRegion3D/World" instance=ExtResource("21_ixpsf")]
+[node name="platform-grass-large-round3" parent="NavigationRegion3D/World" unique_id=833559255 instance=ExtResource("21_ixpsf")]
 transform = Transform3D(2, 0, 0, 0, 1, 0, 0, 0, 2, 9.4331875, 5.6768336, 22.185083)
 
-[node name="block-grass-corner-low3" parent="NavigationRegion3D/World" instance=ExtResource("22_45jki")]
+[node name="block-grass-corner-low3" parent="NavigationRegion3D/World" unique_id=1729281894 instance=ExtResource("22_45jki")]
 transform = Transform3D(2, 0, 0, 0, 1, 0, 0, 0, 2, 13.821491, 3.6087842, 9.481534)
 
-[node name="block-grass-corner-low4" parent="NavigationRegion3D/World" instance=ExtResource("22_45jki")]
+[node name="block-grass-corner-low4" parent="NavigationRegion3D/World" unique_id=1935847190 instance=ExtResource("22_45jki")]
 transform = Transform3D(2, 0, 0, 0, 1, 0, 0, 0, 2, 15.1798315, 4.3620825, 9.387835)
 
-[node name="block-grass-large-tall2" parent="NavigationRegion3D/World" instance=ExtResource("23_0e6el")]
+[node name="block-grass-large-tall2" parent="NavigationRegion3D/World" unique_id=42677812 instance=ExtResource("23_0e6el")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.10249, 2.0870538, 11.609384)
 
-[node name="block-grass-large-tall3" parent="NavigationRegion3D/World" instance=ExtResource("23_0e6el")]
+[node name="block-grass-large-tall3" parent="NavigationRegion3D/World" unique_id=720787370 instance=ExtResource("23_0e6el")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.10249, 2.7150197, 13.509583)
 
-[node name="block-grass-large-tall4" parent="NavigationRegion3D/World" instance=ExtResource("23_0e6el")]
+[node name="block-grass-large-tall4" parent="NavigationRegion3D/World" unique_id=318407111 instance=ExtResource("23_0e6el")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.10249, 3.2834837, 15.387084)
 
-[node name="block-grass-large-tall5" parent="NavigationRegion3D/World" instance=ExtResource("23_0e6el")]
+[node name="block-grass-large-tall5" parent="NavigationRegion3D/World" unique_id=1550423085 instance=ExtResource("23_0e6el")]
 transform = Transform3D(3.61837, 0, 0, 0, 1, 0, 0, 0, 11.6969, 15, -0.325, -21.361)
 
-[node name="block-grass-large-tall7" parent="NavigationRegion3D/World" instance=ExtResource("23_0e6el")]
+[node name="block-grass-large-tall7" parent="NavigationRegion3D/World" unique_id=1726649191 instance=ExtResource("23_0e6el")]
 transform = Transform3D(-3.61837, 0, -1.02258e-06, 0, 1, 0, 3.16328e-07, 0, -11.6969, -15, -0.325, -21.249)
 
-[node name="block-grass-large-tall11" parent="NavigationRegion3D/World" instance=ExtResource("23_0e6el")]
+[node name="block-grass-large-tall11" parent="NavigationRegion3D/World" unique_id=789624282 instance=ExtResource("23_0e6el")]
 transform = Transform3D(3.29919, 0, 0, 0, 1.54154, 0, 0, 0, 11.6969, 13.6447, -3.11547, -21.3544)
 
-[node name="block-grass-large-tall14" parent="NavigationRegion3D/World" instance=ExtResource("23_0e6el")]
+[node name="block-grass-large-tall14" parent="NavigationRegion3D/World" unique_id=1163219419 instance=ExtResource("23_0e6el")]
 transform = Transform3D(3.29919, 0, 0, 0, 1.54154, 0, 0, 0, 11.6969, 13.6447, -5.88429, -21.3544)
 
-[node name="block-grass-large-tall12" parent="NavigationRegion3D/World" instance=ExtResource("23_0e6el")]
+[node name="block-grass-large-tall12" parent="NavigationRegion3D/World" unique_id=1998491391 instance=ExtResource("23_0e6el")]
 transform = Transform3D(-3.29919, 0, -1.02258e-06, 0, 1.54154, 0, 2.88425e-07, 0, -11.6969, -13.709, -3.11547, -21.2424)
 
-[node name="block-grass-large-tall15" parent="NavigationRegion3D/World" instance=ExtResource("23_0e6el")]
+[node name="block-grass-large-tall15" parent="NavigationRegion3D/World" unique_id=740408676 instance=ExtResource("23_0e6el")]
 transform = Transform3D(-3.29919, 0, -1.02258e-06, 0, 1.54154, 0, 2.88425e-07, 0, -11.6969, -13.709, -5.75374, -21.2424)
 
-[node name="block-grass-large-tall9" parent="NavigationRegion3D/World" instance=ExtResource("23_0e6el")]
+[node name="block-grass-large-tall9" parent="NavigationRegion3D/World" unique_id=264965463 instance=ExtResource("23_0e6el")]
 transform = Transform3D(15.5565, 0, 0, 0, 0.997431, 0, 0, 0, 12.4934, 0, -4.57102, -27.935)
 
-[node name="block-grass-large-tall10" parent="NavigationRegion3D/World" instance=ExtResource("23_0e6el")]
+[node name="block-grass-large-tall10" parent="NavigationRegion3D/World" unique_id=183245584 instance=ExtResource("23_0e6el")]
 transform = Transform3D(15.5866, 0, 0, 0, 0.999365, 0, 0, 0, 9.99365, 0, -2.6784, -11.2548)
 
-[node name="block-grass-large-tall13" parent="NavigationRegion3D/World" instance=ExtResource("23_0e6el")]
+[node name="block-grass-large-tall13" parent="NavigationRegion3D/World" unique_id=795211216 instance=ExtResource("23_0e6el")]
 transform = Transform3D(15.5866, 0, 0, 0, 0.999365, 0, 0, 0, 9.99365, 0, -4.71049, -11.2548)
 
-[node name="tree2" parent="NavigationRegion3D/World" instance=ExtResource("24_ibv6s")]
+[node name="tree2" parent="NavigationRegion3D/World" unique_id=506727491 instance=ExtResource("24_ibv6s")]
 transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, 6.795602, 3.3574028, 7.632394)
 
-[node name="tree6" parent="NavigationRegion3D/World" instance=ExtResource("24_ibv6s")]
+[node name="tree6" parent="NavigationRegion3D/World" unique_id=1088505784 instance=ExtResource("24_ibv6s")]
 transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, -12.8695, -0.69716, -5.15432)
 
-[node name="tree7" parent="NavigationRegion3D/World" instance=ExtResource("24_ibv6s")]
+[node name="tree7" parent="NavigationRegion3D/World" unique_id=514286205 instance=ExtResource("24_ibv6s")]
 transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, 12.254, -0.69716, -5.15432)
 
-[node name="tree8" parent="NavigationRegion3D/World" instance=ExtResource("24_ibv6s")]
+[node name="tree8" parent="NavigationRegion3D/World" unique_id=762018923 instance=ExtResource("24_ibv6s")]
 transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, 12.4448, -2.59291, -36.832)
 
-[node name="tree9" parent="NavigationRegion3D/World" instance=ExtResource("24_ibv6s")]
+[node name="tree9" parent="NavigationRegion3D/World" unique_id=353288297 instance=ExtResource("24_ibv6s")]
 transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, -12.0396, -2.59291, -36.832)
 
-[node name="tree3" parent="NavigationRegion3D/World" instance=ExtResource("24_ibv6s")]
+[node name="tree3" parent="NavigationRegion3D/World" unique_id=708720194 instance=ExtResource("24_ibv6s")]
 transform = Transform3D(1.28518, 0, -0.773499, 0, 1.5, 0, 0.773499, 0, 1.28518, 12.775372, 6.118704, 23.800684)
 
-[node name="tree5" parent="NavigationRegion3D/World" instance=ExtResource("24_ibv6s")]
+[node name="tree5" parent="NavigationRegion3D/World" unique_id=1331811788 instance=ExtResource("24_ibv6s")]
 transform = Transform3D(1.28518, 0, -0.773499, 0, 1.5, 0, 0.773499, 0, 1.28518, 24.332932, 11.305063, 23.721384)
 
-[node name="tree4" parent="NavigationRegion3D/World" instance=ExtResource("24_ibv6s")]
+[node name="tree4" parent="NavigationRegion3D/World" unique_id=132665716 instance=ExtResource("24_ibv6s")]
 transform = Transform3D(0.56305, 0, -1.39031, 0, 1.5, 0, 1.39031, 0, 0.56305, 10.519602, 6.118704, 25.762983)
 
-[node name="block-grass-curve-half2" parent="NavigationRegion3D/World" instance=ExtResource("25_iyh0y")]
+[node name="block-grass-curve-half2" parent="NavigationRegion3D/World" unique_id=281825224 instance=ExtResource("25_iyh0y")]
 transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 14.873841, 3.0282848, 6.2249937)
 
-[node name="barrel2" parent="NavigationRegion3D/World" instance=ExtResource("26_a58hf")]
+[node name="barrel2" parent="NavigationRegion3D/World" unique_id=308117142 instance=ExtResource("26_a58hf")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.6490917, 3.4119227, 9.951094)
 
-[node name="barrel3" parent="NavigationRegion3D/World" instance=ExtResource("26_a58hf")]
+[node name="barrel3" parent="NavigationRegion3D/World" unique_id=848579616 instance=ExtResource("26_a58hf")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.2554016, 3.4119227, 10.358544)
 
-[node name="barrel4" parent="NavigationRegion3D/World" instance=ExtResource("26_a58hf")]
+[node name="barrel4" parent="NavigationRegion3D/World" unique_id=735939367 instance=ExtResource("26_a58hf")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.2383413, 3.4119217, 9.789043)
 
-[node name="barrel5" parent="NavigationRegion3D/World" instance=ExtResource("26_a58hf")]
+[node name="barrel5" parent="NavigationRegion3D/World" unique_id=74793361 instance=ExtResource("26_a58hf")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30.706532, 11.279413, 24.077284)
 
-[node name="barrel6" parent="NavigationRegion3D/World" instance=ExtResource("26_a58hf")]
+[node name="barrel6" parent="NavigationRegion3D/World" unique_id=1801286100 instance=ExtResource("26_a58hf")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 31.312832, 11.279413, 24.484783)
 
-[node name="barrel7" parent="NavigationRegion3D/World" instance=ExtResource("26_a58hf")]
+[node name="barrel7" parent="NavigationRegion3D/World" unique_id=329551042 instance=ExtResource("26_a58hf")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 31.295832, 11.279413, 23.915283)
 
-[node name="door-large-open2" parent="NavigationRegion3D/World" instance=ExtResource("27_hrdxw")]
+[node name="door-large-open2" parent="NavigationRegion3D/World" unique_id=1071656262 instance=ExtResource("27_hrdxw")]
 transform = Transform3D(-8.74228e-08, 0, 2, 0, 2, 0, -2, 0, -8.74228e-08, 6.518242, 6.1846037, 21.716784)
 
-[node name="door-large-open3" parent="NavigationRegion3D/World" instance=ExtResource("27_hrdxw")]
+[node name="door-large-open3" parent="NavigationRegion3D/World" unique_id=1590927046 instance=ExtResource("27_hrdxw")]
 transform = Transform3D(1.28311, 0, 1.53415, 0, 2, 0, -1.53415, 0, 1.28311, 20.76353, 5.5992637, 28.595284)
 
-[node name="block-grass-overhang-edge2" parent="NavigationRegion3D/World" instance=ExtResource("28_rdh0f")]
+[node name="block-grass-overhang-edge2" parent="NavigationRegion3D/World" unique_id=2037253297 instance=ExtResource("28_rdh0f")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.6102295, 5.2834835, 16.356483)
 
-[node name="GroundEnemy" parent="." instance=ExtResource("33_ojhao")]
+[node name="GroundEnemy" parent="." unique_id=139083733 instance=ExtResource("33_ojhao")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.30597, -1.93323, -35.9228)
 
-[node name="SolitaireDeckStackTeamA1" type="Node3D" parent="."]
+[node name="SolitaireDeckStackTeamA1" type="Node3D" parent="." unique_id=636151875]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16.6283, 1.93516, -16.6801)
 script = ExtResource("34_aa6m4")
 
-[node name="DecalPath" type="Node3D" parent="SolitaireDeckStackTeamA1" node_paths=PackedStringArray("path")]
+[node name="DecalPath" type="Node3D" parent="SolitaireDeckStackTeamA1" unique_id=1870927910 node_paths=PackedStringArray("path")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.722587, 0, 6.55914)
 script = ExtResource("35_e5jlj")
 path = NodePath("Path3D")
 decal_scene = ExtResource("36_0mq5q")
 
-[node name="Path3D" type="Path3D" parent="SolitaireDeckStackTeamA1/DecalPath"]
+[node name="Path3D" type="Path3D" parent="SolitaireDeckStackTeamA1/DecalPath" unique_id=952821792]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0602333, -0.0867013, 0)
 curve = SubResource("Curve3D_kmb1v")
 
-[node name="Area3D" type="Area3D" parent="SolitaireDeckStackTeamA1"]
+[node name="Area3D" type="Area3D" parent="SolitaireDeckStackTeamA1" unique_id=147377504]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0679501, 0, 0.432591)
 monitoring = false
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="SolitaireDeckStackTeamA1/Area3D"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="SolitaireDeckStackTeamA1/Area3D" unique_id=168316845]
 transform = Transform3D(0.999992, 0, 0, 0, 1, 0, 0, 0, 0.999992, -0.0192642, 0, 0.0200269)
 shape = SubResource("BoxShape3D_vchkt")
 debug_color = Color(0.906147, 0.000127643, 0.74223, 1)
 
-[node name="SolitaireDeckStackTeamA2" type="Node3D" parent="."]
+[node name="SolitaireDeckStackTeamA2" type="Node3D" parent="." unique_id=922198079]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14.1513, 1.93516, -16.6801)
 script = ExtResource("34_aa6m4")
 
-[node name="DecalPath" type="Node3D" parent="SolitaireDeckStackTeamA2" node_paths=PackedStringArray("path")]
+[node name="DecalPath" type="Node3D" parent="SolitaireDeckStackTeamA2" unique_id=1731398948 node_paths=PackedStringArray("path")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.722587, 0, 6.55914)
 script = ExtResource("35_e5jlj")
 path = NodePath("Path3D")
 decal_scene = ExtResource("36_0mq5q")
 
-[node name="Path3D" type="Path3D" parent="SolitaireDeckStackTeamA2/DecalPath"]
+[node name="Path3D" type="Path3D" parent="SolitaireDeckStackTeamA2/DecalPath" unique_id=1972755775]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0602333, -0.0867013, 0)
 curve = SubResource("Curve3D_kmb1v")
 
-[node name="Area3D" type="Area3D" parent="SolitaireDeckStackTeamA2"]
+[node name="Area3D" type="Area3D" parent="SolitaireDeckStackTeamA2" unique_id=323903314]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0679501, 0, 0.432591)
 monitoring = false
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="SolitaireDeckStackTeamA2/Area3D"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="SolitaireDeckStackTeamA2/Area3D" unique_id=1193851281]
 transform = Transform3D(0.999992, 0, 0, 0, 1, 0, 0, 0, 0.999992, -0.0192642, 0, 0.0200269)
 shape = SubResource("BoxShape3D_vchkt")
 debug_color = Color(0.906147, 0.000127643, 0.74223, 1)
 
-[node name="SolitaireDeckStackTeamA3" type="Node3D" parent="."]
+[node name="SolitaireDeckStackTeamA3" type="Node3D" parent="." unique_id=1873068929]
 transform = Transform3D(-1, 0, 8.74228e-08, 0, 1, 0, -8.74228e-08, 0, -1, 13.4646, 1.93516, -25.9018)
 script = ExtResource("34_aa6m4")
 
-[node name="DecalPath" type="Node3D" parent="SolitaireDeckStackTeamA3" node_paths=PackedStringArray("path")]
+[node name="DecalPath" type="Node3D" parent="SolitaireDeckStackTeamA3" unique_id=2066494159 node_paths=PackedStringArray("path")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.722587, 0, 6.55914)
 script = ExtResource("35_e5jlj")
 path = NodePath("Path3D")
 decal_scene = ExtResource("36_0mq5q")
 
-[node name="Path3D" type="Path3D" parent="SolitaireDeckStackTeamA3/DecalPath"]
+[node name="Path3D" type="Path3D" parent="SolitaireDeckStackTeamA3/DecalPath" unique_id=421164654]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0602333, -0.0867013, 0)
 curve = SubResource("Curve3D_kmb1v")
 
-[node name="Area3D" type="Area3D" parent="SolitaireDeckStackTeamA3"]
+[node name="Area3D" type="Area3D" parent="SolitaireDeckStackTeamA3" unique_id=682115764]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0679501, 0, 0.432591)
 monitoring = false
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="SolitaireDeckStackTeamA3/Area3D"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="SolitaireDeckStackTeamA3/Area3D" unique_id=480883420]
 transform = Transform3D(0.999992, 0, 0, 0, 1, 0, 0, 0, 0.999992, -0.0192642, 0, 0.0200269)
 shape = SubResource("BoxShape3D_vchkt")
 debug_color = Color(0.906147, 0.000127643, 0.74223, 1)
 
-[node name="SolitaireDeckStackTeamA4" type="Node3D" parent="."]
+[node name="SolitaireDeckStackTeamA4" type="Node3D" parent="." unique_id=216599837]
 transform = Transform3D(-1, 0, 8.74228e-08, 0, 1, 0, -8.74228e-08, 0, -1, 15.9416, 1.93516, -25.9018)
 script = ExtResource("34_aa6m4")
 
-[node name="DecalPath" type="Node3D" parent="SolitaireDeckStackTeamA4" node_paths=PackedStringArray("path")]
+[node name="DecalPath" type="Node3D" parent="SolitaireDeckStackTeamA4" unique_id=1352922753 node_paths=PackedStringArray("path")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.722587, 0, 6.55914)
 script = ExtResource("35_e5jlj")
 path = NodePath("Path3D")
 decal_scene = ExtResource("36_0mq5q")
 
-[node name="Path3D" type="Path3D" parent="SolitaireDeckStackTeamA4/DecalPath"]
+[node name="Path3D" type="Path3D" parent="SolitaireDeckStackTeamA4/DecalPath" unique_id=1039110832]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0602333, -0.0867013, 0)
 curve = SubResource("Curve3D_kmb1v")
 
-[node name="Area3D" type="Area3D" parent="SolitaireDeckStackTeamA4"]
+[node name="Area3D" type="Area3D" parent="SolitaireDeckStackTeamA4" unique_id=1541990768]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0679501, 0, 0.432591)
 monitoring = false
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="SolitaireDeckStackTeamA4/Area3D"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="SolitaireDeckStackTeamA4/Area3D" unique_id=1058122357]
 transform = Transform3D(0.999992, 0, 0, 0, 1, 0, 0, 0, 0.999992, -0.0192642, 0, 0.0200269)
 shape = SubResource("BoxShape3D_vchkt")
 debug_color = Color(0.906147, 0.000127643, 0.74223, 1)
 
-[node name="HoldInteractAreaTeamFlipA" type="Area3D" parent="."]
+[node name="HoldInteractAreaTeamFlipA" type="Area3D" parent="." unique_id=168014724]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12.7919, 1.66559, -21.2466)
 script = ExtResource("37_s4un2")
 hold_time_required = 0.45
 prompt_text = "Flip Stock"
 team = "A"
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="HoldInteractAreaTeamFlipA"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="HoldInteractAreaTeamFlipA" unique_id=2078315763]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.175474, 0)
 shape = SubResource("CylinderShape3D_nvyfr")
 debug_color = Color(0.971135, 0, 0.450019, 0.42)
 
-[node name="HoldInteractAreaTeamReshuffleA" type="Area3D" parent="."]
+[node name="HoldInteractAreaTeamReshuffleA" type="Area3D" parent="." unique_id=1110914369]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 21.1117, 1.66559, -21.2466)
 script = ExtResource("37_s4un2")
 hold_time_required = 1.0
 prompt_text = "Reshuffle Stock and Goal Stacks"
 team = "A"
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="HoldInteractAreaTeamReshuffleA"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="HoldInteractAreaTeamReshuffleA" unique_id=1266895764]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.175474, 0)
 shape = SubResource("CylinderShape3D_nvyfr")
 debug_color = Color(0.971135, 0, 0.450019, 0.42)
 
-[node name="GoalStackA" type="Node3D" parent="."]
+[node name="GoalStackA" type="Node3D" parent="." unique_id=1351295275]
 transform = Transform3D(0.999375, 0, 0.035353, 0, 1, 0, -0.035353, 0, 0.999375, 17.3415, 1.83345, -21.6913)
 script = ExtResource("38_d6poa")
 
-[node name="Decal" type="Decal" parent="GoalStackA"]
+[node name="Decal" type="Decal" parent="GoalStackA" unique_id=1625832982]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0, -0.0592926, 0.400215)
 size = Vector3(1.5, 2, 1)
 texture_albedo = ExtResource("39_vortl")
@@ -1615,20 +1615,20 @@ upper_fade = 1e-05
 lower_fade = 0.01
 cull_mask = 1047553
 
-[node name="Area3D" type="Area3D" parent="GoalStackA"]
+[node name="Area3D" type="Area3D" parent="GoalStackA" unique_id=1022495146]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.415338)
 monitoring = false
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="GoalStackA/Area3D"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="GoalStackA/Area3D" unique_id=1441619735]
 transform = Transform3D(0.999992, 0, 0, 0, 1, 0, 0, 0, 0.999992, -0.0192642, 0, -0.0320156)
 shape = SubResource("BoxShape3D_vchkt")
 debug_color = Color(0.906147, 0.000127643, 0.74223, 1)
 
-[node name="StockStackA" type="Node3D" parent="."]
+[node name="StockStackA" type="Node3D" parent="." unique_id=200059992]
 transform = Transform3D(0.999375, 0, 0.035353, 0, 1, 0, -0.035353, 0, 0.999375, 13.9013, 1.83345, -21.6913)
 script = ExtResource("40_xn76u")
 
-[node name="Decal" type="Decal" parent="StockStackA"]
+[node name="Decal" type="Decal" parent="StockStackA" unique_id=1429386592]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0, -0.0592926, 0.400215)
 size = Vector3(1.5, 2, 1)
 texture_albedo = ExtResource("39_vortl")
@@ -1636,20 +1636,20 @@ upper_fade = 1e-05
 lower_fade = 0.01
 cull_mask = 1047553
 
-[node name="Area3D" type="Area3D" parent="StockStackA"]
+[node name="Area3D" type="Area3D" parent="StockStackA" unique_id=278882133]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.415338)
 monitoring = false
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="StockStackA/Area3D"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StockStackA/Area3D" unique_id=747145602]
 transform = Transform3D(0.999992, 0, 0, 0, 1, 0, 0, 0, 0.999992, -0.0192642, 0, -0.0320156)
 shape = SubResource("BoxShape3D_vchkt")
 debug_color = Color(0.906147, 0.000127643, 0.74223, 1)
 
-[node name="FlipStackA" type="Node3D" parent="."]
+[node name="FlipStackA" type="Node3D" parent="." unique_id=1482488812]
 transform = Transform3D(0.999375, 0, 0.035353, 0, 1, 0, -0.035353, 0, 0.999375, 15.2979, 1.83345, -21.7407)
 script = ExtResource("41_b17og")
 
-[node name="Decal" type="Decal" parent="FlipStackA"]
+[node name="Decal" type="Decal" parent="FlipStackA" unique_id=1300060532]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0, -0.0592926, 0.400215)
 size = Vector3(1.5, 2, 1)
 texture_albedo = ExtResource("39_vortl")
@@ -1657,44 +1657,44 @@ upper_fade = 1e-05
 lower_fade = 0.01
 cull_mask = 1047553
 
-[node name="Area3D" type="Area3D" parent="FlipStackA"]
+[node name="Area3D" type="Area3D" parent="FlipStackA" unique_id=1900641787]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.415338)
 monitoring = false
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="FlipStackA/Area3D"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="FlipStackA/Area3D" unique_id=760700628]
 transform = Transform3D(0.999992, 0, 0, 0, 1, 0, 0, 0, 0.999992, -0.0192642, 0, -0.0320156)
 shape = SubResource("BoxShape3D_vchkt")
 debug_color = Color(0.906147, 0.000127643, 0.74223, 1)
 
-[node name="HoldInteractAreaTeamFlipB" type="Area3D" parent="."]
+[node name="HoldInteractAreaTeamFlipB" type="Area3D" parent="." unique_id=797982571]
 transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, -12.8097, 1.66559, -21.9383)
 script = ExtResource("37_s4un2")
 hold_time_required = 0.45
 prompt_text = "Flip Stock"
 team = "B"
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="HoldInteractAreaTeamFlipB"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="HoldInteractAreaTeamFlipB" unique_id=421282953]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.175474, 0)
 shape = SubResource("CylinderShape3D_nvyfr")
 debug_color = Color(0.971135, 0, 0.450019, 0.42)
 
-[node name="HoldInteractAreaTeamReshuffleB" type="Area3D" parent="."]
+[node name="HoldInteractAreaTeamReshuffleB" type="Area3D" parent="." unique_id=1847820971]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20.9318, 1.66559, -21.2466)
 script = ExtResource("37_s4un2")
 hold_time_required = 1.0
 prompt_text = "Reshuffle Stock and Goal Stacks"
 team = "B"
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="HoldInteractAreaTeamReshuffleB"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="HoldInteractAreaTeamReshuffleB" unique_id=2015408103]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.175474, 0)
 shape = SubResource("CylinderShape3D_nvyfr")
 debug_color = Color(0.971135, 0, 0.450019, 0.42)
 
-[node name="GoalStackB" type="Node3D" parent="."]
+[node name="GoalStackB" type="Node3D" parent="." unique_id=388934108]
 transform = Transform3D(-0.999375, 0, -0.0353531, 0, 1, 0, 0.0353531, 0, -0.999375, -17.3594, 1.83345, -21.4936)
 script = ExtResource("38_d6poa")
 
-[node name="Decal" type="Decal" parent="GoalStackB"]
+[node name="Decal" type="Decal" parent="GoalStackB" unique_id=542866950]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0, -0.0592926, 0.400215)
 size = Vector3(1.5, 2, 1)
 texture_albedo = ExtResource("39_vortl")
@@ -1702,20 +1702,20 @@ upper_fade = 1e-05
 lower_fade = 0.01
 cull_mask = 1047553
 
-[node name="Area3D" type="Area3D" parent="GoalStackB"]
+[node name="Area3D" type="Area3D" parent="GoalStackB" unique_id=1867707342]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.415338)
 monitoring = false
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="GoalStackB/Area3D"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="GoalStackB/Area3D" unique_id=7622286]
 transform = Transform3D(0.999992, 0, 0, 0, 1, 0, 0, 0, 0.999992, -0.0192642, 0, -0.0320156)
 shape = SubResource("BoxShape3D_vchkt")
 debug_color = Color(0.906147, 0.000127643, 0.74223, 1)
 
-[node name="StockStackB" type="Node3D" parent="."]
+[node name="StockStackB" type="Node3D" parent="." unique_id=964251656]
 transform = Transform3D(-0.999375, 0, -0.0353531, 0, 1, 0, 0.0353531, 0, -0.999375, -13.9192, 1.83345, -21.4936)
 script = ExtResource("40_xn76u")
 
-[node name="Decal" type="Decal" parent="StockStackB"]
+[node name="Decal" type="Decal" parent="StockStackB" unique_id=786256460]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0, -0.0592926, 0.400215)
 size = Vector3(1.5, 2, 1)
 texture_albedo = ExtResource("39_vortl")
@@ -1723,20 +1723,20 @@ upper_fade = 1e-05
 lower_fade = 0.01
 cull_mask = 1047553
 
-[node name="Area3D" type="Area3D" parent="StockStackB"]
+[node name="Area3D" type="Area3D" parent="StockStackB" unique_id=559807402]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.415338)
 monitoring = false
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="StockStackB/Area3D"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StockStackB/Area3D" unique_id=1676296032]
 transform = Transform3D(0.999992, 0, 0, 0, 1, 0, 0, 0, 0.999992, -0.0192642, 0, -0.0320156)
 shape = SubResource("BoxShape3D_vchkt")
 debug_color = Color(0.906147, 0.000127643, 0.74223, 1)
 
-[node name="FlipStackB" type="Node3D" parent="."]
+[node name="FlipStackB" type="Node3D" parent="." unique_id=352896634]
 transform = Transform3D(-0.999375, 0, -0.0353531, 0, 1, 0, 0.0353531, 0, -0.999375, -15.3158, 1.83345, -21.4442)
 script = ExtResource("41_b17og")
 
-[node name="Decal" type="Decal" parent="FlipStackB"]
+[node name="Decal" type="Decal" parent="FlipStackB" unique_id=1864310483]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0, -0.0592926, 0.400215)
 size = Vector3(1.5, 2, 1)
 texture_albedo = ExtResource("39_vortl")
@@ -1744,115 +1744,115 @@ upper_fade = 1e-05
 lower_fade = 0.01
 cull_mask = 1047553
 
-[node name="Area3D" type="Area3D" parent="FlipStackB"]
+[node name="Area3D" type="Area3D" parent="FlipStackB" unique_id=1110067078]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.415338)
 monitoring = false
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="FlipStackB/Area3D"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="FlipStackB/Area3D" unique_id=158423506]
 transform = Transform3D(0.999992, 0, 0, 0, 1, 0, 0, 0, 0.999992, -0.0192642, 0, -0.0320156)
 shape = SubResource("BoxShape3D_vchkt")
 debug_color = Color(0.906147, 0.000127643, 0.74223, 1)
 
-[node name="SolitaireDeckStackTeamB1" type="Node3D" parent="."]
+[node name="SolitaireDeckStackTeamB1" type="Node3D" parent="." unique_id=1218828063]
 transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, -16.6297, 1.93516, -25.9298)
 script = ExtResource("34_aa6m4")
 
-[node name="DecalPath" type="Node3D" parent="SolitaireDeckStackTeamB1" node_paths=PackedStringArray("path")]
+[node name="DecalPath" type="Node3D" parent="SolitaireDeckStackTeamB1" unique_id=980236196 node_paths=PackedStringArray("path")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.722587, 0, 6.55914)
 script = ExtResource("35_e5jlj")
 path = NodePath("Path3D")
 decal_scene = ExtResource("36_0mq5q")
 
-[node name="Path3D" type="Path3D" parent="SolitaireDeckStackTeamB1/DecalPath"]
+[node name="Path3D" type="Path3D" parent="SolitaireDeckStackTeamB1/DecalPath" unique_id=59543989]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0602333, -0.0867013, 0)
 curve = SubResource("Curve3D_kmb1v")
 
-[node name="Area3D" type="Area3D" parent="SolitaireDeckStackTeamB1"]
+[node name="Area3D" type="Area3D" parent="SolitaireDeckStackTeamB1" unique_id=116777916]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0679501, 0, 0.432591)
 monitoring = false
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="SolitaireDeckStackTeamB1/Area3D"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="SolitaireDeckStackTeamB1/Area3D" unique_id=1280032883]
 transform = Transform3D(0.999992, 0, 0, 0, 1, 0, 0, 0, 0.999992, -0.0192642, 0, 0.0200269)
 shape = SubResource("BoxShape3D_vchkt")
 debug_color = Color(0.906147, 0.000127643, 0.74223, 1)
 
-[node name="SolitaireDeckStackTeamB2" type="Node3D" parent="."]
+[node name="SolitaireDeckStackTeamB2" type="Node3D" parent="." unique_id=1083588128]
 transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, -14.1526, 1.93516, -25.9298)
 script = ExtResource("34_aa6m4")
 
-[node name="DecalPath" type="Node3D" parent="SolitaireDeckStackTeamB2" node_paths=PackedStringArray("path")]
+[node name="DecalPath" type="Node3D" parent="SolitaireDeckStackTeamB2" unique_id=422740255 node_paths=PackedStringArray("path")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.722587, 0, 6.55914)
 script = ExtResource("35_e5jlj")
 path = NodePath("Path3D")
 decal_scene = ExtResource("36_0mq5q")
 
-[node name="Path3D" type="Path3D" parent="SolitaireDeckStackTeamB2/DecalPath"]
+[node name="Path3D" type="Path3D" parent="SolitaireDeckStackTeamB2/DecalPath" unique_id=1810106430]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0602333, -0.0867013, 0)
 curve = SubResource("Curve3D_kmb1v")
 
-[node name="Area3D" type="Area3D" parent="SolitaireDeckStackTeamB2"]
+[node name="Area3D" type="Area3D" parent="SolitaireDeckStackTeamB2" unique_id=1189081106]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0679501, 0, 0.432591)
 monitoring = false
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="SolitaireDeckStackTeamB2/Area3D"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="SolitaireDeckStackTeamB2/Area3D" unique_id=1699350529]
 transform = Transform3D(0.999992, 0, 0, 0, 1, 0, 0, 0, 0.999992, -0.0192642, 0, 0.0200269)
 shape = SubResource("BoxShape3D_vchkt")
 debug_color = Color(0.906147, 0.000127643, 0.74223, 1)
 
-[node name="SolitaireDeckStackTeamB3" type="Node3D" parent="."]
+[node name="SolitaireDeckStackTeamB3" type="Node3D" parent="." unique_id=543160701]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -13.4659, 1.93516, -16.7081)
 script = ExtResource("34_aa6m4")
 
-[node name="DecalPath" type="Node3D" parent="SolitaireDeckStackTeamB3" node_paths=PackedStringArray("path")]
+[node name="DecalPath" type="Node3D" parent="SolitaireDeckStackTeamB3" unique_id=268154572 node_paths=PackedStringArray("path")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.722587, 0, 6.55914)
 script = ExtResource("35_e5jlj")
 path = NodePath("Path3D")
 decal_scene = ExtResource("36_0mq5q")
 
-[node name="Path3D" type="Path3D" parent="SolitaireDeckStackTeamB3/DecalPath"]
+[node name="Path3D" type="Path3D" parent="SolitaireDeckStackTeamB3/DecalPath" unique_id=149667830]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0602333, -0.0867013, 0)
 curve = SubResource("Curve3D_kmb1v")
 
-[node name="Area3D" type="Area3D" parent="SolitaireDeckStackTeamB3"]
+[node name="Area3D" type="Area3D" parent="SolitaireDeckStackTeamB3" unique_id=943378849]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0679501, 0, 0.432591)
 monitoring = false
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="SolitaireDeckStackTeamB3/Area3D"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="SolitaireDeckStackTeamB3/Area3D" unique_id=399076878]
 transform = Transform3D(0.999992, 0, 0, 0, 1, 0, 0, 0, 0.999992, -0.0192642, 0, 0.0200269)
 shape = SubResource("BoxShape3D_vchkt")
 debug_color = Color(0.906147, 0.000127643, 0.74223, 1)
 
-[node name="SolitaireDeckStackTeamB4" type="Node3D" parent="."]
+[node name="SolitaireDeckStackTeamB4" type="Node3D" parent="." unique_id=1792495381]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -15.943, 1.93516, -16.7081)
 script = ExtResource("34_aa6m4")
 
-[node name="DecalPath" type="Node3D" parent="SolitaireDeckStackTeamB4" node_paths=PackedStringArray("path")]
+[node name="DecalPath" type="Node3D" parent="SolitaireDeckStackTeamB4" unique_id=91953443 node_paths=PackedStringArray("path")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.722587, 0, 6.55914)
 script = ExtResource("35_e5jlj")
 path = NodePath("Path3D")
 decal_scene = ExtResource("36_0mq5q")
 
-[node name="Path3D" type="Path3D" parent="SolitaireDeckStackTeamB4/DecalPath"]
+[node name="Path3D" type="Path3D" parent="SolitaireDeckStackTeamB4/DecalPath" unique_id=1774807696]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0602333, -0.0867013, 0)
 curve = SubResource("Curve3D_kmb1v")
 
-[node name="Area3D" type="Area3D" parent="SolitaireDeckStackTeamB4"]
+[node name="Area3D" type="Area3D" parent="SolitaireDeckStackTeamB4" unique_id=153886596]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0679501, 0, 0.432591)
 monitoring = false
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="SolitaireDeckStackTeamB4/Area3D"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="SolitaireDeckStackTeamB4/Area3D" unique_id=1513602052]
 transform = Transform3D(0.999992, 0, 0, 0, 1, 0, 0, 0, 0.999992, -0.0192642, 0, 0.0200269)
 shape = SubResource("BoxShape3D_vchkt")
 debug_color = Color(0.906147, 0.000127643, 0.74223, 1)
 
-[node name="platform-goal" parent="." instance=ExtResource("42_0gndp")]
+[node name="platform-goal" parent="." unique_id=531937521 instance=ExtResource("42_0gndp")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.86017, -2.9362, -49.6099)
 
-[node name="FieldStack" type="Node3D" parent="platform-goal"]
+[node name="FieldStack" type="Node3D" parent="platform-goal" unique_id=1209090544]
 transform = Transform3D(0.999375, 0, 0.035353, 0, 1, 0, -0.035353, 0, 0.999375, -0.0340905, 0.529436, 0.357943)
 script = ExtResource("43_nx4jx")
 
-[node name="Decal" type="Decal" parent="platform-goal/FieldStack"]
+[node name="Decal" type="Decal" parent="platform-goal/FieldStack" unique_id=1990212104]
 transform = Transform3D(-4.09782e-08, 0, 1, 0, 1, 0, -1, 0, -4.09782e-08, 0.0265112, -0.0592926, -0.349234)
 size = Vector3(1.5, 2, 1)
 texture_albedo = ExtResource("39_vortl")
@@ -1860,23 +1860,23 @@ upper_fade = 1e-05
 lower_fade = 0.01
 cull_mask = 1047553
 
-[node name="Area3D" type="Area3D" parent="platform-goal/FieldStack"]
+[node name="Area3D" type="Area3D" parent="platform-goal/FieldStack" unique_id=909032222]
 transform = Transform3D(1, 0, -3.72529e-09, 0, 1, 0, 3.72529e-09, 0, 1, 0.0245028, 0, -0.277338)
 monitoring = false
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="platform-goal/FieldStack/Area3D"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="platform-goal/FieldStack/Area3D" unique_id=2035948358]
 transform = Transform3D(0.999992, 0, 0, 0, 1, 0, 0, 0, 0.999992, -0.0192642, 0, -0.0320156)
 shape = SubResource("BoxShape3D_vchkt")
 debug_color = Color(0.906147, 0.000127643, 0.74223, 1)
 
-[node name="platform-goal3" parent="." instance=ExtResource("42_0gndp")]
+[node name="platform-goal3" parent="." unique_id=2031405122 instance=ExtResource("42_0gndp")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.45559, -2.9362, -49.6099)
 
-[node name="FieldStack" type="Node3D" parent="platform-goal3"]
+[node name="FieldStack" type="Node3D" parent="platform-goal3" unique_id=1509949811]
 transform = Transform3D(0.999375, 0, 0.035353, 0, 1, 0, -0.035353, 0, 0.999375, -0.0340905, 0.529436, 0.357943)
 script = ExtResource("43_nx4jx")
 
-[node name="Decal" type="Decal" parent="platform-goal3/FieldStack"]
+[node name="Decal" type="Decal" parent="platform-goal3/FieldStack" unique_id=621264580]
 transform = Transform3D(-4.09782e-08, 0, 1, 0, 1, 0, -1, 0, -4.09782e-08, 0.0265112, -0.0592926, -0.349234)
 size = Vector3(1.5, 2, 1)
 texture_albedo = ExtResource("39_vortl")
@@ -1884,47 +1884,47 @@ upper_fade = 1e-05
 lower_fade = 0.01
 cull_mask = 1047553
 
-[node name="Area3D" type="Area3D" parent="platform-goal3/FieldStack"]
+[node name="Area3D" type="Area3D" parent="platform-goal3/FieldStack" unique_id=517570718]
 transform = Transform3D(1, 0, -3.72529e-09, 0, 1, 0, 3.72529e-09, 0, 1, 0.0245028, 0, -0.277338)
 monitoring = false
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="platform-goal3/FieldStack/Area3D"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="platform-goal3/FieldStack/Area3D" unique_id=159808174]
 transform = Transform3D(0.999992, 0, 0, 0, 1, 0, 0, 0, 0.999992, -0.0192642, 0, -0.0320156)
 shape = SubResource("BoxShape3D_vchkt")
 debug_color = Color(0.906147, 0.000127643, 0.74223, 1)
 
-[node name="FieldStack_Flowers" type="Node3D" parent="."]
+[node name="FieldStack_Flowers" type="Node3D" parent="." unique_id=2115599110]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2.588, -30.7235)
 
-[node name="flowers-tall2" parent="FieldStack_Flowers" instance=ExtResource("44_8x7rm")]
+[node name="flowers-tall2" parent="FieldStack_Flowers" unique_id=1767638175 instance=ExtResource("44_8x7rm")]
 transform = Transform3D(-0.529534, 0, 0.848289, 0, 1, 0, -0.848289, 0, -0.529534, 1.57721, 0, 0)
 
-[node name="flowers-tall3" parent="FieldStack_Flowers" instance=ExtResource("44_8x7rm")]
+[node name="flowers-tall3" parent="FieldStack_Flowers" unique_id=821267729 instance=ExtResource("44_8x7rm")]
 transform = Transform3D(0.851297, 0, 0.524684, 0, 1, 0, -0.524684, 0, 0.851297, -1.44976, 0, 0)
 
-[node name="flowers-tall4" parent="FieldStack_Flowers" instance=ExtResource("44_8x7rm")]
+[node name="flowers-tall4" parent="FieldStack_Flowers" unique_id=643649056 instance=ExtResource("44_8x7rm")]
 transform = Transform3D(0.170467, 0, 0.985363, 0, 1, 0, -0.985363, 0, 0.170467, 0.0924547, 0, 1.78596)
 
-[node name="flowers-tall5" parent="FieldStack_Flowers" instance=ExtResource("44_8x7rm")]
+[node name="flowers-tall5" parent="FieldStack_Flowers" unique_id=502742669 instance=ExtResource("44_8x7rm")]
 transform = Transform3D(-0.149363, 0, -0.988782, 0, 1, 0, 0.988782, 0, -0.149363, 0.0924547, 0, -1.85952)
 
-[node name="flowers-tall6" parent="FieldStack_Flowers" instance=ExtResource("44_8x7rm")]
+[node name="flowers-tall6" parent="FieldStack_Flowers" unique_id=1169054484 instance=ExtResource("44_8x7rm")]
 transform = Transform3D(-0.339772, 0, 0.940508, 0, 1, 0, -0.940508, 0, -0.339772, 1.1382, 0, -1.32523)
 
-[node name="flowers-tall7" parent="FieldStack_Flowers" instance=ExtResource("44_8x7rm")]
+[node name="flowers-tall7" parent="FieldStack_Flowers" unique_id=1566890024 instance=ExtResource("44_8x7rm")]
 transform = Transform3D(0.911288, 0, -0.411769, 0, 1, 0, 0.411769, 0, 0.911288, 1.21938, 0, 1.26083)
 
-[node name="flowers-tall8" parent="FieldStack_Flowers" instance=ExtResource("44_8x7rm")]
+[node name="flowers-tall8" parent="FieldStack_Flowers" unique_id=260020950 instance=ExtResource("44_8x7rm")]
 transform = Transform3D(0.123117, 0, -0.992392, 0, 1, 0, 0.992392, 0, 0.123117, -1.04478, 0, 1.26203)
 
-[node name="flowers-tall9" parent="FieldStack_Flowers" instance=ExtResource("44_8x7rm")]
+[node name="flowers-tall9" parent="FieldStack_Flowers" unique_id=2024523352 instance=ExtResource("44_8x7rm")]
 transform = Transform3D(0.529668, 0, -0.848205, 0, 1, 0, 0.848205, 0, 0.529668, -1.07896, 0, -1.28808)
 
-[node name="FieldStack" type="Node3D" parent="FieldStack_Flowers"]
+[node name="FieldStack" type="Node3D" parent="FieldStack_Flowers" unique_id=578093981]
 transform = Transform3D(0.999375, 0, 0.035353, 0, 1, 0, -0.035353, 0, 0.999375, 0.0216322, 0.265493, 0.266251)
 script = ExtResource("43_nx4jx")
 
-[node name="Decal" type="Decal" parent="FieldStack_Flowers/FieldStack"]
+[node name="Decal" type="Decal" parent="FieldStack_Flowers/FieldStack" unique_id=99964988]
 transform = Transform3D(-4.09782e-08, 0, 1, 0, 1, 0, -1, 0, -4.09782e-08, 0.0265112, -0.0592926, -0.349234)
 size = Vector3(1.5, 2, 1)
 texture_albedo = ExtResource("39_vortl")
@@ -1932,47 +1932,47 @@ upper_fade = 1e-05
 lower_fade = 0.01
 cull_mask = 1047553
 
-[node name="Area3D" type="Area3D" parent="FieldStack_Flowers/FieldStack"]
+[node name="Area3D" type="Area3D" parent="FieldStack_Flowers/FieldStack" unique_id=1644509675]
 transform = Transform3D(1, 0, -3.72529e-09, 0, 1, 0, 3.72529e-09, 0, 1, 0.0245028, 0, -0.277338)
 monitoring = false
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="FieldStack_Flowers/FieldStack/Area3D"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="FieldStack_Flowers/FieldStack/Area3D" unique_id=324760723]
 transform = Transform3D(0.999992, 0, 0, 0, 1, 0, 0, 0, 0.999992, -0.0192642, 0, -0.0320156)
 shape = SubResource("BoxShape3D_vchkt")
 debug_color = Color(0.906147, 0.000127643, 0.74223, 1)
 
-[node name="FieldStack_Flowers2" type="Node3D" parent="."]
+[node name="FieldStack_Flowers2" type="Node3D" parent="." unique_id=1543397035]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.692203, -10.1513)
 
-[node name="flowers-tall2" parent="FieldStack_Flowers2" instance=ExtResource("44_8x7rm")]
+[node name="flowers-tall2" parent="FieldStack_Flowers2" unique_id=2093588585 instance=ExtResource("44_8x7rm")]
 transform = Transform3D(-0.529534, 0, 0.848289, 0, 1, 0, -0.848289, 0, -0.529534, 1.57721, 0, 0)
 
-[node name="flowers-tall3" parent="FieldStack_Flowers2" instance=ExtResource("44_8x7rm")]
+[node name="flowers-tall3" parent="FieldStack_Flowers2" unique_id=1764417289 instance=ExtResource("44_8x7rm")]
 transform = Transform3D(0.851297, 0, 0.524684, 0, 1, 0, -0.524684, 0, 0.851297, -1.44976, 0, 0)
 
-[node name="flowers-tall4" parent="FieldStack_Flowers2" instance=ExtResource("44_8x7rm")]
+[node name="flowers-tall4" parent="FieldStack_Flowers2" unique_id=788021990 instance=ExtResource("44_8x7rm")]
 transform = Transform3D(0.170467, 0, 0.985363, 0, 1, 0, -0.985363, 0, 0.170467, 0.0924547, 0, 1.78596)
 
-[node name="flowers-tall5" parent="FieldStack_Flowers2" instance=ExtResource("44_8x7rm")]
+[node name="flowers-tall5" parent="FieldStack_Flowers2" unique_id=257847633 instance=ExtResource("44_8x7rm")]
 transform = Transform3D(-0.149363, 0, -0.988782, 0, 1, 0, 0.988782, 0, -0.149363, 0.0924547, 0, -1.85952)
 
-[node name="flowers-tall6" parent="FieldStack_Flowers2" instance=ExtResource("44_8x7rm")]
+[node name="flowers-tall6" parent="FieldStack_Flowers2" unique_id=2104680740 instance=ExtResource("44_8x7rm")]
 transform = Transform3D(-0.339772, 0, 0.940508, 0, 1, 0, -0.940508, 0, -0.339772, 1.1382, 0, -1.32523)
 
-[node name="flowers-tall7" parent="FieldStack_Flowers2" instance=ExtResource("44_8x7rm")]
+[node name="flowers-tall7" parent="FieldStack_Flowers2" unique_id=1127254332 instance=ExtResource("44_8x7rm")]
 transform = Transform3D(0.911288, 0, -0.411769, 0, 1, 0, 0.411769, 0, 0.911288, 1.21938, 0, 1.26083)
 
-[node name="flowers-tall8" parent="FieldStack_Flowers2" instance=ExtResource("44_8x7rm")]
+[node name="flowers-tall8" parent="FieldStack_Flowers2" unique_id=657115478 instance=ExtResource("44_8x7rm")]
 transform = Transform3D(0.123117, 0, -0.992392, 0, 1, 0, 0.992392, 0, 0.123117, -1.04478, 0, 1.26203)
 
-[node name="flowers-tall9" parent="FieldStack_Flowers2" instance=ExtResource("44_8x7rm")]
+[node name="flowers-tall9" parent="FieldStack_Flowers2" unique_id=124112178 instance=ExtResource("44_8x7rm")]
 transform = Transform3D(0.529668, 0, -0.848205, 0, 1, 0, 0.848205, 0, 0.529668, -1.07896, 0, -1.28808)
 
-[node name="FieldStack" type="Node3D" parent="FieldStack_Flowers2"]
+[node name="FieldStack" type="Node3D" parent="FieldStack_Flowers2" unique_id=1781626538]
 transform = Transform3D(0.999375, 0, 0.035353, 0, 1, 0, -0.035353, 0, 0.999375, 0.0216322, 0.265493, 0.266251)
 script = ExtResource("43_nx4jx")
 
-[node name="Decal" type="Decal" parent="FieldStack_Flowers2/FieldStack"]
+[node name="Decal" type="Decal" parent="FieldStack_Flowers2/FieldStack" unique_id=603300454]
 transform = Transform3D(-4.09782e-08, 0, 1, 0, 1, 0, -1, 0, -4.09782e-08, 0.0265112, -0.0592926, -0.349234)
 size = Vector3(1.5, 2, 1)
 texture_albedo = ExtResource("39_vortl")
@@ -1980,197 +1980,197 @@ upper_fade = 1e-05
 lower_fade = 0.01
 cull_mask = 1047553
 
-[node name="Area3D" type="Area3D" parent="FieldStack_Flowers2/FieldStack"]
+[node name="Area3D" type="Area3D" parent="FieldStack_Flowers2/FieldStack" unique_id=1026225100]
 transform = Transform3D(1, 0, -3.72529e-09, 0, 1, 0, 3.72529e-09, 0, 1, 0.0245028, 0, -0.277338)
 monitoring = false
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="FieldStack_Flowers2/FieldStack/Area3D"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="FieldStack_Flowers2/FieldStack/Area3D" unique_id=1884796491]
 transform = Transform3D(0.999992, 0, 0, 0, 1, 0, 0, 0, 0.999992, -0.0192642, 0, -0.0320156)
 shape = SubResource("BoxShape3D_vchkt")
 debug_color = Color(0.906147, 0.000127643, 0.74223, 1)
 
-[node name="HoldInteractArea" type="Area3D" parent="."]
+[node name="HoldInteractArea" type="Area3D" parent="." unique_id=1940439447]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.49322, 2.38419e-07, 4.69944)
 script = ExtResource("37_s4un2")
 prompt_text = "Buy"
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="HoldInteractArea"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="HoldInteractArea" unique_id=684741196]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.6615305, 3.7842577, 2.194584)
 shape = SubResource("CylinderShape3D_nvyfr")
 debug_color = Color(0.971135, 0, 0.450019, 0.42)
 
-[node name="TEMP_MISC_PARTS" type="Node3D" parent="."]
+[node name="TEMP_MISC_PARTS" type="Node3D" parent="." unique_id=390979407]
 transform = Transform3D(2.16202, 0, 0, 0, 1, 0, 0, 0, 2.16202, 6.176, -0.208408, -11.6927)
 
-[node name="SlamButton" parent="TEMP_MISC_PARTS" instance=ExtResource("45_ysfr8")]
+[node name="SlamButton" parent="TEMP_MISC_PARTS" unique_id=1303796312 instance=ExtResource("45_ysfr8")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.53158, -0.479598, 3.74757)
 is_toggle_button = false
 
-[node name="lock4" parent="TEMP_MISC_PARTS" instance=ExtResource("46_i3dxm")]
+[node name="lock4" parent="TEMP_MISC_PARTS" unique_id=104061604 instance=ExtResource("46_i3dxm")]
 transform = Transform3D(0.46253, 0, 0, 0, 1, 0, 0, 0, 0.46253, 4.14648, 2.93587, -9.81087)
 
-[node name="Player1" parent="." groups=["players"] instance=ExtResource("47_vdsx4")]
+[node name="Player1" parent="." unique_id=1679431483 groups=["players"] instance=ExtResource("47_vdsx4")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16.6482, 2.5987, -23.883)
 team = "A"
 
-[node name="Marker1" parent="." instance=ExtResource("48_fqr23")]
+[node name="Marker1" parent="." unique_id=1239474104 instance=ExtResource("48_fqr23")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16.6531, 3.72175, -23.9875)
 
-[node name="Player2" parent="." groups=["players"] instance=ExtResource("47_vdsx4")]
+[node name="Player2" parent="." unique_id=926938587 groups=["players"] instance=ExtResource("47_vdsx4")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14.0261, 2.84075, -24.3233)
 player_id = 2
 team = "B"
 
-[node name="Marker2" parent="." instance=ExtResource("48_fqr23")]
+[node name="Marker2" parent="." unique_id=803790896 instance=ExtResource("48_fqr23")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -16.1024, 3.96111, -24.4309)
 
-[node name="Player3" parent="." groups=["players"] instance=ExtResource("47_vdsx4")]
+[node name="Player3" parent="." unique_id=1434060167 groups=["players"] instance=ExtResource("47_vdsx4")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16.0437, 2.55265, -18.9813)
 player_id = 3
 team = "A"
 
-[node name="Marker3" parent="." instance=ExtResource("48_fqr23")]
+[node name="Marker3" parent="." unique_id=731002011 instance=ExtResource("48_fqr23")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16.0437, 3.67301, -19.0889)
 
-[node name="Player4" parent="." groups=["players"] instance=ExtResource("47_vdsx4")]
+[node name="Player4" parent="." unique_id=1976312656 groups=["players"] instance=ExtResource("47_vdsx4")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -15.7872, 2.55265, -18.9813)
 player_id = 4
 team = "B"
 
-[node name="Marker4" parent="." instance=ExtResource("48_fqr23")]
+[node name="Marker4" parent="." unique_id=463818559 instance=ExtResource("48_fqr23")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -15.7872, 3.67301, -19.0889)
 
-[node name="MarbleSpawner" type="Node3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 27.96923, 30.334965, 31.335684)
+[node name="MarbleSpawner" type="Node3D" parent="." unique_id=479683225]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 25.743172, 26.261507, 30.846218)
 script = ExtResource("49_aextj")
 marble_scene = ExtResource("50_oewck")
 
-[node name="helix-large-left2" parent="." instance=ExtResource("51_6542j")]
+[node name="helix-large-left2" parent="." unique_id=361442473 instance=ExtResource("51_6542j")]
 transform = Transform3D(2.45, 0, 0, 0, 2.45, 0, 0, 0, 2.45, 27.96923, 5.1849637, 25.210684)
 
-[node name="helix-large-left3" parent="." instance=ExtResource("51_6542j")]
-transform = Transform3D(2.45, 0, 0, 0, 2.45, 0, 0, 0, 2.45, 27.96923, 11.309964, 25.210684)
+[node name="helix-large-left3" parent="." unique_id=259048298 instance=ExtResource("51_6542j")]
+transform = Transform3D(2.45, 0, 0, 0, 2.45, 0, 0, 0, 2.45, 27.96923, 10.086856, 25.210684)
 
-[node name="helix-large-left4" parent="." instance=ExtResource("51_6542j")]
-transform = Transform3D(2.45, 0, 0, 0, 2.45, 0, 0, 0, 2.45, 27.96923, 17.434965, 25.210684)
+[node name="helix-large-left4" parent="." unique_id=1911741197 instance=ExtResource("51_6542j")]
+transform = Transform3D(2.45, 0, 0, 0, 2.45, 0, 0, 0, 2.45, 27.96923, 14.980244, 25.210684)
 
-[node name="helix-large-left5" parent="." instance=ExtResource("51_6542j")]
-transform = Transform3D(2.45, 0, 0, 0, 2.45, 0, 0, 0, 2.45, 27.96923, 23.559965, 25.210684)
+[node name="helix-large-left5" parent="." unique_id=1709947361 instance=ExtResource("51_6542j")]
+transform = Transform3D(2.45, 0, 0, 0, 2.45, 0, 0, 0, 2.45, 27.96923, 19.87601, 25.210684)
 
-[node name="SpawnFlullDeck" type="Node3D" parent="."]
+[node name="SpawnFlullDeck" type="Node3D" parent="." unique_id=1002083087]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.01, -18.864)
 visible = false
 script = ExtResource("52_am43l")
 card_scene = ExtResource("53_ri57c")
 spacing = Vector3(1, 0, 1)
 
-[node name="SpikeBlocks" type="Node3D" parent="."]
+[node name="SpikeBlocks" type="Node3D" parent="." unique_id=746245129]
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 5.80592, -0.196861, -21.4293)
 
-[node name="SpikeBlockVertical" type="Node3D" parent="SpikeBlocks"]
+[node name="SpikeBlockVertical" type="Node3D" parent="SpikeBlocks" unique_id=13858522]
 transform = Transform3D(-4.37114e-08, 0, 1, -1, -4.37114e-08, -4.37114e-08, 4.37114e-08, -1, -1.64203e-15, -4.01463, 14.5082, 0.469808)
 
-[node name="SpikeBlock" parent="SpikeBlocks/SpikeBlockVertical" instance=ExtResource("54_2kbb4")]
+[node name="SpikeBlock" parent="SpikeBlocks/SpikeBlockVertical" unique_id=1083281602 instance=ExtResource("54_2kbb4")]
 transform = Transform3D(1, 0, -8.35187e-23, 0, 1, 0, -8.35187e-23, 0, 1, 0, 0, 0)
 move_speed = 2.0
 
-[node name="Path3D" type="Path3D" parent="SpikeBlocks/SpikeBlockVertical"]
+[node name="Path3D" type="Path3D" parent="SpikeBlocks/SpikeBlockVertical" unique_id=1197069533]
 curve = SubResource("Curve3D_1v6qk")
 
-[node name="SpikeBlockVertical2" type="Node3D" parent="SpikeBlocks"]
+[node name="SpikeBlockVertical2" type="Node3D" parent="SpikeBlocks" unique_id=702155790]
 transform = Transform3D(-4.37114e-08, 0, 1, -1, -4.37114e-08, -4.37114e-08, 4.37114e-08, -1, -1.64203e-15, -4.94853, 14.5082, 0.469808)
 
-[node name="SpikeBlock" parent="SpikeBlocks/SpikeBlockVertical2" instance=ExtResource("54_2kbb4")]
+[node name="SpikeBlock" parent="SpikeBlocks/SpikeBlockVertical2" unique_id=1719670694 instance=ExtResource("54_2kbb4")]
 transform = Transform3D(1, 0, -8.35187e-23, 0, 1, 0, -8.35187e-23, 0, 1, 0, 0, 0)
 move_speed = 3.0
 
-[node name="Path3D" type="Path3D" parent="SpikeBlocks/SpikeBlockVertical2"]
+[node name="Path3D" type="Path3D" parent="SpikeBlocks/SpikeBlockVertical2" unique_id=778800284]
 curve = SubResource("Curve3D_1v6qk")
 
-[node name="SpikeBlockVertical3" type="Node3D" parent="SpikeBlocks"]
+[node name="SpikeBlockVertical3" type="Node3D" parent="SpikeBlocks" unique_id=845224392]
 transform = Transform3D(-4.37114e-08, 0, 1, -1, -4.37114e-08, -4.37114e-08, 4.37114e-08, -1, -1.64203e-15, -5.85253, 14.5082, 0.469807)
 
-[node name="SpikeBlock" parent="SpikeBlocks/SpikeBlockVertical3" instance=ExtResource("54_2kbb4")]
+[node name="SpikeBlock" parent="SpikeBlocks/SpikeBlockVertical3" unique_id=1867147437 instance=ExtResource("54_2kbb4")]
 transform = Transform3D(1, 0, -8.35187e-23, 0, 1, 0, -8.35187e-23, 0, 1, 0, 0, 0)
 move_speed = 2.5
 
-[node name="Path3D" type="Path3D" parent="SpikeBlocks/SpikeBlockVertical3"]
+[node name="Path3D" type="Path3D" parent="SpikeBlocks/SpikeBlockVertical3" unique_id=1835940895]
 curve = SubResource("Curve3D_1v6qk")
 
-[node name="SpikeBlockVertical4" type="Node3D" parent="SpikeBlocks"]
+[node name="SpikeBlockVertical4" type="Node3D" parent="SpikeBlocks" unique_id=132955558]
 transform = Transform3D(-4.37114e-08, 0, 1, -1, -4.37114e-08, -4.37114e-08, 4.37114e-08, -1, -1.64203e-15, -6.89923, 14.5082, 0.469808)
 
-[node name="SpikeBlock" parent="SpikeBlocks/SpikeBlockVertical4" instance=ExtResource("54_2kbb4")]
+[node name="SpikeBlock" parent="SpikeBlocks/SpikeBlockVertical4" unique_id=2086893705 instance=ExtResource("54_2kbb4")]
 transform = Transform3D(1, 0, -8.35187e-23, 0, 1, 0, -8.35187e-23, 0, 1, 0, 0, 0)
 
-[node name="Path3D" type="Path3D" parent="SpikeBlocks/SpikeBlockVertical4"]
+[node name="Path3D" type="Path3D" parent="SpikeBlocks/SpikeBlockVertical4" unique_id=281234404]
 curve = SubResource("Curve3D_1v6qk")
 
-[node name="SpikeBlockVertical6" type="Node3D" parent="SpikeBlocks"]
+[node name="SpikeBlockVertical6" type="Node3D" parent="SpikeBlocks" unique_id=2013077579]
 transform = Transform3D(-4.37114e-08, -1, 0, -4.37114e-08, -1.64203e-15, 1, -1, 4.37114e-08, -4.37114e-08, -2.81504, 12.7609, -0.146414)
 
-[node name="SpikeBlock" parent="SpikeBlocks/SpikeBlockVertical6" instance=ExtResource("54_2kbb4")]
+[node name="SpikeBlock" parent="SpikeBlocks/SpikeBlockVertical6" unique_id=351886364 instance=ExtResource("54_2kbb4")]
 transform = Transform3D(1, 0, -8.35187e-23, 0, 1, 0, -8.35187e-23, 0, 1, 0, 0, 0)
 move_speed = 2.0
 
-[node name="Path3D" type="Path3D" parent="SpikeBlocks/SpikeBlockVertical6"]
+[node name="Path3D" type="Path3D" parent="SpikeBlocks/SpikeBlockVertical6" unique_id=1392246923]
 curve = SubResource("Curve3D_1v6qk")
 
-[node name="SpikeBlockVertical7" type="Node3D" parent="SpikeBlocks"]
+[node name="SpikeBlockVertical7" type="Node3D" parent="SpikeBlocks" unique_id=1433665152]
 transform = Transform3D(-4.37114e-08, -1, 0, -4.37114e-08, -1.64203e-15, 1, -1, 4.37114e-08, -4.37114e-08, -2.81504, 11.827, -0.146414)
 
-[node name="SpikeBlock" parent="SpikeBlocks/SpikeBlockVertical7" instance=ExtResource("54_2kbb4")]
+[node name="SpikeBlock" parent="SpikeBlocks/SpikeBlockVertical7" unique_id=1097729024 instance=ExtResource("54_2kbb4")]
 transform = Transform3D(1, 0, -8.35187e-23, 0, 1, 0, -8.35187e-23, 0, 1, 0, 0, 0)
 move_speed = 3.0
 
-[node name="Path3D" type="Path3D" parent="SpikeBlocks/SpikeBlockVertical7"]
+[node name="Path3D" type="Path3D" parent="SpikeBlocks/SpikeBlockVertical7" unique_id=689480348]
 curve = SubResource("Curve3D_1v6qk")
 
-[node name="SpikeBlockVertical8" type="Node3D" parent="SpikeBlocks"]
+[node name="SpikeBlockVertical8" type="Node3D" parent="SpikeBlocks" unique_id=1401784806]
 transform = Transform3D(-4.37114e-08, -1, 0, -4.37114e-08, -1.64203e-15, 1, -1, 4.37114e-08, -4.37114e-08, -2.81504, 10.923, -0.146414)
 
-[node name="SpikeBlock" parent="SpikeBlocks/SpikeBlockVertical8" instance=ExtResource("54_2kbb4")]
+[node name="SpikeBlock" parent="SpikeBlocks/SpikeBlockVertical8" unique_id=613372809 instance=ExtResource("54_2kbb4")]
 transform = Transform3D(1, 0, -8.35187e-23, 0, 1, 0, -8.35187e-23, 0, 1, 0, 0, 0)
 move_speed = 2.5
 
-[node name="Path3D" type="Path3D" parent="SpikeBlocks/SpikeBlockVertical8"]
+[node name="Path3D" type="Path3D" parent="SpikeBlocks/SpikeBlockVertical8" unique_id=1677855184]
 curve = SubResource("Curve3D_1v6qk")
 
-[node name="SpikeBlockVertical9" type="Node3D" parent="SpikeBlocks"]
+[node name="SpikeBlockVertical9" type="Node3D" parent="SpikeBlocks" unique_id=720310868]
 transform = Transform3D(-4.37114e-08, -1, 0, -4.37114e-08, -1.64203e-15, 1, -1, 4.37114e-08, -4.37114e-08, -2.81504, 9.87625, -0.146414)
 
-[node name="SpikeBlock" parent="SpikeBlocks/SpikeBlockVertical9" instance=ExtResource("54_2kbb4")]
+[node name="SpikeBlock" parent="SpikeBlocks/SpikeBlockVertical9" unique_id=750853599 instance=ExtResource("54_2kbb4")]
 transform = Transform3D(1, 0, -8.35187e-23, 0, 1, 0, -8.35187e-23, 0, 1, 0, 0, 0)
 
-[node name="Path3D" type="Path3D" parent="SpikeBlocks/SpikeBlockVertical9"]
+[node name="Path3D" type="Path3D" parent="SpikeBlocks/SpikeBlockVertical9" unique_id=310410081]
 curve = SubResource("Curve3D_1v6qk")
 
-[node name="heart" parent="." instance=ExtResource("55_me6hy")]
+[node name="heart" parent="." unique_id=527354355 instance=ExtResource("55_me6hy")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.9655, -0.196861, -16.0048)
 
-[node name="heart2" parent="." instance=ExtResource("55_me6hy")]
+[node name="heart2" parent="." unique_id=1510659312 instance=ExtResource("55_me6hy")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.97055, -0.196861, -16.0048)
 
-[node name="heart3" parent="." instance=ExtResource("55_me6hy")]
+[node name="heart3" parent="." unique_id=1695636193 instance=ExtResource("55_me6hy")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.97083, -0.196861, -7.11596)
 
-[node name="MovingPlatforms" type="Node3D" parent="."]
+[node name="MovingPlatforms" type="Node3D" parent="." unique_id=1532492148]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.161, -21.0133)
 script = ExtResource("56_d807w")
 
-[node name="Path3D" type="Path3D" parent="MovingPlatforms"]
+[node name="Path3D" type="Path3D" parent="MovingPlatforms" unique_id=1205312071]
 curve = SubResource("Curve3D_ids8r")
 
-[node name="MovingPlatformRound" parent="MovingPlatforms" instance=ExtResource("57_uodcq")]
+[node name="MovingPlatformRound" parent="MovingPlatforms" unique_id=2008577423 instance=ExtResource("57_uodcq")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.24266, 0, 10.0489)
 distance_offset = 0.0
 lock_to_position_only = true
 
-[node name="FieldStack" type="Node3D" parent="MovingPlatforms/MovingPlatformRound"]
+[node name="FieldStack" type="Node3D" parent="MovingPlatforms/MovingPlatformRound" unique_id=977521906]
 transform = Transform3D(0.999375, 0, 0.035353, 0, 1, 0, -0.035353, 0, 0.999375, 0, 0.529, 0.361176)
 script = ExtResource("43_nx4jx")
 
-[node name="Decal" type="Decal" parent="MovingPlatforms/MovingPlatformRound/FieldStack"]
+[node name="Decal" type="Decal" parent="MovingPlatforms/MovingPlatformRound/FieldStack" unique_id=965423962]
 transform = Transform3D(-4.09782e-08, 0, 1, 0, 1, 0, -1, 0, -4.09782e-08, 0.0265112, -0.0592926, -0.349234)
 size = Vector3(1.5, 2, 1)
 texture_albedo = ExtResource("39_vortl")
@@ -2178,25 +2178,25 @@ upper_fade = 1e-05
 lower_fade = 0.01
 cull_mask = 1047553
 
-[node name="Area3D" type="Area3D" parent="MovingPlatforms/MovingPlatformRound/FieldStack"]
+[node name="Area3D" type="Area3D" parent="MovingPlatforms/MovingPlatformRound/FieldStack" unique_id=1681206895]
 transform = Transform3D(1, 0, -3.72529e-09, 0, 1, 0, 3.72529e-09, 0, 1, 0.0245028, 0, -0.277338)
 monitoring = false
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="MovingPlatforms/MovingPlatformRound/FieldStack/Area3D"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="MovingPlatforms/MovingPlatformRound/FieldStack/Area3D" unique_id=1847617035]
 transform = Transform3D(0.999992, 0, 0, 0, 1, 0, 0, 0, 0.999992, -0.0192642, 0, -0.0320156)
 shape = SubResource("BoxShape3D_vchkt")
 debug_color = Color(0.906147, 0.000127643, 0.74223, 1)
 
-[node name="MovingPlatformRound2" parent="MovingPlatforms" instance=ExtResource("57_uodcq")]
+[node name="MovingPlatformRound2" parent="MovingPlatforms" unique_id=1689069888 instance=ExtResource("57_uodcq")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.4352, 0, -9.2636)
 distance_offset = 0.5
 lock_to_position_only = true
 
-[node name="FieldStack" type="Node3D" parent="MovingPlatforms/MovingPlatformRound2"]
+[node name="FieldStack" type="Node3D" parent="MovingPlatforms/MovingPlatformRound2" unique_id=1968792222]
 transform = Transform3D(0.999375, 0, 0.035353, 0, 1, 0, -0.035353, 0, 0.999375, 0, 0.529, 0.361176)
 script = ExtResource("43_nx4jx")
 
-[node name="Decal" type="Decal" parent="MovingPlatforms/MovingPlatformRound2/FieldStack"]
+[node name="Decal" type="Decal" parent="MovingPlatforms/MovingPlatformRound2/FieldStack" unique_id=1361065890]
 transform = Transform3D(-4.09782e-08, 0, 1, 0, 1, 0, -1, 0, -4.09782e-08, 0.0265112, -0.0592926, -0.349234)
 size = Vector3(1.5, 2, 1)
 texture_albedo = ExtResource("39_vortl")
@@ -2204,31 +2204,31 @@ upper_fade = 1e-05
 lower_fade = 0.01
 cull_mask = 1047553
 
-[node name="Area3D" type="Area3D" parent="MovingPlatforms/MovingPlatformRound2/FieldStack"]
+[node name="Area3D" type="Area3D" parent="MovingPlatforms/MovingPlatformRound2/FieldStack" unique_id=1098491544]
 transform = Transform3D(1, 0, -3.72529e-09, 0, 1, 0, 3.72529e-09, 0, 1, 0.0245028, 0, -0.277338)
 monitoring = false
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="MovingPlatforms/MovingPlatformRound2/FieldStack/Area3D"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="MovingPlatforms/MovingPlatformRound2/FieldStack/Area3D" unique_id=923326729]
 transform = Transform3D(0.999992, 0, 0, 0, 1, 0, 0, 0, 0.999992, -0.0192642, 0, -0.0320156)
 shape = SubResource("BoxShape3D_vchkt")
 debug_color = Color(0.906147, 0.000127643, 0.74223, 1)
 
-[node name="MovingPlatformsVerticle" type="Node3D" parent="."]
+[node name="MovingPlatformsVerticle" type="Node3D" parent="." unique_id=623837494]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.161, -21.0133)
 script = ExtResource("56_d807w")
 
-[node name="Path3D" type="Path3D" parent="MovingPlatformsVerticle"]
+[node name="Path3D" type="Path3D" parent="MovingPlatformsVerticle" unique_id=995358236]
 curve = SubResource("Curve3D_augu2")
 
-[node name="MovingPlatformRound" parent="MovingPlatformsVerticle" instance=ExtResource("57_uodcq")]
+[node name="MovingPlatformRound" parent="MovingPlatformsVerticle" unique_id=1810528719 instance=ExtResource("57_uodcq")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -3.758)
 lock_to_position_only = true
 
-[node name="FieldStack" type="Node3D" parent="MovingPlatformsVerticle/MovingPlatformRound"]
+[node name="FieldStack" type="Node3D" parent="MovingPlatformsVerticle/MovingPlatformRound" unique_id=877899215]
 transform = Transform3D(0.999375, 0, 0.035353, 0, 1, 0, -0.035353, 0, 0.999375, 0, 0.529, 0.361176)
 script = ExtResource("43_nx4jx")
 
-[node name="Decal" type="Decal" parent="MovingPlatformsVerticle/MovingPlatformRound/FieldStack"]
+[node name="Decal" type="Decal" parent="MovingPlatformsVerticle/MovingPlatformRound/FieldStack" unique_id=1000554745]
 transform = Transform3D(-4.09782e-08, 0, 1, 0, 1, 0, -1, 0, -4.09782e-08, 0.0265112, -0.0592926, -0.349234)
 size = Vector3(1.5, 2, 1)
 texture_albedo = ExtResource("39_vortl")
@@ -2236,32 +2236,32 @@ upper_fade = 1e-05
 lower_fade = 0.01
 cull_mask = 1047553
 
-[node name="Area3D" type="Area3D" parent="MovingPlatformsVerticle/MovingPlatformRound/FieldStack"]
+[node name="Area3D" type="Area3D" parent="MovingPlatformsVerticle/MovingPlatformRound/FieldStack" unique_id=1477096755]
 transform = Transform3D(1, 0, -3.72529e-09, 0, 1, 0, 3.72529e-09, 0, 1, 0.0245028, 0, -0.277338)
 monitoring = false
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="MovingPlatformsVerticle/MovingPlatformRound/FieldStack/Area3D"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="MovingPlatformsVerticle/MovingPlatformRound/FieldStack/Area3D" unique_id=371355876]
 transform = Transform3D(0.999992, 0, 0, 0, 1, 0, 0, 0, 0.999992, -0.0192642, 0, -0.0320156)
 shape = SubResource("BoxShape3D_vchkt")
 debug_color = Color(0.906147, 0.000127643, 0.74223, 1)
 
-[node name="MovingPlatformsVerticle2" type="Node3D" parent="."]
+[node name="MovingPlatformsVerticle2" type="Node3D" parent="." unique_id=681215510]
 transform = Transform3D(-1, 0, 8.74228e-08, 0, 1, 0, -8.74228e-08, 0, -1, 0, 1.161, -21.0133)
 script = ExtResource("56_d807w")
 
-[node name="Path3D" type="Path3D" parent="MovingPlatformsVerticle2"]
+[node name="Path3D" type="Path3D" parent="MovingPlatformsVerticle2" unique_id=717080382]
 curve = SubResource("Curve3D_augu2")
 
-[node name="MovingPlatformRound" parent="MovingPlatformsVerticle2" instance=ExtResource("57_uodcq")]
+[node name="MovingPlatformRound" parent="MovingPlatformsVerticle2" unique_id=236694504 instance=ExtResource("57_uodcq")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.276567, 0, -3.75789)
 distance_offset = 0.0
 lock_to_position_only = true
 
-[node name="FieldStack" type="Node3D" parent="MovingPlatformsVerticle2/MovingPlatformRound"]
+[node name="FieldStack" type="Node3D" parent="MovingPlatformsVerticle2/MovingPlatformRound" unique_id=418774070]
 transform = Transform3D(0.999375, 0, 0.035353, 0, 1, 0, -0.035353, 0, 0.999375, 0, 0.529, 0.361176)
 script = ExtResource("43_nx4jx")
 
-[node name="Decal" type="Decal" parent="MovingPlatformsVerticle2/MovingPlatformRound/FieldStack"]
+[node name="Decal" type="Decal" parent="MovingPlatformsVerticle2/MovingPlatformRound/FieldStack" unique_id=524213959]
 transform = Transform3D(-4.09782e-08, 0, 1, 0, 1, 0, -1, 0, -4.09782e-08, 0.0265112, -0.0592926, -0.349234)
 size = Vector3(1.5, 2, 1)
 texture_albedo = ExtResource("39_vortl")
@@ -2269,31 +2269,31 @@ upper_fade = 1e-05
 lower_fade = 0.01
 cull_mask = 1047553
 
-[node name="Area3D" type="Area3D" parent="MovingPlatformsVerticle2/MovingPlatformRound/FieldStack"]
+[node name="Area3D" type="Area3D" parent="MovingPlatformsVerticle2/MovingPlatformRound/FieldStack" unique_id=869923922]
 transform = Transform3D(1, 0, -3.72529e-09, 0, 1, 0, 3.72529e-09, 0, 1, 0.0245028, 0, -0.277338)
 monitoring = false
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="MovingPlatformsVerticle2/MovingPlatformRound/FieldStack/Area3D"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="MovingPlatformsVerticle2/MovingPlatformRound/FieldStack/Area3D" unique_id=541044673]
 transform = Transform3D(0.999992, 0, 0, 0, 1, 0, 0, 0, 0.999992, -0.0192642, 0, -0.0320156)
 shape = SubResource("BoxShape3D_vchkt")
 debug_color = Color(0.906147, 0.000127643, 0.74223, 1)
 
-[node name="MeshInstance3DWater" type="MeshInstance3D" parent="."]
+[node name="MeshInstance3DWater" type="MeshInstance3D" parent="." unique_id=44314456]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -4.3113, 0)
 material_override = SubResource("ShaderMaterial_dnhof")
 mesh = SubResource("PlaneMesh_1v6qk")
 metadata/_edit_lock_ = true
 
-[node name="JumpPad" parent="." instance=ExtResource("61_3qdk3")]
+[node name="JumpPad" parent="." unique_id=2017855843 instance=ExtResource("61_3qdk3")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.6, -2.628, -34.408)
 
-[node name="JumpPad2" parent="." instance=ExtResource("61_3qdk3")]
+[node name="JumpPad2" parent="." unique_id=727491923 instance=ExtResource("61_3qdk3")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.6, -2.628, -34.408)
 
-[node name="GroundEnemy2" parent="." instance=ExtResource("33_ojhao")]
+[node name="GroundEnemy2" parent="." unique_id=1787850140 instance=ExtResource("33_ojhao")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.14805, -1.83272, -26.0153)
 
-[node name="StaminaItem" parent="." instance=ExtResource("62_g5r4m")]
+[node name="StaminaItem" parent="." unique_id=1460939456 instance=ExtResource("62_g5r4m")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17.3766, 10.9224, -25.2818)
 
 [connection signal="pressed" from="TEMP_MISC_PARTS/SlamButton" to="NavigationRegion3D/World/platform-toggle" method="_on_switch_toggled"]

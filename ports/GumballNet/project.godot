@@ -28,11 +28,6 @@ Audio="*res://scripts/audio.gd"
 Master="*res://scripts/master.gd"
 NetworkSession="*res://network/NetworkSession.cs"
 
-[network]
-
-limits/max_clients=16
-server/port=42837
-
 [display]
 
 window/size/viewport_width=1280
@@ -391,6 +386,11 @@ interact_p4={
 "events": [Object(InputEventJoypadButton,"resource_local_to_scene":false,"resource_name":"","device":3,"button_index":0,"pressure":0.0,"pressed":false,"script":null)
 ]
 }
+
+[network]
+
+limits/max_clients=16
+server/port=42837
 
 [rendering]
 
