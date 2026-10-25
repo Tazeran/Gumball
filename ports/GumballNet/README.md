@@ -39,4 +39,15 @@ On Linux, the exported binary uses the same flags:
 Run another copy normally, enter the server IP or DNS name in the online panel,
 and select **Join Online Match**. Local testing uses `127.0.0.1`.
 
+## Quick local multiplayer test
+
+On Windows, double-click `start-local-match.bat`. It starts:
+
+1. One headless authoritative server on UDP `42837`
+2. Two graphical clients that automatically connect to `127.0.0.1`
+
+The server is deliberately a separate process rather than one client acting as
+host. This matches the production Podman deployment and exposes authority bugs
+during local testing.
+
 For deployment instructions, see `deploy/README.md`.
