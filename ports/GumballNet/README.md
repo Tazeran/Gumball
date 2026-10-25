@@ -50,4 +50,10 @@ The server is deliberately a separate process rather than one client acting as
 host. This matches the production Podman deployment and exposes authority bugs
 during local testing.
 
+The helper processes start from the Godot installation directory. Godot 4.7.2
+can otherwise incorrectly report that `GodotSharp/Api/Debug` is missing even
+when that directory is beside the executable. If the launcher reports that UDP
+`42837` is already in use, close the console from the previous local server
+before starting another match.
+
 For deployment instructions, see `deploy/README.md`.
