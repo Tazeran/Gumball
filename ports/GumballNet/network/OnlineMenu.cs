@@ -32,6 +32,8 @@ public partial class OnlineMenu : CanvasLayer
     private bool _inMatch;
     private bool _openingServerBrowser;
     private double _controllerRefreshRemaining;
+    private readonly int[] _menuAxisDirections = new int[2];
+    private readonly double[] _menuAxisRepeatRemaining = new double[2];
 
     private NetworkSession Session => GetNode<NetworkSession>("/root/NetworkSession");
 
@@ -50,6 +52,7 @@ public partial class OnlineMenu : CanvasLayer
 
     public override void _Process(double delta)
     {
+        PollMenuStick(delta);
         if (_inMatch || !_controllerPage.Visible)
             return;
         _controllerRefreshRemaining -= delta;
@@ -58,6 +61,59 @@ public partial class OnlineMenu : CanvasLayer
             _controllerRefreshRemaining = 0.35;
             UpdateControllerReadiness();
         }
+    }
+
+    private void PollMenuStick(double delta)
+    {
+        if (!_screen.Visible || Session.LocalControllerDevices.Length == 0)
+        {
+            Array.Fill(_menuAxisDirections, 0);
+            return;
+        }
+
+        var device = Session.LocalControllerDevices[0];
+        PollMenuAxis(0, Input.GetJoyAxis(device, JoyAxis.LeftX), "ui_left", "ui_right", delta);
+        PollMenuAxis(1, Input.GetJoyAxis(device, JoyAxis.LeftY), "ui_up", "ui_down", delta);
+    }
+
+    private void PollMenuAxis(int axisIndex, float value, string negativeAction, string positiveAction, double delta)
+    {
+        const float engageThreshold = 0.6f;
+        const float releaseThreshold = 0.35f;
+        var previousDirection = _menuAxisDirections[axisIndex];
+        var direction = Math.Abs(value) <= releaseThreshold
+            ? 0
+            : Math.Abs(value) >= engageThreshold
+                ? Math.Sign(value)
+                : previousDirection;
+
+        if (direction == 0)
+        {
+            _menuAxisDirections[axisIndex] = 0;
+            _menuAxisRepeatRemaining[axisIndex] = 0;
+            return;
+        }
+
+        if (direction != previousDirection)
+        {
+            _menuAxisDirections[axisIndex] = direction;
+            _menuAxisRepeatRemaining[axisIndex] = 0.42;
+            EmitMenuAction(direction < 0 ? negativeAction : positiveAction);
+            return;
+        }
+
+        _menuAxisRepeatRemaining[axisIndex] -= delta;
+        if (_menuAxisRepeatRemaining[axisIndex] <= 0)
+        {
+            _menuAxisRepeatRemaining[axisIndex] = 0.14;
+            EmitMenuAction(direction < 0 ? negativeAction : positiveAction);
+        }
+    }
+
+    private static void EmitMenuAction(string action)
+    {
+        Input.ParseInputEvent(new InputEventAction { Action = action, Pressed = true, Strength = 1 });
+        Input.ParseInputEvent(new InputEventAction { Action = action, Pressed = false, Strength = 0 });
     }
 
     public override void _Input(InputEvent @event)
