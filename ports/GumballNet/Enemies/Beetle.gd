@@ -39,6 +39,7 @@ var _path_timer := 0.0
 var _target: Player
 var _players_in_range: Array[Player] = []
 var _alive := true
+var network_spawner_path := ""
 
 
 func _ready() -> void:
@@ -54,6 +55,9 @@ func _ready() -> void:
 
 
 func _physics_process(delta: float) -> void:
+	var session = get_node_or_null("/root/NetworkSession")
+	if session and not bool(session.get("IsDedicatedServer")) and not Array(session.get("LocalPlayerSlots")).is_empty():
+		return
 	if not _alive:
 		return
 

@@ -29,6 +29,7 @@ signal player_exited_area(player)
 var rank_value: int = 13  # Set in set_card
 var color: String = "red"  # "red" or "black"
 var team: String = "N"  # Assigned during dealing
+var network_id: String = ""
 var my_back_key: String = "default_back"  # set by set_card()
 var source_deckstack: DeckStack = null
 
@@ -153,7 +154,7 @@ func interaction_available(player: Player) -> bool:
 		return false
 	if state != CardState.FREE_FLOATING:
 		return false
-	return player.carried_card == null
+	return player.carried_cards.is_empty()
 
 
 func change_state(new_state: int) -> void:

@@ -7,6 +7,7 @@ var current_monster: Node = null
 var respawn_timer: Timer
 
 func _ready():
+	add_to_group("monster_spawners")
 	respawn_timer = Timer.new()
 	respawn_timer.one_shot = true
 	respawn_timer.wait_time = respawn_delay
@@ -15,7 +16,9 @@ func _ready():
 
 	# The arena may still be attaching its children during this node's _ready.
 	# Defer spawning so the monster can safely enter the scene tree.
-	call_deferred("spawn_monster")
+	var session = get_node_or_null("/root/NetworkSession")
+	if session == null or bool(session.get("IsDedicatedServer")) or Array(session.get("LocalPlayerSlots")).is_empty():
+		call_deferred("spawn_monster")
 
 func spawn_monster():
 	if monster_scene == null:
@@ -24,6 +27,7 @@ func spawn_monster():
 		return
 
 	current_monster = monster_scene.instantiate()
+	current_monster.set("network_spawner_path", str(get_path()))
 	get_tree().current_scene.add_child(current_monster)
 	current_monster.global_position = global_position
 

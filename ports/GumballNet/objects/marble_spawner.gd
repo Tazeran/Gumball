@@ -7,8 +7,12 @@ extends Node3D
 
 var _timer := 0.0
 var _marble_count := 0
+var _next_network_id := 1
 
 func _process(delta):
+	var session = get_node_or_null("/root/NetworkSession")
+	if session and not bool(session.get("IsDedicatedServer")) and not Array(session.get("LocalPlayerSlots")).is_empty():
+		return
 	if marble_scene == null:
 		return
 
@@ -21,6 +25,8 @@ func _process(delta):
 func spawn_marble():
 	var marble = marble_scene.instantiate()
 	marble.spawner = self
+	marble.network_id = _next_network_id
+	_next_network_id += 1
 	get_tree().current_scene.add_child(marble)
 	marble.global_transform.origin = global_transform.origin
 	_marble_count += 1

@@ -48,9 +48,9 @@ func get_marker_position(player: Player) -> Vector3:
 func interaction_available(player: Player) -> bool:
 	if team_only && player.team != team:
 		return false
-	if player.carried_card != null:
+	if not player.carried_cards.is_empty():
 		if locked:
-			return locked_by_card == player.carried_card
+			return locked_by_card == player.carried_cards[0]
 		else:
 			return true
 	else:

@@ -26,8 +26,14 @@ public partial class NetworkSession : Node
     [Signal] public delegate void PlayerAssignmentChangedEventHandler(int slot, bool lobbyOwner);
     [Signal] public delegate void RosterChangedEventHandler(int[] activeSlots);
     [Signal] public delegate void PlayerStateReceivedEventHandler(int slot, Vector3 position, float rotationY, Vector3 velocity);
+    [Signal] public delegate void PlayerCorrectionReceivedEventHandler(int slot, Vector3 position, float rotationY, Vector3 velocity);
     [Signal] public delegate void PlayerTeamChangedEventHandler(int slot, string team);
     [Signal] public delegate void GamePauseChangedEventHandler(bool paused);
+    [Signal] public delegate void WorldInteractionRequestedEventHandler(int slot, string targetPath, bool hold);
+    [Signal] public delegate void WorldSnapshotRequestedEventHandler(long peerId);
+    [Signal] public delegate void WorldStateReceivedEventHandler(string json);
+    [Signal] public delegate void WorldFrameReceivedEventHandler(string json);
+    [Signal] public delegate void GroundPoundRequestedEventHandler(int slot, Vector3 position, float impactSpeed);
 
     public bool IsDedicatedServer { get; private set; }
     public int LocalPlayerSlot { get; private set; }
@@ -339,6 +345,74 @@ public partial class NetworkSession : Node
     public bool IsControllerInputBlocked(int controllerDevice) =>
         _menuBlockedControllers.Contains(controllerDevice);
 
+    public void RequestWorldInteraction(int slot, string targetPath, bool hold)
+    {
+        if (IsDedicatedServer || Array.IndexOf(LocalPlayerSlots, slot) < 0)
+            return;
+        RpcId(1, nameof(SubmitWorldInteraction), slot, targetPath, hold);
+    }
+
+    public void RequestGroundPound(int slot, Vector3 position, float impactSpeed)
+    {
+        if (IsDedicatedServer || Array.IndexOf(LocalPlayerSlots, slot) < 0)
+            return;
+        RpcId(1, nameof(SubmitGroundPound), slot, position, impactSpeed);
+    }
+
+    public void RequestWorldSnapshot()
+    {
+        if (!IsDedicatedServer && Multiplayer.HasMultiplayerPeer())
+            RpcId(1, nameof(SubmitWorldSnapshotRequest));
+    }
+
+    public void BroadcastWorldState(string json)
+    {
+        if (!Multiplayer.IsServer())
+            return;
+        Rpc(nameof(ReceiveWorldState), json);
+    }
+
+    public void SendWorldState(long peerId, string json)
+    {
+        if (Multiplayer.IsServer())
+            RpcId(peerId, nameof(ReceiveWorldState), json);
+    }
+
+    public void BroadcastWorldFrame(string json)
+    {
+        if (Multiplayer.IsServer())
+            Rpc(nameof(ReceiveWorldFrame), json);
+    }
+
+    [Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+    private void SubmitWorldInteraction(int slot, string targetPath, bool hold)
+    {
+        var peerId = Multiplayer.GetRemoteSenderId();
+        if (Multiplayer.IsServer() && _peerSlots.TryGetValue(peerId, out var slots) && slots.Contains(slot))
+            EmitSignal(SignalName.WorldInteractionRequested, slot, targetPath, hold);
+    }
+
+    [Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+    private void SubmitGroundPound(int slot, Vector3 position, float impactSpeed)
+    {
+        var peerId = Multiplayer.GetRemoteSenderId();
+        if (Multiplayer.IsServer() && _peerSlots.TryGetValue(peerId, out var slots) && slots.Contains(slot))
+            EmitSignal(SignalName.GroundPoundRequested, slot, position, impactSpeed);
+    }
+
+    [Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+    private void SubmitWorldSnapshotRequest()
+    {
+        if (Multiplayer.IsServer())
+            EmitSignal(SignalName.WorldSnapshotRequested, Multiplayer.GetRemoteSenderId());
+    }
+
+    [Rpc(MultiplayerApi.RpcMode.Authority, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+    private void ReceiveWorldState(string json) => EmitSignal(SignalName.WorldStateReceived, json);
+
+    [Rpc(MultiplayerApi.RpcMode.Authority, TransferMode = MultiplayerPeer.TransferModeEnum.Unreliable)]
+    private void ReceiveWorldFrame(string json) => EmitSignal(SignalName.WorldFrameReceived, json);
+
     [Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
     private void RequestReleasePlayerSlot(int slot)
     {
@@ -448,6 +522,16 @@ public partial class NetworkSession : Node
             return;
         RpcId(1, nameof(SubmitPlayerState), slot, position, rotationY, velocity);
     }
+
+    public void ForcePlayerCorrection(int slot, Vector3 position, float rotationY, Vector3 velocity)
+    {
+        if (Multiplayer.IsServer())
+            Rpc(nameof(ReceivePlayerCorrection), slot, position, rotationY, velocity);
+    }
+
+    [Rpc(MultiplayerApi.RpcMode.Authority, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+    private void ReceivePlayerCorrection(int slot, Vector3 position, float rotationY, Vector3 velocity) =>
+        EmitSignal(SignalName.PlayerCorrectionReceived, slot, position, rotationY, velocity);
 
     [Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Unreliable)]
     private void SubmitPlayerState(int slot, Vector3 position, float rotationY, Vector3 velocity)

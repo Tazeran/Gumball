@@ -29,6 +29,8 @@ func _ready():
 
 func spawn_card(card_data, stack: DeckStack) -> void:
 	var card = card_scene.instantiate()
+	card.network_id = "%s:%s:%s" % [team_name, card_data.suit, card_data.rank]
+	card.name = "Card_%s_%s_%s" % [team_name, card_data.suit, card_data.rank]
 	add_child(card)
 	card.set_team(team_name)
 	card.set_card(card_data.suit, card_data.rank, Master.team_backs[team_name])

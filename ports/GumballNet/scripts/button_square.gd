@@ -9,6 +9,7 @@ signal pressed(active: bool)  # <- SIGNAL: anyone can listen to button presses
 @onready var area: Area3D = $Area3D
 
 func _ready():
+	add_to_group("network_buttons")
 	area.body_entered.connect(_on_body_entered)
 
 	# Setup initial animation if in toggle mode
@@ -19,6 +20,9 @@ func _ready():
 			animation_player.play("toggle-off")
 
 func _on_body_entered(body):
+	var session = get_node_or_null("/root/NetworkSession")
+	if session and not bool(session.get("IsDedicatedServer")) and not Array(session.get("LocalPlayerSlots")).is_empty():
+		return
 	if body.is_in_group("players") and body.is_ground_pounding:
 		Audio.play("res://sounds/bookPlace2.ogg")
 		press()
@@ -35,4 +39,11 @@ func press():
 		animation_player.play("toggle")
 
 	# Emit signal no matter what mode
+	emit_signal("pressed", is_active)
+
+func set_network_state(active: bool) -> void:
+	if is_active == active:
+		return
+	is_active = active
+	animation_player.play("toggle-on" if is_active else "toggle-off")
 	emit_signal("pressed", is_active)

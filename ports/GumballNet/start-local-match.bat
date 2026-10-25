@@ -42,7 +42,7 @@ if not errorlevel 1 (
 )
 
 echo Starting the authoritative server on UDP 42837...
-start "GumballNet Dedicated Server" /D "%GODOT_DIR%" "%GODOT_CONSOLE%" --headless --path "%PROJECT_DIR%" --server
+start "GumballNet Dedicated Server" /D "%GODOT_DIR%" "%GODOT_CONSOLE%" --headless --path "%PROJECT_DIR%" -- --server
 
 echo Waiting briefly for the server to bind its port...
 ping 127.0.0.1 -n 3 >nul

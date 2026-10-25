@@ -208,7 +208,10 @@ func handle_interactables(delta):
 		if Input.is_action_pressed(input_interact):
 			hold_timer += delta
 			if hold_timer >= hold_target.hold_time_required:
-				hold_target.finish_hold(self)
+				if network_session and not bool(network_session.get("IsDedicatedServer")):
+					network_session.call("RequestWorldInteraction", player_id, str(hold_target.get_path()), true)
+				else:
+					hold_target.finish_hold(self)
 				hold_timer = 0.0
 				hold_target = null
 				hud.set_aring_percent(0.0)
@@ -248,6 +251,9 @@ func handle_interactables(delta):
 			try_tap_interact(closest)
 
 func try_tap_interact(closest):
+	if closest and network_session and not bool(network_session.get("IsDedicatedServer")):
+		network_session.call("RequestWorldInteraction", player_id, str(closest.get_path()), false)
+		return
 	print(nearby_interactables)
 	print(input_interact, " closest: ", closest, "  ", carried_cards)
 
@@ -470,6 +476,9 @@ func land_ground_pound():
 	model.scale = Vector3(1.5, 0.5, 1.5)
 	if impact_speed < ground_pound_min_impact_speed:
 		return
+	if network_session and not bool(network_session.get("IsDedicatedServer")):
+		network_session.call("RequestGroundPound", player_id, global_position, impact_speed)
+		return
 
 	for enemy in get_tree().get_nodes_in_group("enemies"):
 		if not is_instance_valid(enemy) or not enemy.has_method("receive_ground_pound"):
@@ -575,6 +584,8 @@ func respawn():
 var invincible = false
 var invincibility_duration := 0.6
 func take_damage(amount: int, source_pos: Vector3):
+	if network_session and not bool(network_session.get("IsDedicatedServer")) and not Array(network_session.get("LocalPlayerSlots")).is_empty():
+		return
 	print("tage_damage ", amount, source_pos)
 	if invincible:
 		return
@@ -584,6 +595,8 @@ func take_damage(amount: int, source_pos: Vector3):
 	health = max(0, health - amount)
 	if health <= 0:
 		respawn()
+		if network_session and bool(network_session.get("IsDedicatedServer")):
+			network_session.call("ForcePlayerCorrection", player_id, global_position, rotation.y, Vector3.ZERO)
 	if hud:
 		hud.set_health(health, health_max)
 

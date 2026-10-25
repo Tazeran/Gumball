@@ -3,9 +3,15 @@ extends Area3D
 var time := 0.0
 var grabbed := false
 
+func _ready():
+	add_to_group("network_pickups")
+
 # Collecting coins
 
 func _on_body_entered(body):
+	var session = get_node_or_null("/root/NetworkSession")
+	if session and not bool(session.get("IsDedicatedServer")) and not Array(session.get("LocalPlayerSlots")).is_empty():
+		return
 	if body.has_method("collect_heart") and !grabbed:
 		
 		body.collect_heart()
@@ -16,6 +22,14 @@ func _on_body_entered(body):
 		$Particles.emitting = false # Stop emitting stars
 		
 		grabbed = true
+
+func is_network_active() -> bool:
+	return not grabbed
+
+func set_network_active(active: bool) -> void:
+	grabbed = not active
+	$heart.visible = active
+	monitoring = active
 
 # Rotating, animating up and down
 

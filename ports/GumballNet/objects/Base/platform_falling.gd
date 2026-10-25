@@ -8,10 +8,14 @@ var start_position := Vector3.ZERO
 var start_scale := Vector3.ONE
 
 func _ready():
+	add_to_group("network_falling_platforms")
 	start_position = position
 	start_scale = scale
 
 func _process(delta):
+	var session = get_node_or_null("/root/NetworkSession")
+	if session and not bool(session.get("IsDedicatedServer")) and not Array(session.get("LocalPlayerSlots")).is_empty():
+		return
 	if falling:
 		gravity += 0.25
 		position.y -= gravity * delta
@@ -38,6 +42,9 @@ func respawn():
 	falling = false
 
 func _on_area_3d_body_entered(_body) -> void:
+	var session = get_node_or_null("/root/NetworkSession")
+	if session and not bool(session.get("IsDedicatedServer")) and not Array(session.get("LocalPlayerSlots")).is_empty():
+		return
 	if !falling:
 		Audio.play("res://sounds/fall.ogg") # Play sound
 		scale = Vector3(1.25, 1, 1.25) # Animate scale
