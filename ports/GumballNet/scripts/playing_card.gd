@@ -11,7 +11,7 @@ const margin = 1.5 # 1 / 64.0  # ~0.5px into the texture, tweak as needed
 @export var rank : String = "K"
 
 # Base paths
-const TEXTURE_PATH = "res://models/cards/textures/"
+const TEXTURE_PATH = "res://models/Cards/Textures/"
 const FRONT_TEXTURE_FORMAT = "%s_%s.png" # example: "card_hearts_A.png"
 const BACK_TEXTURE_NAME = "card_back.png"
 
@@ -30,7 +30,8 @@ func set_card(new_suit: String, new_rank: String) -> void:
 	suit = new_suit
 	rank = new_rank
 
-	var front_texture_path = TEXTURE_PATH + FRONT_TEXTURE_FORMAT % [ "card_" + suit, rank ]
+	var texture_rank := str(int(rank)) if rank.is_valid_int() else rank
+	var front_texture_path = TEXTURE_PATH + FRONT_TEXTURE_FORMAT % [ "card_" + suit.to_lower(), texture_rank ]
 	var back_texture_path = TEXTURE_PATH + BACK_TEXTURE_NAME
 
 	var front_texture = load(front_texture_path)

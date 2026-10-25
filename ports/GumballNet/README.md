@@ -11,7 +11,7 @@ continues to work while the online version is built.
 - ENet over UDP port `42837`
 - The first player is lobby owner; the droplet remains simulation authority
 - A temporary in-game address/join panel
-- Headless server mode via `--server`
+- The same build runs as a graphical client normally or as a headless server via `--server`
 - Linux server export and Podman deployment files in `deploy/`
 
 The connection/session layer is working code, but gameplay replication is the
@@ -28,6 +28,12 @@ Run a server from a terminal:
 
 ```powershell
 Godot_v4.7.2-stable_mono_win64_console.exe --headless --path . --server
+```
+
+On Linux, the exported binary uses the same flags:
+
+```sh
+./GumballNetServer.x86_64 --headless --server
 ```
 
 Run another copy normally, enter the server IP or DNS name in the online panel,

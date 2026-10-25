@@ -55,7 +55,7 @@ var carrier_player: Node3D = null
 var carrier_target: Node3D = null
 
 # Base paths
-const TEXTURE_PATH = "res://models/cards/textures/"
+const TEXTURE_PATH = "res://models/Cards/Textures/"
 const FRONT_TEXTURE_FORMAT = "%s_%s.png" # example: "card_hearts_A.png"
 
 # Bobbing behavior (only when floating freely)
@@ -248,7 +248,8 @@ func set_card(new_suit: String, new_rank: String, back_key: String = "default") 
 	color = "red" if RED_SUITS.has(suit) else "black"
 
 	var front_key := "%s_%s" % [suit, rank]
-	var front_texture_path := TEXTURE_PATH + FRONT_TEXTURE_FORMAT % ["card_" + suit, rank]
+	var texture_rank := str(int(rank)) if rank.is_valid_int() else rank
+	var front_texture_path := TEXTURE_PATH + FRONT_TEXTURE_FORMAT % ["card_" + suit.to_lower(), texture_rank]
 	var back_texture_path := TEXTURE_PATH + "%s.png" % back_key
 
 	# --- Texture caching ---

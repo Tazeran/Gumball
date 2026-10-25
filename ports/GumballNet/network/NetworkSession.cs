@@ -72,10 +72,6 @@ public partial class NetworkSession : Node
         GD.Print($"GumballNet dedicated server listening on UDP {ServerPort}.");
         EmitSignal(SignalName.StatusChanged, $"Server listening on UDP {ServerPort}");
 
-        var networkSmokeTest = Array.Exists(OS.GetCmdlineUserArgs(), arg => arg == "--network-smoke-test");
-        if (!networkSmokeTest && GetTree().CurrentScene?.SceneFilePath != ArenaScene)
-            GetTree().ChangeSceneToFile(ArenaScene);
-
         return Error.Ok;
     }
 
@@ -106,6 +102,23 @@ public partial class NetworkSession : Node
         Multiplayer.MultiplayerPeer = new OfflineMultiplayerPeer();
         LocalPlayerSlot = 0;
         IsLobbyOwner = false;
+    }
+
+    public Error EnterMatch()
+    {
+        if (LocalPlayerSlot == 0)
+        {
+            EmitSignal(SignalName.StatusChanged, "Connect to the server before entering the match.");
+            return Error.Unconfigured;
+        }
+
+        if (GetTree().CurrentScene?.SceneFilePath == ArenaScene)
+            return Error.Ok;
+
+        var result = GetTree().ChangeSceneToFile(ArenaScene);
+        if (result != Error.Ok)
+            EmitSignal(SignalName.StatusChanged, $"Unable to load the match: {result}");
+        return result;
     }
 
     private void OnPeerConnected(long peerId)

@@ -2,80 +2,221 @@ using Godot;
 
 namespace GumballNet.Network;
 
-/// <summary>A temporary code-built connection UI, independent of the legacy split-screen menu.</summary>
+/// <summary>Persistent title, connection, lobby, and in-game pause overlay.</summary>
 public partial class OnlineMenu : CanvasLayer
 {
+    private Control _screen = null!;
     private LineEdit _address = null!;
     private Label _status = null!;
+    private Label _role = null!;
     private Button _connect = null!;
+    private Button _enterMatch = null!;
+    private Button _disconnect = null!;
+    private bool _inMatch;
 
     public override void _Ready()
     {
         Layer = 100;
+        ProcessMode = ProcessModeEnum.Always;
+        BuildInterface();
 
-        var panel = new PanelContainer
+        Session.StatusChanged += OnStatusChanged;
+        Session.PlayerAssignmentChanged += OnPlayerAssignmentChanged;
+        _address.GrabFocus();
+    }
+
+    public override void _UnhandledInput(InputEvent @event)
+    {
+        if (!_inMatch || !@event.IsActionPressed("ui_cancel"))
+            return;
+
+        _screen.Visible = !_screen.Visible;
+        GetViewport().SetInputAsHandled();
+        if (_screen.Visible)
+            _disconnect.GrabFocus();
+    }
+
+    private NetworkSession Session => GetNode<NetworkSession>("/root/NetworkSession");
+
+    private void BuildInterface()
+    {
+        _screen = new ColorRect { Color = new Color("101827e8"), MouseFilter = Control.MouseFilterEnum.Stop };
+        _screen.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
+        AddChild(_screen);
+
+        var margin = new MarginContainer();
+        margin.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
+        foreach (var side in new[] { "margin_left", "margin_right", "margin_top", "margin_bottom" })
+            margin.AddThemeConstantOverride(side, 32);
+        _screen.AddChild(margin);
+
+        var center = new CenterContainer();
+        center.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
+        margin.AddChild(center);
+
+        var card = new PanelContainer { CustomMinimumSize = new Vector2(560, 0) };
+        card.AddThemeStyleboxOverride("panel", Panel(new Color("18243a"), new Color("75d6ff"), 2, 18));
+        center.AddChild(card);
+
+        var cardMargin = new MarginContainer();
+        cardMargin.AddThemeConstantOverride("margin_left", 36);
+        cardMargin.AddThemeConstantOverride("margin_right", 36);
+        cardMargin.AddThemeConstantOverride("margin_top", 30);
+        cardMargin.AddThemeConstantOverride("margin_bottom", 30);
+        card.AddChild(cardMargin);
+
+        var stack = new VBoxContainer();
+        stack.AddThemeConstantOverride("separation", 14);
+        cardMargin.AddChild(stack);
+
+        var title = new Label { Text = "GUMBALL NET", HorizontalAlignment = HorizontalAlignment.Center };
+        title.AddThemeFontSizeOverride("font_size", 42);
+        title.AddThemeColorOverride("font_color", new Color("75d6ff"));
+        stack.AddChild(title);
+
+        var subtitle = new Label
         {
-            OffsetLeft = 24,
-            OffsetTop = 24,
-            OffsetRight = 444,
-            OffsetBottom = 220
+            Text = "ONE SERVER  •  ONE MATCH  •  UP TO 4 PLAYERS",
+            HorizontalAlignment = HorizontalAlignment.Center
         };
-        AddChild(panel);
+        subtitle.AddThemeFontSizeOverride("font_size", 14);
+        subtitle.AddThemeColorOverride("font_color", new Color("a9b9cc"));
+        stack.AddChild(subtitle);
+        stack.AddChild(new HSeparator());
 
-        var content = new VBoxContainer();
-        panel.AddChild(content);
-
-        content.AddChild(new Label { Text = "GumballNet — Dedicated Online Match" });
-        content.AddChild(new Label { Text = $"Server address (UDP port {NetworkSession.ServerPort})" });
+        var addressLabel = new Label { Text = $"DEDICATED SERVER  ·  UDP {NetworkSession.ServerPort}" };
+        addressLabel.AddThemeFontSizeOverride("font_size", 13);
+        addressLabel.AddThemeColorOverride("font_color", new Color("a9b9cc"));
+        stack.AddChild(addressLabel);
 
         _address = new LineEdit
         {
             Text = "127.0.0.1",
-            PlaceholderText = "play.example.com"
+            PlaceholderText = "Server IP or hostname",
+            CustomMinimumSize = new Vector2(0, 46)
         };
-        content.AddChild(_address);
+        _address.AddThemeFontSizeOverride("font_size", 18);
+        stack.AddChild(_address);
 
-        _connect = new Button { Text = "Join Online Match" };
+        _connect = MakeButton("JOIN ONLINE MATCH", new Color("2d91bf"));
         _connect.Pressed += ConnectPressed;
-        content.AddChild(_connect);
+        stack.AddChild(_connect);
 
-        var disconnect = new Button { Text = "Disconnect" };
-        disconnect.Pressed += DisconnectPressed;
-        content.AddChild(disconnect);
+        _status = new Label
+        {
+            Text = "Enter the droplet address, or use 127.0.0.1 for a local server.",
+            AutowrapMode = TextServer.AutowrapMode.WordSmart,
+            HorizontalAlignment = HorizontalAlignment.Center,
+            CustomMinimumSize = new Vector2(0, 44)
+        };
+        _status.AddThemeColorOverride("font_color", new Color("d9e7f2"));
+        stack.AddChild(_status);
 
-        _status = new Label { Text = "Not connected." };
-        content.AddChild(_status);
+        _role = new Label { Text = "Not connected", HorizontalAlignment = HorizontalAlignment.Center };
+        _role.AddThemeFontSizeOverride("font_size", 16);
+        _role.AddThemeColorOverride("font_color", new Color("7f91a8"));
+        stack.AddChild(_role);
 
-        var session = GetNode<NetworkSession>("/root/NetworkSession");
-        session.StatusChanged += OnStatusChanged;
-        session.PlayerAssignmentChanged += OnPlayerAssignmentChanged;
+        _enterMatch = MakeButton("ENTER MATCH", new Color("39a96b"));
+        _enterMatch.Visible = false;
+        _enterMatch.Pressed += EnterMatchPressed;
+        stack.AddChild(_enterMatch);
+
+        _disconnect = MakeButton("DISCONNECT", new Color("6a3445"));
+        _disconnect.Visible = false;
+        _disconnect.Pressed += DisconnectPressed;
+        stack.AddChild(_disconnect);
+
+        var footer = new HBoxContainer { Alignment = BoxContainer.AlignmentMode.Center };
+        var quit = MakeButton("QUIT", new Color("303d52"));
+        quit.CustomMinimumSize = new Vector2(150, 40);
+        quit.Pressed += QuitPressed;
+        footer.AddChild(quit);
+        stack.AddChild(footer);
     }
+
+    private static Button MakeButton(string text, Color color)
+    {
+        var button = new Button { Text = text, CustomMinimumSize = new Vector2(0, 48) };
+        button.AddThemeFontSizeOverride("font_size", 17);
+        button.AddThemeStyleboxOverride("normal", Panel(color, color.Lightened(0.18f), 1, 10));
+        button.AddThemeStyleboxOverride("hover", Panel(color.Lightened(0.12f), color.Lightened(0.35f), 2, 10));
+        button.AddThemeStyleboxOverride("pressed", Panel(color.Darkened(0.12f), color, 1, 10));
+        button.AddThemeStyleboxOverride("focus", Panel(color.Lightened(0.08f), new Color("ffffff"), 2, 10));
+        return button;
+    }
+
+    private static StyleBoxFlat Panel(Color background, Color border, int width, int radius) => new()
+    {
+        BgColor = background,
+        BorderColor = border,
+        BorderWidthLeft = width,
+        BorderWidthTop = width,
+        BorderWidthRight = width,
+        BorderWidthBottom = width,
+        CornerRadiusTopLeft = radius,
+        CornerRadiusTopRight = radius,
+        CornerRadiusBottomLeft = radius,
+        CornerRadiusBottomRight = radius
+    };
 
     private void ConnectPressed()
     {
+        GD.Print("Online menu join pressed.");
         _connect.Disabled = true;
-        GetNode<NetworkSession>("/root/NetworkSession").Connect(_address.Text);
+        _address.Editable = false;
+        _status.Text = "Opening a game session…";
+        Session.Connect(_address.Text);
+    }
+
+    private void QuitPressed()
+    {
+        GD.Print("Online menu quit pressed.");
+        GetTree().Quit();
     }
 
     private void DisconnectPressed()
     {
-        GetNode<NetworkSession>("/root/NetworkSession").Disconnect();
+        Session.Disconnect();
+        _connect.Visible = true;
         _connect.Disabled = false;
-        _status.Text = "Disconnected.";
+        _address.Editable = true;
+        _enterMatch.Visible = false;
+        _disconnect.Visible = false;
+        _role.Text = "Not connected";
+        _status.Text = "Disconnected. Enter a server address to reconnect.";
+    }
+
+    private void EnterMatchPressed()
+    {
+        if (Session.EnterMatch() != Error.Ok)
+            return;
+
+        _inMatch = true;
+        _screen.Visible = false;
     }
 
     private void OnStatusChanged(string message)
     {
         _status.Text = message;
         if (message.StartsWith("Could not") || message.Contains("disconnected"))
+        {
             _connect.Disabled = false;
+            _address.Editable = true;
+        }
     }
 
     private void OnPlayerAssignmentChanged(int slot, bool owner)
     {
-        _connect.Disabled = true;
+        _connect.Visible = false;
+        _address.Editable = false;
+        _disconnect.Visible = true;
+        _enterMatch.Visible = true;
+        _enterMatch.GrabFocus();
+        _role.Text = owner ? $"PLAYER {slot}  •  LOBBY OWNER" : $"PLAYER {slot}  •  MATCH MEMBER";
+        _role.AddThemeColorOverride("font_color", owner ? new Color("ffd166") : new Color("75d6ff"));
         _status.Text = owner
-            ? $"Player {slot}; you own the lobby. The droplet owns simulation."
-            : $"Player {slot}; joined the existing match.";
+            ? "You joined first. The dedicated server still owns the simulation."
+            : "You joined the active dedicated match.";
     }
 }

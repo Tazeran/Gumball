@@ -352,10 +352,6 @@ offset_left = 1.0
 offset_top = -52.0
 offset_right = 41.0
 offset_bottom = -12.0
-script = ExtResource("7_80whh")
-heart_empty_texture = ExtResource("8_tkup3")
-heart_half_texture = ExtResource("9_d0k0q")
-heart_full_texture = ExtResource("10_oxis5")
 
 [node name="Icon" type="TextureRect" parent="UI Control/GridContainer/SubViewportContainer1/SubViewport/HUD/ControlLayoutFullRect/ControlBottomLeft/ControlCoins"]
 layout_mode = 0
@@ -564,10 +560,6 @@ offset_left = 1.0
 offset_top = -52.0
 offset_right = 41.0
 offset_bottom = -12.0
-script = ExtResource("7_80whh")
-heart_empty_texture = ExtResource("8_tkup3")
-heart_half_texture = ExtResource("9_d0k0q")
-heart_full_texture = ExtResource("10_oxis5")
 
 [node name="Icon" type="TextureRect" parent="UI Control/GridContainer/SubViewportContainer2/SubViewport/HUD/ControlLayoutFullRect/ControlBottomLeft/ControlCoins"]
 layout_mode = 0
@@ -775,10 +767,6 @@ offset_left = 1.0
 offset_top = -52.0
 offset_right = 41.0
 offset_bottom = -12.0
-script = ExtResource("7_80whh")
-heart_empty_texture = ExtResource("8_tkup3")
-heart_half_texture = ExtResource("9_d0k0q")
-heart_full_texture = ExtResource("10_oxis5")
 
 [node name="Icon" type="TextureRect" parent="UI Control/GridContainer/SubViewportContainer3/SubViewport/HUD/ControlLayoutFullRect/ControlBottomLeft/ControlCoins"]
 layout_mode = 0
@@ -986,10 +974,6 @@ offset_left = 1.0
 offset_top = -52.0
 offset_right = 41.0
 offset_bottom = -12.0
-script = ExtResource("7_80whh")
-heart_empty_texture = ExtResource("8_tkup3")
-heart_half_texture = ExtResource("9_d0k0q")
-heart_full_texture = ExtResource("10_oxis5")
 
 [node name="Icon" type="TextureRect" parent="UI Control/GridContainer/SubViewportContainer4/SubViewport/HUD/ControlLayoutFullRect/ControlBottomLeft/ControlCoins"]
 layout_mode = 0
