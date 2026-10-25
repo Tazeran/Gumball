@@ -43,6 +43,9 @@ public partial class NetworkSession : Node
 
     private readonly Dictionary<long, List<int>> _peerSlots = new();
     private readonly Dictionary<int, string> _playerTeams = new();
+    private readonly Dictionary<int, int> _localSlotControllers = new();
+    private readonly Queue<int> _pendingControllerDevices = new();
+    private readonly HashSet<int> _menuBlockedControllers = new();
     private readonly Queue<int> _freeSlots = new();
     private long _lobbyOwnerPeerId;
     private OnlineMenu? _onlineMenu;
@@ -150,6 +153,9 @@ public partial class NetworkSession : Node
         LocalPlayerSlot = 0;
         LocalPlayerSlots = Array.Empty<int>();
         ActivePlayerSlots = Array.Empty<int>();
+        _localSlotControllers.Clear();
+        _pendingControllerDevices.Clear();
+        _menuBlockedControllers.Clear();
         _playerTeams.Clear();
         IsLobbyOwner = false;
         ApplyGamePause(false);
@@ -234,8 +240,26 @@ public partial class NetworkSession : Node
     [Rpc(MultiplayerApi.RpcMode.Authority, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
     private void ReceiveAssignment(int[] slots, bool lobbyOwner)
     {
+        var previousSlots = new HashSet<int>(LocalPlayerSlots);
+        var incomingSlots = new HashSet<int>(slots);
+        foreach (var removedSlot in previousSlots)
+            if (!incomingSlots.Contains(removedSlot))
+                _localSlotControllers.Remove(removedSlot);
+        foreach (var slot in slots)
+        {
+            if (_localSlotControllers.ContainsKey(slot))
+                continue;
+            var localIndex = Array.IndexOf(slots, slot);
+            var device = _pendingControllerDevices.Count > 0
+                ? _pendingControllerDevices.Dequeue()
+                : localIndex < LocalControllerDevices.Length ? LocalControllerDevices[localIndex] : localIndex;
+            _localSlotControllers[slot] = device;
+        }
         LocalPlayerSlots = slots;
         LocalPlayerSlot = slots.Length > 0 ? slots[0] : 0;
+        LocalControllerDevices = Array.ConvertAll(slots, slot => _localSlotControllers[slot]);
+        RequestedLocalPlayers = slots.Length;
+        LocalControllerDevice = LocalControllerDevices.Length > 0 ? LocalControllerDevices[0] : -1;
         IsLobbyOwner = lobbyOwner;
         EmitSignal(SignalName.PlayerAssignmentChanged, LocalPlayerSlot, lobbyOwner);
         EmitSignal(SignalName.StatusChanged,
@@ -251,25 +275,29 @@ public partial class NetworkSession : Node
             return;
 
         var peerId = Multiplayer.GetRemoteSenderId();
-        if (_peerSlots.ContainsKey(peerId))
-            return;
         requestedCount = Math.Clamp(requestedCount, 1, MaxLocalPlayers);
+        if (!_peerSlots.TryGetValue(peerId, out var slots))
+        {
+            slots = new List<int>();
+            _peerSlots[peerId] = slots;
+        }
+        requestedCount = Math.Min(requestedCount, MaxLocalPlayers - slots.Count);
+        if (requestedCount <= 0)
+            return;
         if (_freeSlots.Count < requestedCount)
         {
             GD.Print($"Peer {peerId} requested {requestedCount} seats but only {_freeSlots.Count} remain.");
-            Multiplayer.MultiplayerPeer.DisconnectPeer((int)peerId);
+            RpcId(peerId, nameof(ReceiveSeatRequestRejected), "The match has no free player seats.");
             return;
         }
 
-        var slots = new List<int>(requestedCount);
         for (var index = 0; index < requestedCount; index++)
         {
             var slot = _freeSlots.Dequeue();
             slots.Add(slot);
             _playerTeams[slot] = slot % 2 == 1 ? "A" : "B";
         }
-        _peerSlots[peerId] = slots;
-        _occupiedSeatCount += slots.Count;
+        _occupiedSeatCount += requestedCount;
         if (_lobbyOwnerPeerId == 0)
             _lobbyOwnerPeerId = peerId;
         RpcId(peerId, nameof(ReceiveAssignment), slots.ToArray(), peerId == _lobbyOwnerPeerId);
@@ -277,6 +305,62 @@ public partial class NetworkSession : Node
         BroadcastTeams();
         RpcId(peerId, nameof(ReceiveGamePause), IsGamePaused);
         GD.Print($"Peer {peerId} joined with slots {string.Join(',', slots)}.");
+    }
+
+    public void RequestLocalPlayer(int controllerDevice)
+    {
+        if (IsDedicatedServer || !Multiplayer.HasMultiplayerPeer() || LocalPlayerSlots.Length >= MaxLocalPlayers
+            || Array.IndexOf(LocalControllerDevices, controllerDevice) >= 0
+            || _pendingControllerDevices.Contains(controllerDevice))
+            return;
+        _pendingControllerDevices.Enqueue(controllerDevice);
+        RpcId(1, nameof(RequestPlayerSlots), 1);
+        EmitSignal(SignalName.StatusChanged, $"Controller {controllerDevice + 1} is joining…");
+    }
+
+    public void ReleaseLocalPlayer(int slot)
+    {
+        if (IsDedicatedServer || Array.IndexOf(LocalPlayerSlots, slot) < 0)
+            return;
+        RpcId(1, nameof(RequestReleasePlayerSlot), slot);
+    }
+
+    public int GetControllerForSlot(int slot) =>
+        _localSlotControllers.TryGetValue(slot, out var device) ? device : -1;
+
+    public void SetControllerMenuOpen(int controllerDevice, bool open)
+    {
+        if (open)
+            _menuBlockedControllers.Add(controllerDevice);
+        else
+            _menuBlockedControllers.Remove(controllerDevice);
+    }
+
+    public bool IsControllerInputBlocked(int controllerDevice) =>
+        _menuBlockedControllers.Contains(controllerDevice);
+
+    [Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+    private void RequestReleasePlayerSlot(int slot)
+    {
+        if (!Multiplayer.IsServer())
+            return;
+        var peerId = Multiplayer.GetRemoteSenderId();
+        if (!_peerSlots.TryGetValue(peerId, out var slots) || !slots.Remove(slot))
+            return;
+        _freeSlots.Enqueue(slot);
+        _playerTeams.Remove(slot);
+        _occupiedSeatCount = Math.Max(0, _occupiedSeatCount - 1);
+        RpcId(peerId, nameof(ReceiveAssignment), slots.ToArray(), peerId == _lobbyOwnerPeerId);
+        BroadcastRoster();
+        GD.Print($"Peer {peerId} released player slot {slot}.");
+    }
+
+    [Rpc(MultiplayerApi.RpcMode.Authority, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+    private void ReceiveSeatRequestRejected(string message)
+    {
+        if (_pendingControllerDevices.Count > 0)
+            _pendingControllerDevices.Dequeue();
+        EmitSignal(SignalName.StatusChanged, message);
     }
 
     [Rpc(MultiplayerApi.RpcMode.Authority, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]

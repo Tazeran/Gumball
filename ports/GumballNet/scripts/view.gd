@@ -58,6 +58,8 @@ func _physics_process(delta):
 	camera.position = camera.position.lerp(Vector3(0, 0, current_zoom), delta * zoom_transition_speed)
 
 func handle_input(delta):
+	if target and target.network_session and bool(target.network_session.call("IsControllerInputBlocked", target.local_controller_device)):
+		return
 	var input_vec = Vector2(
 		Input.get_action_strength(input_right) - Input.get_action_strength(input_left),
 		Input.get_action_strength(input_down) - Input.get_action_strength(input_up)

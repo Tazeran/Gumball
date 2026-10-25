@@ -21,6 +21,14 @@ public partial class OnlineMenu : CanvasLayer
     private Label _role = null!;
     private Button _resumeGame = null!;
     private Button _pauseWorld = null!;
+    private Control _seatOverlayRoot = null!;
+    private readonly Control[] _seatMenuRegions = new Control[NetworkSession.MaxLocalPlayers];
+    private readonly PanelContainer[] _seatMenuPanels = new PanelContainer[NetworkSession.MaxLocalPlayers];
+    private readonly Label[] _seatMenuLabels = new Label[NetworkSession.MaxLocalPlayers];
+    private readonly Button[] _seatSwapButtons = new Button[NetworkSession.MaxLocalPlayers];
+    private readonly Button[] _seatLeaveButtons = new Button[NetworkSession.MaxLocalPlayers];
+    private readonly int[] _seatMenuSelections = new int[NetworkSession.MaxLocalPlayers];
+    private readonly int[] _seatMenuAxisDirections = new int[NetworkSession.MaxLocalPlayers];
     private readonly Button[] _playerCountButtons = new Button[NetworkSession.MaxLocalPlayers];
     private readonly Label[] _controllerLabels = new Label[NetworkSession.MaxLocalPlayers];
     private readonly bool[] _controllerConfirmed = new bool[NetworkSession.MaxLocalPlayers];
@@ -121,10 +129,30 @@ public partial class OnlineMenu : CanvasLayer
     {
         if (@event is not InputEventJoypadButton && @event is not InputEventJoypadMotion)
             return;
+        if (_inMatch && @event is InputEventJoypadButton { Pressed: true, ButtonIndex: JoyButton.Start })
+        {
+            var localIndex = Array.IndexOf(Session.LocalControllerDevices, @event.Device);
+            if (localIndex >= 0)
+                ToggleSeatMenu(localIndex);
+            else if (Input.GetConnectedJoypads().Contains(@event.Device))
+                Session.RequestLocalPlayer(@event.Device);
+            GetViewport().SetInputAsHandled();
+            return;
+        }
         if (Array.IndexOf(Session.LocalControllerDevices, @event.Device) < 0)
         {
             GetViewport().SetInputAsHandled();
             return;
+        }
+        if (_inMatch)
+        {
+            var localIndex = Array.IndexOf(Session.LocalControllerDevices, @event.Device);
+            if (localIndex >= 0 && _seatMenuPanels[localIndex].Visible)
+            {
+                HandleSeatMenuInput(localIndex, @event);
+                GetViewport().SetInputAsHandled();
+                return;
+            }
         }
         if (_screen.Visible && @event is InputEventJoypadMotion)
         {
@@ -149,11 +177,6 @@ public partial class OnlineMenu : CanvasLayer
                 return;
             }
         }
-        if (_inMatch && @event is InputEventJoypadButton { Pressed: true, ButtonIndex: JoyButton.Start })
-        {
-            ToggleInGameMenu();
-            GetViewport().SetInputAsHandled();
-        }
     }
 
     public override void _UnhandledInput(InputEvent @event)
@@ -169,7 +192,8 @@ public partial class OnlineMenu : CanvasLayer
             GetViewport().SetInputAsHandled();
             return;
         }
-        ToggleInGameMenu();
+        if (Session.LocalPlayerSlots.Length > 0)
+            ToggleSeatMenu(0);
         GetViewport().SetInputAsHandled();
     }
 
@@ -203,6 +227,46 @@ public partial class OnlineMenu : CanvasLayer
         root.AddChild(_controllerPage);
         root.AddChild(_browserPage);
         root.AddChild(_matchPage);
+        BuildSeatMenus();
+    }
+
+    private void BuildSeatMenus()
+    {
+        _seatOverlayRoot = new Control { MouseFilter = Control.MouseFilterEnum.Ignore, Visible = false };
+        _seatOverlayRoot.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
+        AddChild(_seatOverlayRoot);
+        for (var index = 0; index < NetworkSession.MaxLocalPlayers; index++)
+        {
+            var localIndex = index;
+            var region = new Control { MouseFilter = Control.MouseFilterEnum.Ignore };
+            var center = new CenterContainer { MouseFilter = Control.MouseFilterEnum.Ignore };
+            center.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
+            var panel = new PanelContainer { CustomMinimumSize = new Vector2(330, 0), Visible = false };
+            panel.AddThemeStyleboxOverride("panel", Panel(new Color("18243aee"), new Color("75d6ff"), 2, 14));
+            var margin = new MarginContainer();
+            foreach (var side in new[] { "margin_left", "margin_right", "margin_top", "margin_bottom" })
+                margin.AddThemeConstantOverride(side, 18);
+            var page = Page();
+            var label = Heading("");
+            var swap = MakeButton("SWAP TEAM", new Color("5148a8"));
+            var leave = MakeButton("LEAVE", new Color("8c3d48"));
+            swap.Pressed += () => SwapSeatTeam(localIndex);
+            leave.Pressed += () => LeaveSeat(localIndex);
+            page.AddChild(label);
+            page.AddChild(swap);
+            page.AddChild(leave);
+            page.AddChild(Copy("START/B · CLOSE"));
+            margin.AddChild(page);
+            panel.AddChild(margin);
+            center.AddChild(panel);
+            region.AddChild(center);
+            _seatOverlayRoot.AddChild(region);
+            _seatMenuRegions[index] = region;
+            _seatMenuPanels[index] = panel;
+            _seatMenuLabels[index] = label;
+            _seatSwapButtons[index] = swap;
+            _seatLeaveButtons[index] = leave;
+        }
     }
 
     private VBoxContainer BuildPlayerCountPage()
@@ -452,7 +516,10 @@ public partial class OnlineMenu : CanvasLayer
             _teamPlayerLabels[index].Text = $"PLAYER {playerSlot}";
             RefreshTeamRow(index, Session.GetPlayerTeam(playerSlot));
         }
-        CallDeferred(nameof(EnterMatch));
+        if (_inMatch)
+            CallDeferred(nameof(RefreshSeatMenus));
+        else
+            CallDeferred(nameof(EnterMatch));
     }
 
     private void EnterMatch()
@@ -462,6 +529,8 @@ public partial class OnlineMenu : CanvasLayer
         _inMatch = true;
         ShowPage(_matchPage);
         _screen.Visible = false;
+        _seatOverlayRoot.Visible = true;
+        RefreshSeatMenus();
     }
 
     private void TeamSelected(int localIndex, string team)
@@ -474,7 +543,10 @@ public partial class OnlineMenu : CanvasLayer
     {
         var localIndex = Array.IndexOf(Session.LocalPlayerSlots, slot);
         if (localIndex >= 0)
+        {
             RefreshTeamRow(localIndex, team);
+            RefreshSeatMenu(localIndex);
+        }
     }
 
     private void RefreshTeamRow(int localIndex, string team)
@@ -497,6 +569,7 @@ public partial class OnlineMenu : CanvasLayer
         if (message.StartsWith("Could not") || message.Contains("disconnected"))
         {
             _inMatch = false;
+            _seatOverlayRoot.Visible = false;
             ShowPage(_browserPage);
             RefreshServers();
             return;
@@ -507,14 +580,112 @@ public partial class OnlineMenu : CanvasLayer
             _browserStatus.Text = message;
     }
 
-    private void ToggleInGameMenu()
+    private void ToggleSeatMenu(int localIndex)
     {
-        _screen.Visible = !_screen.Visible;
-        if (_screen.Visible)
+        if (localIndex < 0 || localIndex >= Session.LocalPlayerSlots.Length)
+            return;
+        var open = !_seatMenuPanels[localIndex].Visible;
+        _seatMenuPanels[localIndex].Visible = open;
+        _seatMenuSelections[localIndex] = 0;
+        _seatMenuAxisDirections[localIndex] = 0;
+        Session.SetControllerMenuOpen(Session.LocalControllerDevices[localIndex], open);
+        RefreshSeatMenu(localIndex);
+    }
+
+    private void HandleSeatMenuInput(int localIndex, InputEvent @event)
+    {
+        if (@event is InputEventJoypadButton { Pressed: true } button)
         {
-            ShowPage(_matchPage);
-            _resumeGame.GrabFocus();
+            if (button.ButtonIndex is JoyButton.DpadUp or JoyButton.DpadDown)
+                SelectSeatMenuOption(localIndex, _seatMenuSelections[localIndex] == 0 ? 1 : 0);
+            else if (button.ButtonIndex == JoyButton.A)
+            {
+                if (_seatMenuSelections[localIndex] == 0)
+                    SwapSeatTeam(localIndex);
+                else
+                    LeaveSeat(localIndex);
+            }
+            else if (button.ButtonIndex == JoyButton.B)
+                ToggleSeatMenu(localIndex);
+            return;
         }
+        if (@event is not InputEventJoypadMotion { Axis: JoyAxis.LeftY } motion)
+            return;
+        var direction = Math.Abs(motion.AxisValue) >= 0.65f ? Math.Sign(motion.AxisValue) : 0;
+        if (direction != 0 && _seatMenuAxisDirections[localIndex] == 0)
+            SelectSeatMenuOption(localIndex, _seatMenuSelections[localIndex] == 0 ? 1 : 0);
+        if (Math.Abs(motion.AxisValue) <= 0.35f)
+            direction = 0;
+        _seatMenuAxisDirections[localIndex] = direction;
+    }
+
+    private void SelectSeatMenuOption(int localIndex, int selection)
+    {
+        _seatMenuSelections[localIndex] = selection;
+        RefreshSeatMenu(localIndex);
+    }
+
+    private void SwapSeatTeam(int localIndex)
+    {
+        if (localIndex >= Session.LocalPlayerSlots.Length)
+            return;
+        var slot = Session.LocalPlayerSlots[localIndex];
+        Session.ChooseTeam(slot, Session.GetPlayerTeam(slot) == "A" ? "B" : "A");
+        _seatMenuPanels[localIndex].Visible = false;
+        Session.SetControllerMenuOpen(Session.LocalControllerDevices[localIndex], false);
+    }
+
+    private void LeaveSeat(int localIndex)
+    {
+        if (localIndex >= Session.LocalPlayerSlots.Length)
+            return;
+        var slot = Session.LocalPlayerSlots[localIndex];
+        var device = Session.LocalControllerDevices[localIndex];
+        _seatMenuPanels[localIndex].Visible = false;
+        Session.SetControllerMenuOpen(device, false);
+        Session.ReleaseLocalPlayer(slot);
+    }
+
+    private void RefreshSeatMenus()
+    {
+        var count = Session.LocalPlayerSlots.Length;
+        _seatOverlayRoot.Visible = _inMatch;
+        for (var index = 0; index < _seatMenuRegions.Length; index++)
+        {
+            var active = index < count;
+            _seatMenuRegions[index].Visible = active;
+            if (!active)
+            {
+                _seatMenuPanels[index].Visible = false;
+                continue;
+            }
+            LayoutSeatRegion(_seatMenuRegions[index], index, count);
+            RefreshSeatMenu(index);
+        }
+    }
+
+    private void RefreshSeatMenu(int localIndex)
+    {
+        if (localIndex >= Session.LocalPlayerSlots.Length)
+            return;
+        var slot = Session.LocalPlayerSlots[localIndex];
+        var team = Session.GetPlayerTeam(slot) == "A" ? "RED" : "BLUE/PURPLE";
+        _seatMenuLabels[localIndex].Text = $"PLAYER {slot} · {team}";
+        _seatSwapButtons[localIndex].Text = (_seatMenuSelections[localIndex] == 0 ? "▶ " : "") + "SWAP TEAM";
+        _seatLeaveButtons[localIndex].Text = (_seatMenuSelections[localIndex] == 1 ? "▶ " : "") + "LEAVE MATCH";
+    }
+
+    private static void LayoutSeatRegion(Control region, int index, int count)
+    {
+        var columns = count == 1 ? 1 : 2;
+        var rows = count <= 2 ? 1 : 2;
+        var column = index % columns;
+        var row = index / columns;
+        region.AnchorLeft = (float)column / columns;
+        region.AnchorRight = (float)(column + 1) / columns;
+        region.AnchorTop = (float)row / rows;
+        region.AnchorBottom = (float)(row + 1) / rows;
+        region.OffsetLeft = region.OffsetTop = region.OffsetRight = region.OffsetBottom = 0;
     }
 
     private void ShowPage(Control page)

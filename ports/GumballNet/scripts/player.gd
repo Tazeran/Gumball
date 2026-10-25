@@ -382,6 +382,10 @@ func handle_controls(delta):
 		movement_velocity = Vector3.ZERO
 		is_crouching = false
 		return
+	if network_session and bool(network_session.call("IsControllerInputBlocked", local_controller_device)):
+		movement_velocity = Vector3.ZERO
+		is_crouching = false
+		return
 
 	var input := Vector3.ZERO
 

@@ -38,6 +38,7 @@ func _ready() -> void:
 				active_slots.append(slot)
 		_apply_online_roster(active_slots)
 		_session.connect("RosterChanged", _on_roster_changed)
+		_session.connect("PlayerAssignmentChanged", _on_local_assignment_changed)
 		_session.connect("PlayerStateReceived", _on_player_state_received)
 		_session.connect("PlayerTeamChanged", _on_player_team_changed)
 	else:
@@ -56,6 +57,21 @@ func _on_roster_changed(active_slots) -> void:
 	for slot in active_slots:
 		slots.append(int(slot))
 	_apply_online_roster(slots)
+	_refresh_local_views()
+
+func _on_local_assignment_changed(_slot: int, _owner: bool) -> void:
+	# Assignment and roster RPCs can arrive in either order. Waiting one frame
+	# lets newly-added player nodes exist before their cameras are rebound.
+	await get_tree().process_frame
+	_refresh_local_views()
+
+func _refresh_local_views() -> void:
+	if _session == null or bool(_session.get("IsDedicatedServer")):
+		return
+	var local_slots: Array[int] = []
+	for slot in _session.get("LocalPlayerSlots"):
+		local_slots.append(int(slot))
+	_setup_local_views(local_slots)
 
 func _on_player_state_received(slot: int, position: Vector3, rotation_y: float, player_velocity: Vector3) -> void:
 	var player: Player = _online_players.get(slot)
@@ -104,7 +120,10 @@ func _setup_local_views(local_slots: Array[int]) -> void:
 	for view_index in range(Views.size()):
 		var container: SubViewportContainer = Views[view_index]
 		if view_index >= local_count:
-			container.queue_free()
+			container.visible = false
+			var dormant_viewport := container.get_node("SubViewport") as SubViewport
+			dormant_viewport.render_target_update_mode = SubViewport.UPDATE_DISABLED
+			container.get_node("SubViewport/View").set("target", null)
 			continue
 		# Views 2–4 are dormant templates in arena1.tscn. Explicitly wake each
 		# requested local view; otherwise GridContainer reserves its split while
@@ -117,7 +136,7 @@ func _setup_local_views(local_slots: Array[int]) -> void:
 		var marker: Node3D = _online_markers.get(global_slot) if not _online_markers.is_empty() else PlayerMarkers[global_slot - 1]
 		if player == null or marker == null:
 			push_error("Invalid assigned player slot %d" % global_slot)
-			container.queue_free()
+			container.visible = false
 			continue
 		_assign_view(player, marker, container)
 		_scale_hud(container, local_count)
