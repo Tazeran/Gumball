@@ -5,8 +5,9 @@ using System.Collections.Generic;
 namespace GumballNet.Network;
 
 /// <summary>
-/// Owns the single online match. The dedicated server is always authoritative;
-/// the first connected player is the lobby owner, not the simulation host.
+/// Owns the single online match. The dedicated server owns the roster and
+/// validates the owner of relayed player state. The first connected player is
+/// the lobby owner, not the network host.
 /// </summary>
 public partial class NetworkSession : Node
 {
@@ -18,6 +19,7 @@ public partial class NetworkSession : Node
     [Signal] public delegate void StatusChangedEventHandler(string message);
     [Signal] public delegate void PlayerAssignmentChangedEventHandler(int slot, bool lobbyOwner);
     [Signal] public delegate void RosterChangedEventHandler(int[] activeSlots);
+    [Signal] public delegate void PlayerStateReceivedEventHandler(int slot, Vector3 position, float rotationY, Vector3 velocity);
 
     public bool IsDedicatedServer { get; private set; }
     public int LocalPlayerSlot { get; private set; }
@@ -257,6 +259,36 @@ public partial class NetworkSession : Node
         ActivePlayerSlots = activeSlots.ToArray();
         EmitSignal(SignalName.RosterChanged, ActivePlayerSlots);
         Rpc(nameof(ReceiveRoster), ActivePlayerSlots);
+    }
+
+    public void PublishPlayerState(int slot, Vector3 position, float rotationY, Vector3 velocity)
+    {
+        if (IsDedicatedServer || Array.IndexOf(LocalPlayerSlots, slot) < 0 || !Multiplayer.HasMultiplayerPeer())
+            return;
+        RpcId(1, nameof(SubmitPlayerState), slot, position, rotationY, velocity);
+    }
+
+    [Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Unreliable)]
+    private void SubmitPlayerState(int slot, Vector3 position, float rotationY, Vector3 velocity)
+    {
+        if (!Multiplayer.IsServer())
+            return;
+        var peerId = Multiplayer.GetRemoteSenderId();
+        if (!_peerSlots.TryGetValue(peerId, out var ownedSlots) || !ownedSlots.Contains(slot))
+        {
+            GD.PushWarning($"Peer {peerId} attempted to update unowned player slot {slot}.");
+            return;
+        }
+
+        EmitSignal(SignalName.PlayerStateReceived, slot, position, rotationY, velocity);
+        Rpc(nameof(ReceivePlayerState), slot, position, rotationY, velocity);
+    }
+
+    [Rpc(MultiplayerApi.RpcMode.Authority, TransferMode = MultiplayerPeer.TransferModeEnum.Unreliable)]
+    private void ReceivePlayerState(int slot, Vector3 position, float rotationY, Vector3 velocity)
+    {
+        if (Array.IndexOf(LocalPlayerSlots, slot) < 0)
+            EmitSignal(SignalName.PlayerStateReceived, slot, position, rotationY, velocity);
     }
 
     [Rpc(MultiplayerApi.RpcMode.Authority, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]

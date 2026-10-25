@@ -40,6 +40,14 @@ var input_crouch: String
 var accepts_local_input := true
 var local_controller_device := -1
 var input_profile_id := 1
+var is_network_remote := false
+var network_session: Node
+var network_target_position := Vector3.ZERO
+var network_target_rotation_y := 0.0
+var network_target_velocity := Vector3.ZERO
+var network_state_received := false
+var network_send_accumulator := 0.0
+const NETWORK_SEND_INTERVAL := 0.05
 
 
 var movement_velocity: Vector3
@@ -92,7 +100,7 @@ func _ready():
 	# Online clients only read input for their assigned player. The command-line
 	# controller device selects which existing per-device input map that player uses.
 	input_profile_id = player_id
-	var network_session := get_node_or_null("/root/NetworkSession")
+	network_session = get_node_or_null("/root/NetworkSession")
 	if network_session:
 		var local_slots: Array = Array(network_session.get("LocalPlayerSlots"))
 		var dedicated := bool(network_session.get("IsDedicatedServer"))
@@ -116,6 +124,8 @@ func _ready():
 	input_crouch = "crouch_p" + str(input_profile_id)
 
 	if not accepts_local_input:
+		is_network_remote = network_session != null and (bool(network_session.get("IsDedicatedServer")) or not Array(network_session.get("ActivePlayerSlots")).is_empty())
+	if not accepts_local_input and not is_network_remote:
 		set_physics_process(false)
 
 	var playerTexture = null
@@ -282,6 +292,14 @@ func get_closest_interactable() -> Node3D:
 
 
 func _physics_process(delta):
+	if is_network_remote:
+		if network_state_received:
+			global_position = global_position.lerp(network_target_position, minf(delta * 14.0, 1.0))
+			rotation.y = lerp_angle(rotation.y, network_target_rotation_y, minf(delta * 14.0, 1.0))
+			velocity = network_target_velocity
+			_update_remote_animation()
+		return
+
 	handle_controls(delta)
 	handle_gravity(delta)
 	handle_effects(delta)
@@ -323,6 +341,35 @@ func _physics_process(delta):
 
 	previously_floored = is_on_floor()
 	handle_interactables(delta)
+	_publish_network_state(delta)
+
+func apply_network_state(state_position: Vector3, state_rotation_y: float, state_velocity: Vector3) -> void:
+	network_target_position = state_position
+	network_target_rotation_y = state_rotation_y
+	network_target_velocity = state_velocity
+	if not network_state_received:
+		global_position = state_position
+		rotation.y = state_rotation_y
+	network_state_received = true
+
+func _publish_network_state(delta: float) -> void:
+	if network_session == null or not accepts_local_input:
+		return
+	network_send_accumulator += delta
+	if network_send_accumulator < NETWORK_SEND_INTERVAL:
+		return
+	network_send_accumulator = 0.0
+	network_session.call("PublishPlayerState", player_id, global_position, rotation.y, velocity)
+
+func _update_remote_animation() -> void:
+	if absf(network_target_velocity.y) > 0.5:
+		if animation.current_animation != "jump":
+			animation.play("jump", 0.1)
+	elif Vector2(network_target_velocity.x, network_target_velocity.z).length() > 0.2:
+		if animation.current_animation != "walk":
+			animation.play("walk", 0.1)
+	elif animation.current_animation != "idle":
+		animation.play("idle", 0.1)
 
 
 func handle_controls(delta):

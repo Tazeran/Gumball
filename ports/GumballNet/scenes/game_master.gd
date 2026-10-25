@@ -38,6 +38,7 @@ func _ready() -> void:
 				active_slots.append(slot)
 		_apply_online_roster(active_slots)
 		_session.connect("RosterChanged", _on_roster_changed)
+		_session.connect("PlayerStateReceived", _on_player_state_received)
 	else:
 		for slot in range(1, Master.player_count + 1):
 			local_slots.append(slot)
@@ -54,6 +55,11 @@ func _on_roster_changed(active_slots) -> void:
 	for slot in active_slots:
 		slots.append(int(slot))
 	_apply_online_roster(slots)
+
+func _on_player_state_received(slot: int, position: Vector3, rotation_y: float, player_velocity: Vector3) -> void:
+	var player: Player = _online_players.get(slot)
+	if player:
+		player.apply_network_state(position, rotation_y, player_velocity)
 
 func _apply_online_roster(active_slots: Array[int]) -> void:
 	for existing_slot in _online_players.keys():
