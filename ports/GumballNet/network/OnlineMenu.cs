@@ -17,7 +17,11 @@ public partial class OnlineMenu : CanvasLayer
     private Button _pauseWorld = null!;
     private Button _resumeGame = null!;
     private VBoxContainer _teamChoices = null!;
-    private readonly OptionButton[] _teamSelectors = new OptionButton[NetworkSession.MaxLocalPlayers];
+    private readonly HBoxContainer[] _teamRows = new HBoxContainer[NetworkSession.MaxLocalPlayers];
+    private readonly Label[] _teamPlayerLabels = new Label[NetworkSession.MaxLocalPlayers];
+    private readonly Label[] _teamStatusLabels = new Label[NetworkSession.MaxLocalPlayers];
+    private readonly Button[] _redTeamButtons = new Button[NetworkSession.MaxLocalPlayers];
+    private readonly Button[] _blueTeamButtons = new Button[NetworkSession.MaxLocalPlayers];
     private bool _inMatch;
 
     public override void _Ready()
@@ -162,15 +166,29 @@ public partial class OnlineMenu : CanvasLayer
         var teamHeading = new Label { Text = "TEAM SELECTION (CHANGE ANYTIME)", HorizontalAlignment = HorizontalAlignment.Center };
         teamHeading.AddThemeColorOverride("font_color", new Color("a9b9cc"));
         _teamChoices.AddChild(teamHeading);
-        for (var index = 0; index < _teamSelectors.Length; index++)
+        for (var index = 0; index < NetworkSession.MaxLocalPlayers; index++)
         {
             var localIndex = index;
-            var selector = new OptionButton { CustomMinimumSize = new Vector2(0, 38), Visible = false };
-            selector.AddItem("RED TEAM — RIGHT BASE");
-            selector.AddItem("BLUE / PURPLE TEAM — LEFT BASE");
-            selector.ItemSelected += selected => TeamSelected(localIndex, selected);
-            _teamSelectors[index] = selector;
-            _teamChoices.AddChild(selector);
+            var row = new HBoxContainer { Visible = false };
+            row.AddThemeConstantOverride("separation", 8);
+            var playerLabel = new Label { CustomMinimumSize = new Vector2(90, 0) };
+            var red = MakeButton("RED · RIGHT", new Color("a43d45"));
+            var blue = MakeButton("BLUE/PURPLE · LEFT", new Color("5148a8"));
+            var status = new Label { CustomMinimumSize = new Vector2(125, 0) };
+            red.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+            blue.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+            red.Pressed += () => TeamSelected(localIndex, "A");
+            blue.Pressed += () => TeamSelected(localIndex, "B");
+            row.AddChild(playerLabel);
+            row.AddChild(red);
+            row.AddChild(blue);
+            row.AddChild(status);
+            _teamRows[index] = row;
+            _teamPlayerLabels[index] = playerLabel;
+            _teamStatusLabels[index] = status;
+            _redTeamButtons[index] = red;
+            _blueTeamButtons[index] = blue;
+            _teamChoices.AddChild(row);
         }
         stack.AddChild(_teamChoices);
 
@@ -297,34 +315,42 @@ public partial class OnlineMenu : CanvasLayer
             : "You joined the active dedicated match.";
         _teamChoices.Visible = true;
         _pauseWorld.Visible = true;
-        for (var index = 0; index < _teamSelectors.Length; index++)
+        for (var index = 0; index < _teamRows.Length; index++)
         {
             var visible = index < Session.LocalPlayerSlots.Length;
-            _teamSelectors[index].Visible = visible;
+            _teamRows[index].Visible = visible;
             if (!visible)
                 continue;
             var playerSlot = Session.LocalPlayerSlots[index];
-            _teamSelectors[index].Clear();
-            _teamSelectors[index].AddItem($"PLAYER {playerSlot}: RED TEAM — RIGHT BASE");
-            _teamSelectors[index].AddItem($"PLAYER {playerSlot}: BLUE / PURPLE TEAM — LEFT BASE");
-            _teamSelectors[index].Selected = Session.GetPlayerTeam(playerSlot) == "B" ? 1 : 0;
+            _teamPlayerLabels[index].Text = $"PLAYER {playerSlot}";
+            RefreshTeamRow(index, Session.GetPlayerTeam(playerSlot));
         }
         if (Session.AutoEnterMatch)
             CallDeferred(nameof(EnterMatchPressed));
     }
 
-    private void TeamSelected(int localIndex, long selected)
+    private void TeamSelected(int localIndex, string team)
     {
         if (localIndex >= Session.LocalPlayerSlots.Length)
             return;
-        Session.ChooseTeam(Session.LocalPlayerSlots[localIndex], selected == 1 ? "B" : "A");
+        Session.ChooseTeam(Session.LocalPlayerSlots[localIndex], team);
     }
 
     private void OnPlayerTeamChanged(int slot, string team)
     {
         var localIndex = Array.IndexOf(Session.LocalPlayerSlots, slot);
         if (localIndex >= 0)
-            _teamSelectors[localIndex].Selected = team == "B" ? 1 : 0;
+            RefreshTeamRow(localIndex, team);
+    }
+
+    private void RefreshTeamRow(int localIndex, string team)
+    {
+        var isRed = team == "A";
+        _teamStatusLabels[localIndex].Text = isRed ? "CURRENT: RED" : "CURRENT: BLUE";
+        _teamStatusLabels[localIndex].AddThemeColorOverride("font_color",
+            isRed ? new Color("ff8c92") : new Color("a99cff"));
+        _redTeamButtons[localIndex].Text = isRed ? "✓ RED · RIGHT" : "RED · RIGHT";
+        _blueTeamButtons[localIndex].Text = isRed ? "BLUE/PURPLE · LEFT" : "✓ BLUE/PURPLE · LEFT";
     }
 
     private void PauseWorldPressed() => Session.ToggleGamePause();
