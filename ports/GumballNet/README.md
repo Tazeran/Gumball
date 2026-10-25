@@ -47,6 +47,11 @@ On Windows, double-click `start-local-match.bat`. It starts:
 2. Client 1 connected to `127.0.0.1`, using controller device `0`
 3. Client 2 connected to `127.0.0.1`, using controller device `1`
 
+The two graphical clients open at `900x700`, side-by-side on screen 0. The
+`CLIENT_SIZE`, `CLIENT_1_POSITION`, `CLIENT_2_POSITION`, and `CLIENT_SCREEN`
+variables near the top of `start-local-match.bat` can be adjusted for a
+different monitor arrangement.
+
 Each machine may request one to four local players. The setup menu selects the
 count, while `--local-players=1..4` and `--controllers=0,1,2,3` provide explicit
 launch-time configuration. The total across all connected machines may not
