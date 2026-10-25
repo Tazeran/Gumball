@@ -47,8 +47,11 @@ On Windows, double-click `start-local-match.bat`. It starts:
 2. Client 1 at the setup screen, using controller device `0`
 3. Client 2 at the setup screen, using controller device `1`
 
-Each client first chooses 1–4 local players, verifies its expected controllers,
-then probes the entries in `network/servers.json`. Only reachable servers with
+Each client starts with keyboard/controller focus on the `1` choice, but no
+player count is selected until that button is activated. Choosing 1–4 advances
+directly to controller confirmation, where every assigned controller must press
+A. The server browser opens automatically after the last confirmation and then
+probes the entries in `network/servers.json`. Only reachable servers with
 enough free seats can be selected. A successful selection joins and enters the
 match automatically; there is no separate address field or Enter Match button.
 Server display names come from `network/server.json` (or `--server-name=...`).

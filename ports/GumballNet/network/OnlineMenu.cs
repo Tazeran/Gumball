@@ -10,25 +10,27 @@ namespace GumballNet.Network;
 public partial class OnlineMenu : CanvasLayer
 {
     private Control _screen = null!;
-    private VBoxContainer _setupPage = null!;
+    private VBoxContainer _playerCountPage = null!;
+    private VBoxContainer _controllerPage = null!;
     private VBoxContainer _browserPage = null!;
     private VBoxContainer _matchPage = null!;
     private VBoxContainer _serverList = null!;
-    private Label _setupStatus = null!;
+    private Label _controllerStatus = null!;
     private Label _browserStatus = null!;
     private Label _matchStatus = null!;
     private Label _role = null!;
-    private Button _continueToServers = null!;
     private Button _resumeGame = null!;
     private Button _pauseWorld = null!;
     private readonly Button[] _playerCountButtons = new Button[NetworkSession.MaxLocalPlayers];
     private readonly Label[] _controllerLabels = new Label[NetworkSession.MaxLocalPlayers];
+    private readonly bool[] _controllerConfirmed = new bool[NetworkSession.MaxLocalPlayers];
     private readonly HBoxContainer[] _teamRows = new HBoxContainer[NetworkSession.MaxLocalPlayers];
     private readonly Label[] _teamPlayerLabels = new Label[NetworkSession.MaxLocalPlayers];
     private readonly Label[] _teamStatusLabels = new Label[NetworkSession.MaxLocalPlayers];
     private readonly Button[] _redTeamButtons = new Button[NetworkSession.MaxLocalPlayers];
     private readonly Button[] _blueTeamButtons = new Button[NetworkSession.MaxLocalPlayers];
     private bool _inMatch;
+    private bool _openingServerBrowser;
     private double _controllerRefreshRemaining;
 
     private NetworkSession Session => GetNode<NetworkSession>("/root/NetworkSession");
@@ -42,13 +44,13 @@ public partial class OnlineMenu : CanvasLayer
         Session.PlayerAssignmentChanged += OnPlayerAssignmentChanged;
         Session.PlayerTeamChanged += OnPlayerTeamChanged;
         Session.GamePauseChanged += OnGamePauseChanged;
-        SelectPlayerCount(Session.RequestedLocalPlayers);
-        ShowPage(_setupPage);
+        ShowPage(_playerCountPage);
+        CallDeferred(nameof(FocusInitialPlayerCount));
     }
 
     public override void _Process(double delta)
     {
-        if (_inMatch)
+        if (_inMatch || !_controllerPage.Visible)
             return;
         _controllerRefreshRemaining -= delta;
         if (_controllerRefreshRemaining <= 0)
@@ -67,6 +69,21 @@ public partial class OnlineMenu : CanvasLayer
             GetViewport().SetInputAsHandled();
             return;
         }
+        if (!_inMatch && _controllerPage.Visible && @event is InputEventJoypadButton { Pressed: true } button)
+        {
+            if (button.ButtonIndex == JoyButton.A)
+            {
+                ConfirmController(@event.Device);
+                GetViewport().SetInputAsHandled();
+                return;
+            }
+            if (button.ButtonIndex == JoyButton.B)
+            {
+                ReturnToPlayerCount();
+                GetViewport().SetInputAsHandled();
+                return;
+            }
+        }
         if (_inMatch && @event is InputEventJoypadButton { Pressed: true, ButtonIndex: JoyButton.Start })
         {
             ToggleInGameMenu();
@@ -76,8 +93,17 @@ public partial class OnlineMenu : CanvasLayer
 
     public override void _UnhandledInput(InputEvent @event)
     {
-        if (!_inMatch || @event is InputEventJoypadButton || !@event.IsActionPressed("ui_cancel"))
+        if (@event is InputEventJoypadButton || !@event.IsActionPressed("ui_cancel"))
             return;
+        if (!_inMatch)
+        {
+            if (_browserPage.Visible)
+                ReturnToControllerConfirmation();
+            else if (_controllerPage.Visible)
+                ReturnToPlayerCount();
+            GetViewport().SetInputAsHandled();
+            return;
+        }
         ToggleInGameMenu();
         GetViewport().SetInputAsHandled();
     }
@@ -104,15 +130,17 @@ public partial class OnlineMenu : CanvasLayer
         root.AddChild(title);
         root.AddChild(Copy("ONE MATCH  •  UP TO 16 PLAYERS  •  UP TO 4 PER MACHINE"));
         root.AddChild(new HSeparator());
-        _setupPage = BuildSetupPage();
+        _playerCountPage = BuildPlayerCountPage();
+        _controllerPage = BuildControllerPage();
         _browserPage = BuildBrowserPage();
         _matchPage = BuildMatchPage();
-        root.AddChild(_setupPage);
+        root.AddChild(_playerCountPage);
+        root.AddChild(_controllerPage);
         root.AddChild(_browserPage);
         root.AddChild(_matchPage);
     }
 
-    private VBoxContainer BuildSetupPage()
+    private VBoxContainer BuildPlayerCountPage()
     {
         var page = Page();
         page.AddChild(Heading("1 · LOCAL PLAYERS"));
@@ -129,7 +157,16 @@ public partial class OnlineMenu : CanvasLayer
             counts.AddChild(button);
         }
         page.AddChild(counts);
-        page.AddChild(Heading("CONTROLLERS"));
+        page.AddChild(Copy("Highlight 1–4, then press A to choose."));
+        page.AddChild(QuitButton());
+        return page;
+    }
+
+    private VBoxContainer BuildControllerPage()
+    {
+        var page = Page();
+        page.AddChild(Heading("2 · CONFIRM CONTROLLERS"));
+        page.AddChild(Copy("Each local player must press A on their assigned controller."));
         for (var index = 0; index < _controllerLabels.Length; index++)
         {
             var label = Copy("");
@@ -137,19 +174,16 @@ public partial class OnlineMenu : CanvasLayer
             _controllerLabels[index] = label;
             page.AddChild(label);
         }
-        _setupStatus = Copy("");
-        page.AddChild(_setupStatus);
-        _continueToServers = MakeButton("CONTINUE TO SERVERS", new Color("2d91bf"));
-        _continueToServers.Pressed += OpenServerBrowser;
-        page.AddChild(_continueToServers);
-        page.AddChild(QuitButton());
+        _controllerStatus = Copy("");
+        page.AddChild(_controllerStatus);
+        page.AddChild(Copy("Press B to change the number of local players."));
         return page;
     }
 
     private VBoxContainer BuildBrowserPage()
     {
         var page = Page();
-        page.AddChild(Heading("2 · AVAILABLE SERVERS"));
+        page.AddChild(Heading("3 · AVAILABLE SERVERS"));
         page.AddChild(Copy("Reachable servers with enough free seats appear below."));
         _browserStatus = Copy("Checking configured servers…");
         page.AddChild(_browserStatus);
@@ -164,7 +198,7 @@ public partial class OnlineMenu : CanvasLayer
         var refresh = MakeButton("REFRESH SERVERS", new Color("2d91bf"));
         back.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
         refresh.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-        back.Pressed += () => ShowPage(_setupPage);
+        back.Pressed += ReturnToControllerConfirmation;
         refresh.Pressed += RefreshServers;
         actions.AddChild(back);
         actions.AddChild(refresh);
@@ -220,10 +254,10 @@ public partial class OnlineMenu : CanvasLayer
     private void SelectPlayerCount(int count)
     {
         Session.ConfigureLocalPlayers(count);
-        for (var index = 0; index < _playerCountButtons.Length; index++)
-            _playerCountButtons[index].Text = index + 1 == count ? $"✓ {count}" : (index + 1).ToString();
+        Array.Fill(_controllerConfirmed, false);
+        _openingServerBrowser = false;
+        ShowPage(_controllerPage);
         UpdateControllerReadiness();
-        _playerCountButtons[count - 1].GrabFocus();
     }
 
     private void UpdateControllerReadiness()
@@ -237,23 +271,60 @@ public partial class OnlineMenu : CanvasLayer
             if (!visible)
                 continue;
             var device = Session.LocalControllerDevices[index];
-            var ready = connected.Contains(device);
+            var connectedNow = connected.Contains(device);
+            if (!connectedNow)
+                _controllerConfirmed[index] = false;
+            var ready = connectedNow && _controllerConfirmed[index];
             allReady &= ready;
             _controllerLabels[index].Text = ready
-                ? $"✓ PLAYER {index + 1} · CONTROLLER {device + 1} CONNECTED"
+                ? $"✓ PLAYER {index + 1} · CONTROLLER {device + 1} READY"
+                : connectedNow
+                    ? $"○ PLAYER {index + 1} · CONTROLLER {device + 1} · PRESS A"
                 : $"○ PLAYER {index + 1} · CONNECT CONTROLLER {device + 1}";
             _controllerLabels[index].AddThemeColorOverride("font_color", ready ? new Color("73e6a1") : new Color("ffb36b"));
         }
-        _continueToServers.Disabled = !allReady;
-        _setupStatus.Text = allReady ? "All local controllers are ready." : "Connect every required controller to continue.";
+        _controllerStatus.Text = allReady ? "All controllers confirmed. Opening server list…" : "Waiting for every local player.";
+        if (allReady && !_openingServerBrowser)
+        {
+            _openingServerBrowser = true;
+            CallDeferred(nameof(OpenServerBrowser));
+        }
     }
 
     private void OpenServerBrowser()
     {
-        if (_continueToServers.Disabled)
-            return;
         ShowPage(_browserPage);
         RefreshServers();
+    }
+
+    private void ConfirmController(int device)
+    {
+        var localIndex = Array.IndexOf(Session.LocalControllerDevices, device);
+        if (localIndex < 0 || localIndex >= Session.RequestedLocalPlayers)
+            return;
+        _controllerConfirmed[localIndex] = true;
+        UpdateControllerReadiness();
+    }
+
+    private void ReturnToPlayerCount()
+    {
+        Array.Fill(_controllerConfirmed, false);
+        _openingServerBrowser = false;
+        ShowPage(_playerCountPage);
+        _playerCountButtons[Math.Clamp(Session.RequestedLocalPlayers - 1, 0, _playerCountButtons.Length - 1)].GrabFocus();
+    }
+
+    private void ReturnToControllerConfirmation()
+    {
+        Array.Fill(_controllerConfirmed, false);
+        _openingServerBrowser = false;
+        ShowPage(_controllerPage);
+        UpdateControllerReadiness();
+    }
+
+    private void FocusInitialPlayerCount()
+    {
+        _playerCountButtons[0].GrabFocus();
     }
 
     private async void RefreshServers()
@@ -383,7 +454,8 @@ public partial class OnlineMenu : CanvasLayer
 
     private void ShowPage(Control page)
     {
-        _setupPage.Visible = page == _setupPage;
+        _playerCountPage.Visible = page == _playerCountPage;
+        _controllerPage.Visible = page == _controllerPage;
         _browserPage.Visible = page == _browserPage;
         _matchPage.Visible = page == _matchPage;
         _screen.Visible = true;
