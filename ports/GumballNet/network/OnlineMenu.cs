@@ -15,6 +15,7 @@ public partial class OnlineMenu : CanvasLayer
     private Button _enterMatch = null!;
     private Button _disconnect = null!;
     private Button _pauseWorld = null!;
+    private Button _resumeGame = null!;
     private VBoxContainer _teamChoices = null!;
     private readonly OptionButton[] _teamSelectors = new OptionButton[NetworkSession.MaxLocalPlayers];
     private bool _inMatch;
@@ -41,18 +42,32 @@ public partial class OnlineMenu : CanvasLayer
         // connected to the computer. A development client should only consume
         // the controller devices assigned to its local seats.
         if (Array.IndexOf(Session.LocalControllerDevices, @event.Device) < 0)
+        {
             GetViewport().SetInputAsHandled();
+            return;
+        }
+
+        if (_inMatch && @event is InputEventJoypadButton { Pressed: true, ButtonIndex: JoyButton.Start })
+        {
+            ToggleInGameMenu();
+            GetViewport().SetInputAsHandled();
+        }
     }
 
     public override void _UnhandledInput(InputEvent @event)
     {
-        if (!_inMatch || !@event.IsActionPressed("ui_cancel"))
+        if (!_inMatch || @event is InputEventJoypadButton || !@event.IsActionPressed("ui_cancel"))
             return;
 
-        _screen.Visible = !_screen.Visible;
+        ToggleInGameMenu();
         GetViewport().SetInputAsHandled();
+    }
+
+    private void ToggleInGameMenu()
+    {
+        _screen.Visible = !_screen.Visible;
         if (_screen.Visible)
-            _disconnect.GrabFocus();
+            _resumeGame.GrabFocus();
     }
 
     private NetworkSession Session => GetNode<NetworkSession>("/root/NetworkSession");
@@ -159,6 +174,11 @@ public partial class OnlineMenu : CanvasLayer
         }
         stack.AddChild(_teamChoices);
 
+        _resumeGame = MakeButton("RETURN TO GAME", new Color("2d91bf"));
+        _resumeGame.Visible = false;
+        _resumeGame.Pressed += CloseMenuPressed;
+        stack.AddChild(_resumeGame);
+
         _pauseWorld = MakeButton("PAUSE GAME WORLD", new Color("8a6428"));
         _pauseWorld.Visible = false;
         _pauseWorld.Pressed += PauseWorldPressed;
@@ -236,6 +256,7 @@ public partial class OnlineMenu : CanvasLayer
         _role.Text = "Not connected";
         _teamChoices.Visible = false;
         _pauseWorld.Visible = false;
+        _resumeGame.Visible = false;
         _status.Text = "Disconnected. Enter a server address to reconnect.";
     }
 
@@ -245,6 +266,7 @@ public partial class OnlineMenu : CanvasLayer
             return;
 
         _inMatch = true;
+        _resumeGame.Visible = true;
         _screen.Visible = false;
     }
 
@@ -306,6 +328,12 @@ public partial class OnlineMenu : CanvasLayer
     }
 
     private void PauseWorldPressed() => Session.ToggleGamePause();
+
+    private void CloseMenuPressed()
+    {
+        if (_inMatch)
+            _screen.Visible = false;
+    }
 
     private void OnGamePauseChanged(bool paused)
     {

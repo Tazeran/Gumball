@@ -65,6 +65,9 @@ switching teams respawns that player at the selected base for every client.
 The same overlay includes a global pause/resume button. It pauses gameplay
 simulation on the dedicated server and every client while leaving menus and
 network traffic active so any connected player can resume.
+During play, press the Xbox Menu/Start button on that client's assigned
+controller (or Escape on the keyboard) to open or close the overlay. Opening
+the overlay does not automatically pause the shared game world.
 
 For automated development checks, `--auto-enter` enters the arena as soon as
 the server assigns seats. The normal launchers leave the lobby screen visible.
