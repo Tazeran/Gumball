@@ -115,8 +115,7 @@ func _capture_world_frame() -> Dictionary:
 		buttons.append(button.is_active)
 	var falling_platforms: Array = []
 	for platform in get_tree().get_nodes_in_group("network_falling_platforms"):
-		falling_platforms.append([platform.position.x, platform.position.y, platform.position.z,
-			platform.scale.x, platform.scale.y, platform.scale.z])
+		falling_platforms.append(platform.get_network_state())
 	return {"players": players, "enemies": enemies, "marbles": marbles, "pickups": pickup_states,
 		"buttons": buttons, "falling_platforms": falling_platforms}
 
@@ -156,8 +155,7 @@ func _on_world_frame_received(json: String) -> void:
 			if platform_index >= falling_platforms.size():
 				break
 			var data: Array = platform_states[chunk_index]
-			falling_platforms[platform_index].position = Vector3(float(data[0]), float(data[1]), float(data[2]))
-			falling_platforms[platform_index].scale = Vector3(float(data[3]), float(data[4]), float(data[5]))
+			falling_platforms[platform_index].apply_network_state(int(data[0]), float(data[1]), int(data[2]))
 
 func _apply_enemy_frame(states: Array) -> void:
 	var live_spawners: Dictionary = {}
