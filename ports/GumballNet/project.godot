@@ -30,7 +30,7 @@ NetworkSession="*res://network/NetworkSession.cs"
 
 [network]
 
-limits/max_clients=4
+limits/max_clients=16
 server/port=42837
 
 [display]

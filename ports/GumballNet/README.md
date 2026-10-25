@@ -43,15 +43,24 @@ and select **Join Online Match**. Local testing uses `127.0.0.1`.
 
 On Windows, double-click `start-local-match.bat`. It starts:
 
-1. One headless authoritative server on UDP `42837`
+1. One headless authoritative server on UDP `42837` with up to 16 match seats
 2. Client 1 connected to `127.0.0.1`, using controller device `0`
 3. Client 2 connected to `127.0.0.1`, using controller device `1`
 
-The client helper accepts a controller device number, so it can also be run
-manually as `run-local-client.bat 0` or `run-local-client.bat 1`. The equivalent
-Godot user argument is `--controller=0` through `--controller=7`. Godot numbers
-the first connected controller as device `0`, even though it is described to the
-player as controller 1.
+Each machine may request one to four local players. The setup menu selects the
+count, while `--local-players=1..4` and `--controllers=0,1,2,3` provide explicit
+launch-time configuration. The total across all connected machines may not
+exceed 16 players.
+
+For automated development checks, `--auto-enter` enters the arena as soon as
+the server assigns seats. The normal launchers leave the lobby screen visible.
+
+The client helper accepts a comma-separated controller list followed by the
+local player count. For example, `run-local-client.bat 0,1 2` starts one client
+with two local players using controller devices 0 and 1. `run-local-client.bat 1`
+starts a one-player client on controller device 1. Godot numbers the first
+connected controller as device `0`, even though it is described to the player
+as controller 1.
 
 Before launching, the script closes existing Godot processes running this
 specific GumballNet project. It does not intentionally close Godot editors or

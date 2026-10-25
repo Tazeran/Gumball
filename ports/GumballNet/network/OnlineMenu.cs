@@ -7,6 +7,7 @@ public partial class OnlineMenu : CanvasLayer
 {
     private Control _screen = null!;
     private LineEdit _address = null!;
+    private OptionButton _localPlayers = null!;
     private Label _status = null!;
     private Label _role = null!;
     private Button _connect = null!;
@@ -76,7 +77,7 @@ public partial class OnlineMenu : CanvasLayer
 
         var subtitle = new Label
         {
-            Text = "ONE SERVER  •  ONE MATCH  •  UP TO 4 PLAYERS",
+            Text = "ONE SERVER  •  ONE MATCH  •  UP TO 16 PLAYERS",
             HorizontalAlignment = HorizontalAlignment.Center
         };
         subtitle.AddThemeFontSizeOverride("font_size", 14);
@@ -88,6 +89,12 @@ public partial class OnlineMenu : CanvasLayer
         addressLabel.AddThemeFontSizeOverride("font_size", 13);
         addressLabel.AddThemeColorOverride("font_color", new Color("a9b9cc"));
         stack.AddChild(addressLabel);
+
+        _localPlayers = new OptionButton { CustomMinimumSize = new Vector2(0, 42) };
+        for (var count = 1; count <= NetworkSession.MaxLocalPlayers; count++)
+            _localPlayers.AddItem(count == 1 ? "1 local player" : $"{count} local players");
+        _localPlayers.Selected = Session.RequestedLocalPlayers - 1;
+        stack.AddChild(_localPlayers);
 
         _address = new LineEdit
         {
@@ -166,6 +173,8 @@ public partial class OnlineMenu : CanvasLayer
         _connect.Disabled = true;
         _address.Editable = false;
         _status.Text = "Opening a game session…";
+        Session.ConfigureLocalPlayers(_localPlayers.Selected + 1);
+        _localPlayers.Disabled = true;
         Session.Connect(_address.Text);
     }
 
@@ -181,6 +190,7 @@ public partial class OnlineMenu : CanvasLayer
         _connect.Visible = true;
         _connect.Disabled = false;
         _address.Editable = true;
+        _localPlayers.Disabled = false;
         _enterMatch.Visible = false;
         _disconnect.Visible = false;
         _role.Text = "Not connected";
@@ -203,6 +213,7 @@ public partial class OnlineMenu : CanvasLayer
         {
             _connect.Disabled = false;
             _address.Editable = true;
+            _localPlayers.Disabled = false;
         }
     }
 
@@ -213,10 +224,14 @@ public partial class OnlineMenu : CanvasLayer
         _disconnect.Visible = true;
         _enterMatch.Visible = true;
         _enterMatch.GrabFocus();
-        _role.Text = owner ? $"PLAYER {slot}  •  LOBBY OWNER" : $"PLAYER {slot}  •  MATCH MEMBER";
+        var seats = string.Join(", ", Session.LocalPlayerSlots);
+        var seatLabel = Session.LocalPlayerSlots.Length == 1 ? $"PLAYER {seats}" : $"PLAYERS {seats}";
+        _role.Text = owner ? $"{seatLabel}  •  LOBBY OWNER" : $"{seatLabel}  •  MATCH MEMBER";
         _role.AddThemeColorOverride("font_color", owner ? new Color("ffd166") : new Color("75d6ff"));
         _status.Text = owner
             ? "You joined first. The dedicated server still owns the simulation."
             : "You joined the active dedicated match.";
+        if (Session.AutoEnterMatch)
+            CallDeferred(nameof(EnterMatchPressed));
     }
 }

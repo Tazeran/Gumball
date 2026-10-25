@@ -39,6 +39,7 @@ var input_interact: String
 var input_crouch: String
 var accepts_local_input := true
 var local_controller_device := -1
+var input_profile_id := 1
 
 
 var movement_velocity: Vector3
@@ -53,7 +54,8 @@ var coins:
 	get: return _coins
 	set(value):
 		_coins = value
-		hud.update_coins(_coins)
+		if hud:
+			hud.update_coins(_coins)
 
 var spawn_position: Vector3
 
@@ -89,24 +91,32 @@ func _ready():
 	#update_interaction_marker()
 	# Online clients only read input for their assigned player. The command-line
 	# controller device selects which existing per-device input map that player uses.
-	var input_player_id := player_id
+	input_profile_id = player_id
 	var network_session := get_node_or_null("/root/NetworkSession")
 	if network_session:
-		var online_slot := int(network_session.get("LocalPlayerSlot"))
-		if online_slot > 0:
-			accepts_local_input = player_id == online_slot
-			local_controller_device = int(network_session.get("LocalControllerDevice"))
+		var local_slots: Array = Array(network_session.get("LocalPlayerSlots"))
+		var dedicated := bool(network_session.get("IsDedicatedServer"))
+		if dedicated:
+			accepts_local_input = false
+		elif not local_slots.is_empty():
+			var local_index := local_slots.find(player_id)
+			accepts_local_input = local_index >= 0
 			if accepts_local_input:
-				input_player_id = local_controller_device + 1
+				var controller_devices: Array = Array(network_session.get("LocalControllerDevices"))
+				local_controller_device = int(controller_devices[local_index])
+				input_profile_id = local_controller_device + 1
 
-	input_left = "move_left_p" + str(input_player_id)
-	input_right = "move_right_p" + str(input_player_id)
-	input_forward = "move_forward_p" + str(input_player_id)
-	input_back = "move_back_p" + str(input_player_id)
-	input_jump = "jump_p" + str(input_player_id)
-	input_ground_pound = "right_bumper_p" + str(input_player_id)
-	input_interact = "interact_p" + str(input_player_id)
-	input_crouch = "crouch_p" + str(input_player_id)
+	input_left = "move_left_p" + str(input_profile_id)
+	input_right = "move_right_p" + str(input_profile_id)
+	input_forward = "move_forward_p" + str(input_profile_id)
+	input_back = "move_back_p" + str(input_profile_id)
+	input_jump = "jump_p" + str(input_profile_id)
+	input_ground_pound = "right_bumper_p" + str(input_profile_id)
+	input_interact = "interact_p" + str(input_profile_id)
+	input_crouch = "crouch_p" + str(input_profile_id)
+
+	if not accepts_local_input:
+		set_physics_process(false)
 
 	var playerTexture = null
 	if player_id % 2 == 1:
@@ -130,8 +140,9 @@ func _ready():
 	pickup_area.area_exited.connect(_on_pickup_area_body_exited)
 
 func setup(): #called by master
-	hud.update_coins(coins)
-	hud.set_health(health, health_max)
+	if hud:
+		hud.update_coins(coins)
+		hud.set_health(health, health_max)
 
 func _on_pickup_area_body_entered(area):
 	#print("_on_pickup_area_body_entered", area)
@@ -444,7 +455,8 @@ func collect_coin():
 
 func collect_heart():
 	health = min(health + 2, health_max)
-	hud.set_health(health, health_max)
+	if hud:
+		hud.set_health(health, health_max)
 
 
 #func find_nearby_card() -> Node3D:
@@ -516,7 +528,8 @@ func take_damage(amount: int, source_pos: Vector3):
 	health = max(0, health - amount)
 	if health <= 0:
 		respawn()
-	hud.set_health(health, health_max)
+	if hud:
+		hud.set_health(health, health_max)
 
 	# Flash white and apply knockback
 	flash_white()

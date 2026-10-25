@@ -42,10 +42,10 @@ echo Waiting briefly for the server to bind its port...
 ping 127.0.0.1 -n 3 >nul
 
 echo Starting client 1...
-start "GumballNet Client 1 - Controller 1" /D "%GODOT_DIR%" "%GODOT_GUI%" --path "%PROJECT_DIR%" -- --connect=127.0.0.1 --controller=0
+start "GumballNet Client 1 - Controller 1" /D "%GODOT_DIR%" "%GODOT_GUI%" --path "%PROJECT_DIR%" -- --connect=127.0.0.1 --local-players=1 --controllers=0
 
 echo Starting client 2...
-start "GumballNet Client 2 - Controller 2" /D "%GODOT_DIR%" "%GODOT_GUI%" --path "%PROJECT_DIR%" -- --connect=127.0.0.1 --controller=1
+start "GumballNet Client 2 - Controller 2" /D "%GODOT_DIR%" "%GODOT_GUI%" --path "%PROJECT_DIR%" -- --connect=127.0.0.1 --local-players=1 --controllers=1
 
 echo.
 echo Local match launched: one server and two clients.

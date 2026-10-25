@@ -31,7 +31,7 @@ var snap_camera := false  # Tracks if snap is requested
 
 func assign_player(player):
 	target = player
-	player_id = player.player_id
+	player_id = player.input_profile_id
 	sub_viewport = player.sub_viewport
 
 	input_left = "camera_left_p%d" % player_id

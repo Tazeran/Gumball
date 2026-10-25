@@ -11,7 +11,8 @@ namespace GumballNet.Network;
 public partial class NetworkSession : Node
 {
     public const int ServerPort = 42837;
-    public const int MaxPlayers = 4;
+    public const int MaxPlayers = 16;
+    public const int MaxLocalPlayers = 4;
     public const string ArenaScene = "res://scenes/arena1.tscn";
 
     [Signal] public delegate void StatusChangedEventHandler(string message);
@@ -19,10 +20,14 @@ public partial class NetworkSession : Node
 
     public bool IsDedicatedServer { get; private set; }
     public int LocalPlayerSlot { get; private set; }
+    public int[] LocalPlayerSlots { get; private set; } = Array.Empty<int>();
     public bool IsLobbyOwner { get; private set; }
     public int LocalControllerDevice { get; private set; }
+    public int[] LocalControllerDevices { get; private set; } = [0];
+    public int RequestedLocalPlayers { get; private set; } = 1;
+    public bool AutoEnterMatch { get; private set; }
 
-    private readonly Dictionary<long, int> _peerSlots = new();
+    private readonly Dictionary<long, List<int>> _peerSlots = new();
     private readonly Queue<int> _freeSlots = new();
     private long _lobbyOwnerPeerId;
     private OnlineMenu? _onlineMenu;
@@ -43,14 +48,18 @@ public partial class NetworkSession : Node
 
         foreach (var arg in commandLineArgs)
         {
-            if (!arg.StartsWith("--controller=", StringComparison.Ordinal))
-                continue;
-
-            if (int.TryParse(arg["--controller=".Length..], out var device) && device is >= 0 and <= 7)
-                LocalControllerDevice = device;
-            else
-                GD.PushWarning($"Ignoring invalid controller option '{arg}'. Expected --controller=0 through 7.");
+            if (arg == "--auto-enter")
+                AutoEnterMatch = true;
+            else if (arg.StartsWith("--local-players=", StringComparison.Ordinal)
+                && int.TryParse(arg["--local-players=".Length..], out var count))
+                RequestedLocalPlayers = Math.Clamp(count, 1, MaxLocalPlayers);
+            else if (arg.StartsWith("--controllers=", StringComparison.Ordinal))
+                LocalControllerDevices = ParseControllers(arg["--controllers=".Length..]);
+            else if (arg.StartsWith("--controller=", StringComparison.Ordinal)
+                && int.TryParse(arg["--controller=".Length..], out var device))
+                LocalControllerDevices = [Math.Clamp(device, 0, MaxLocalPlayers - 1)];
         }
+        NormalizeControllerList();
 
         IsDedicatedServer = commandLineArgs.Contains("--server")
             || OS.HasFeature("dedicated_server");
@@ -58,7 +67,7 @@ public partial class NetworkSession : Node
             StartDedicatedServer();
         else
         {
-            GD.Print($"GumballNet client using controller device {LocalControllerDevice}.");
+            GD.Print($"GumballNet client requesting {RequestedLocalPlayers} local player(s), controllers {string.Join(',', LocalControllerDevices)}.");
             CallDeferred(nameof(CreateOnlineMenu));
             foreach (var arg in commandLineArgs)
             {
@@ -114,6 +123,7 @@ public partial class NetworkSession : Node
 
         Multiplayer.MultiplayerPeer = new OfflineMultiplayerPeer();
         LocalPlayerSlot = 0;
+        LocalPlayerSlots = Array.Empty<int>();
         IsLobbyOwner = false;
     }
 
@@ -128,10 +138,9 @@ public partial class NetworkSession : Node
         if (GetTree().CurrentScene?.SceneFilePath == ArenaScene)
             return Error.Ok;
 
-        // The legacy arena removes player nodes above Master.player_count.
-        // Online mode must retain every network slot so a client assigned slot
-        // 2, 3, or 4 has a corresponding player node to control/replicate.
-        GetNode("/root/Master").Set("player_count", MaxPlayers);
+        // The arena uses this only for the number of local viewports. Its online
+        // path independently retains all 16 global player slots.
+        GetNode("/root/Master").Set("player_count", RequestedLocalPlayers);
 
         var result = GetTree().ChangeSceneToFile(ArenaScene);
         if (result != Error.Ok)
@@ -143,28 +152,16 @@ public partial class NetworkSession : Node
     {
         if (!Multiplayer.IsServer())
             return;
-
-        if (_freeSlots.Count == 0)
-        {
-            Multiplayer.MultiplayerPeer.DisconnectPeer((int)peerId);
-            return;
-        }
-
-        var slot = _freeSlots.Dequeue();
-        _peerSlots[peerId] = slot;
-        if (_lobbyOwnerPeerId == 0)
-            _lobbyOwnerPeerId = peerId;
-
-        RpcId(peerId, nameof(ReceiveAssignment), slot, peerId == _lobbyOwnerPeerId);
-        GD.Print($"Peer {peerId} joined the single match in slot {slot}.");
+        GD.Print($"Peer {peerId} connected and is requesting local player seats.");
     }
 
     private void OnPeerDisconnected(long peerId)
     {
-        if (!Multiplayer.IsServer() || !_peerSlots.Remove(peerId, out var slot))
+        if (!Multiplayer.IsServer() || !_peerSlots.Remove(peerId, out var slots))
             return;
 
-        _freeSlots.Enqueue(slot);
+        foreach (var slot in slots)
+            _freeSlots.Enqueue(slot);
         if (_lobbyOwnerPeerId == peerId)
         {
             _lobbyOwnerPeerId = 0;
@@ -176,13 +173,14 @@ public partial class NetworkSession : Node
             }
         }
 
-        GD.Print($"Peer {peerId} left; slot {slot} is available.");
+        GD.Print($"Peer {peerId} left; slots {string.Join(',', slots)} are available.");
     }
 
     private void OnConnectedToServer()
     {
         GD.Print("Connected to the dedicated server; waiting for a player slot.");
         EmitSignal(SignalName.StatusChanged, "Connected; waiting for a player slot…");
+        RpcId(1, nameof(RequestPlayerSlots), RequestedLocalPlayers);
     }
 
     private void OnConnectionFailed()
@@ -198,15 +196,43 @@ public partial class NetworkSession : Node
     }
 
     [Rpc(MultiplayerApi.RpcMode.Authority, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
-    private void ReceiveAssignment(int slot, bool lobbyOwner)
+    private void ReceiveAssignment(int[] slots, bool lobbyOwner)
     {
-        LocalPlayerSlot = slot;
+        LocalPlayerSlots = slots;
+        LocalPlayerSlot = slots.Length > 0 ? slots[0] : 0;
         IsLobbyOwner = lobbyOwner;
-        EmitSignal(SignalName.PlayerAssignmentChanged, slot, lobbyOwner);
+        EmitSignal(SignalName.PlayerAssignmentChanged, LocalPlayerSlot, lobbyOwner);
         EmitSignal(SignalName.StatusChanged,
             lobbyOwner
-                ? $"Connected as player {slot} (lobby owner), using controller {LocalControllerDevice + 1}."
-                : $"Connected as player {slot}, using controller {LocalControllerDevice + 1}.");
+                ? $"Seats {string.Join(',', slots)} assigned (lobby owner)."
+                : $"Seats {string.Join(',', slots)} assigned.");
+    }
+
+    [Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+    private void RequestPlayerSlots(int requestedCount)
+    {
+        if (!Multiplayer.IsServer())
+            return;
+
+        var peerId = Multiplayer.GetRemoteSenderId();
+        if (_peerSlots.ContainsKey(peerId))
+            return;
+        requestedCount = Math.Clamp(requestedCount, 1, MaxLocalPlayers);
+        if (_freeSlots.Count < requestedCount)
+        {
+            GD.Print($"Peer {peerId} requested {requestedCount} seats but only {_freeSlots.Count} remain.");
+            Multiplayer.MultiplayerPeer.DisconnectPeer((int)peerId);
+            return;
+        }
+
+        var slots = new List<int>(requestedCount);
+        for (var index = 0; index < requestedCount; index++)
+            slots.Add(_freeSlots.Dequeue());
+        _peerSlots[peerId] = slots;
+        if (_lobbyOwnerPeerId == 0)
+            _lobbyOwnerPeerId = peerId;
+        RpcId(peerId, nameof(ReceiveAssignment), slots.ToArray(), peerId == _lobbyOwnerPeerId);
+        GD.Print($"Peer {peerId} joined with slots {string.Join(',', slots)}.");
     }
 
     [Rpc(MultiplayerApi.RpcMode.Authority, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
@@ -220,5 +246,29 @@ public partial class NetworkSession : Node
     {
         _onlineMenu = new OnlineMenu();
         AddChild(_onlineMenu);
+    }
+
+    public void ConfigureLocalPlayers(int count)
+    {
+        RequestedLocalPlayers = Math.Clamp(count, 1, MaxLocalPlayers);
+        NormalizeControllerList();
+    }
+
+    private static int[] ParseControllers(string value)
+    {
+        var devices = new List<int>();
+        foreach (var part in value.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+            if (int.TryParse(part, out var device) && device is >= 0 and < MaxLocalPlayers)
+                devices.Add(device);
+        return devices.Count == 0 ? [0] : devices.ToArray();
+    }
+
+    private void NormalizeControllerList()
+    {
+        var devices = new int[RequestedLocalPlayers];
+        for (var index = 0; index < devices.Length; index++)
+            devices[index] = index < LocalControllerDevices.Length ? LocalControllerDevices[index] : index;
+        LocalControllerDevices = devices;
+        LocalControllerDevice = devices[0];
     }
 }
