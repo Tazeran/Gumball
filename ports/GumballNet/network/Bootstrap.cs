@@ -6,8 +6,6 @@ namespace GumballNet.Network;
 /// <summary>Routes the shared build into its client or dedicated-server startup scene.</summary>
 public partial class Bootstrap : Node
 {
-    private const string LandingScene = "res://scenes/Menu/Landing.tscn";
-
     public override void _Ready()
     {
         CallDeferred(nameof(RouteStartup));
@@ -27,6 +25,9 @@ public partial class Bootstrap : Node
             return;
         }
 
-        GetTree().ChangeSceneToFile(LandingScene);
+        // NetworkSession owns the client startup UI. Keep this intentionally
+        // empty so the legacy split-screen landing scene cannot steal focus or
+        // launch its old local-only match behind OnlineMenu.
+        GD.Print("Waiting at the online startup menu.");
     }
 }
