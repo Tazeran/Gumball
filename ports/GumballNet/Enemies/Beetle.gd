@@ -13,6 +13,7 @@ enum State { IDLE, PATROL, CHASE, REST, DEFEATED }
 @export var acceleration := 12.0
 @export var turn_speed := 9.0
 @export var patrol_radius := 5.0
+@export var navigation_height_offset := 0.3
 @export var idle_time_range := Vector2(1.0, 2.5)
 @export var patrol_time_range := Vector2(2.5, 5.0)
 
@@ -63,6 +64,7 @@ func _ready() -> void:
 	_state_timer = randf_range(idle_time_range.x, idle_time_range.y)
 	_agent.path_desired_distance = 0.35
 	_agent.target_desired_distance = 0.8
+	_agent.path_height_offset = navigation_height_offset
 	_detection_area.body_entered.connect(_on_detection_body_entered)
 	_detection_area.body_exited.connect(_on_detection_body_exited)
 	_skin.idle()
