@@ -10,4 +10,6 @@ shader = ExtResource("1_tk1jj")
 shader_parameter/noise_tex = ExtResource("2_2sdqe")
 shader_parameter/burn_ramp = ExtResource("2_ra6vb")
 shader_parameter/dissolve_amount = 0.0
-shader_parameter/burn_width = 0.1
+shader_parameter/burn_width = 0.09
+shader_parameter/noise_scale = 2.5
+shader_parameter/emission_strength = 5.0

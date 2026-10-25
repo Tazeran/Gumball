@@ -22,6 +22,11 @@ enum State { IDLE, PATROL, CHASE, REST, DEFEATED }
 @export var chase_stamina := 5.0
 @export var rest_duration := 1.5
 
+@export_category("Defeat")
+@export var defeat_pose_duration := 0.35
+@export var defeat_hold_duration := 0.35
+@export var dissolve_duration := 1.05
+
 @onready var _reaction_animation: AnimationPlayer = $ReactionLabel/AnimationPlayer
 @onready var _detection_area: Area3D = $PlayerDetectionArea
 @onready var _skin: Node3D = $BeetlebotSkin
@@ -39,6 +44,11 @@ var _path_timer := 0.0
 var _target: Player
 var _players_in_range: Array[Player] = []
 var _alive := true
+var _death_elapsed := 0.0
+var _death_materials: Array[ShaderMaterial] = []
+var _death_start_skin_rotation := Vector3.ZERO
+var _death_start_skin_scale := Vector3.ONE
+var _death_finished := false
 var network_spawner_path := ""
 
 
@@ -52,6 +62,20 @@ func _ready() -> void:
 	_detection_area.body_entered.connect(_on_detection_body_entered)
 	_detection_area.body_exited.connect(_on_detection_body_exited)
 	_skin.idle()
+	_death_start_skin_rotation = _skin.rotation
+	_death_start_skin_scale = _skin.scale
+
+
+func _process(delta: float) -> void:
+	if _alive or _death_finished:
+		return
+	_death_elapsed = minf(_death_elapsed + delta, _death_total_duration())
+	_apply_death_visuals()
+	if _death_elapsed < _death_total_duration() or not _has_world_authority():
+		return
+	_death_finished = true
+	defeated.emit()
+	queue_free()
 
 
 func _physics_process(delta: float) -> void:
@@ -219,41 +243,83 @@ func damage(_impact_point: Vector3, force: Vector3) -> void:
 func defeat(knockback_direction := Vector3.ZERO, impact_speed := 12.0) -> void:
 	if not _alive:
 		return
+	_begin_defeat()
 
+	# Only the authority moves gameplay bodies. Clients receive this position in
+	# the normal enemy snapshots and independently render the same death pose.
+	if _has_world_authority():
+		var shove := knockback_direction * minf(impact_speed * 0.04, 0.8)
+		var fall_tween := create_tween()
+		fall_tween.tween_property(self, "position", position + shove + Vector3.UP * 0.18, defeat_pose_duration).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+
+
+func _begin_defeat(play_sound := true) -> void:
 	_alive = false
 	_state = State.DEFEATED
 	velocity = Vector3.ZERO
-	_detection_area.monitoring = false
-	_defeat_sound.play()
+	_detection_area.set_deferred("monitoring", false)
+	_reaction_animation.stop()
+	$ReactionLabel.visible = false
 	_skin.power_off()
-	defeated.emit()
-
+	if play_sound:
+		_defeat_sound.play()
 	for child in get_children():
 		if child is CollisionShape3D:
 			child.set_deferred("disabled", true)
-
-	var shove := knockback_direction * minf(impact_speed * 0.04, 0.8)
-	var fall_tween := create_tween().set_parallel(true)
-	fall_tween.tween_property(self, "position", position + shove + Vector3.UP * 0.25, 0.18).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-	fall_tween.tween_property(_skin, "rotation:z", deg_to_rad(85.0), 0.28).set_trans(Tween.TRANS_BACK)
-	await fall_tween.finished
-	await get_tree().create_timer(0.55).timeout
-	await _dissolve_and_remove()
+	_prepare_death_materials()
+	_apply_death_visuals()
 
 
-func _dissolve_and_remove() -> void:
-	var dissolve := DISSOLVE_MATERIAL.duplicate() as ShaderMaterial
-	var source_material := _mesh.get_active_material(0)
-	if source_material and source_material.get("albedo_texture"):
-		dissolve.set_shader_parameter("albedo_texture", source_material.get("albedo_texture"))
-	dissolve.set_shader_parameter("dissolve_amount", 0.0)
-	for surface in _mesh.get_surface_override_material_count():
+func _prepare_death_materials() -> void:
+	if not _death_materials.is_empty() or _mesh.mesh == null:
+		return
+	for surface in range(_mesh.mesh.get_surface_count()):
+		var dissolve := DISSOLVE_MATERIAL.duplicate() as ShaderMaterial
+		var source := _mesh.get_active_material(surface) as StandardMaterial3D
+		if source:
+			dissolve.set_shader_parameter("albedo_color", source.albedo_color)
+			if source.albedo_texture:
+				dissolve.set_shader_parameter("albedo_texture", source.albedo_texture)
+				dissolve.set_shader_parameter("use_albedo_texture", true)
+		dissolve.set_shader_parameter("dissolve_amount", 0.0)
 		_mesh.set_surface_override_material(surface, dissolve)
+		_death_materials.append(dissolve)
 
-	var tween := create_tween()
-	tween.tween_method(func(value: float): dissolve.set_shader_parameter("dissolve_amount", value), 0.0, 1.0, 0.8)
-	await tween.finished
-	queue_free()
+
+func _apply_death_visuals() -> void:
+	var pose_t := clampf(_death_elapsed / maxf(defeat_pose_duration, 0.001), 0.0, 1.0)
+	var eased_pose := 1.0 - pow(1.0 - pose_t, 3.0)
+	_skin.rotation = _death_start_skin_rotation + Vector3(0.0, 0.0, deg_to_rad(88.0) * eased_pose)
+	_skin.scale = Vector3(_death_start_skin_scale.x,
+		_death_start_skin_scale.y * lerpf(1.0, 0.84, eased_pose), _death_start_skin_scale.z)
+	var dissolve_start := defeat_pose_duration + defeat_hold_duration
+	var dissolve_t := clampf((_death_elapsed - dissolve_start) / maxf(dissolve_duration, 0.001), 0.0, 1.0)
+	for material in _death_materials:
+		material.set_shader_parameter("dissolve_amount", dissolve_t)
+
+
+func get_network_death_progress() -> float:
+	if _alive:
+		return 0.0
+	return clampf(_death_elapsed / _death_total_duration(), 0.0, 1.0)
+
+
+func apply_network_death(progress: float) -> void:
+	if _alive:
+		_begin_defeat()
+	var authoritative_elapsed := clampf(progress, 0.0, 1.0) * _death_total_duration()
+	if absf(authoritative_elapsed - _death_elapsed) > 0.12:
+		_death_elapsed = authoritative_elapsed
+	_apply_death_visuals()
+
+
+func _death_total_duration() -> float:
+	return defeat_pose_duration + defeat_hold_duration + dissolve_duration
+
+
+func _has_world_authority() -> bool:
+	var session = get_node_or_null("/root/NetworkSession")
+	return session == null or bool(session.get("IsDedicatedServer")) or Array(session.get("LocalPlayerSlots")).is_empty()
 
 
 func _on_detection_body_entered(body: Node3D) -> void:

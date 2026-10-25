@@ -103,7 +103,8 @@ func _capture_world_frame() -> Dictionary:
 	var enemies: Array = []
 	for enemy in get_tree().get_nodes_in_group("enemies"):
 		enemies.append({"spawner": enemy.network_spawner_path,
-			"p": [enemy.global_position.x, enemy.global_position.y, enemy.global_position.z], "r": enemy.rotation.y})
+			"p": [enemy.global_position.x, enemy.global_position.y, enemy.global_position.z], "r": enemy.rotation.y,
+			"death": enemy.get_network_death_progress() if enemy.has_method("get_network_death_progress") else 0.0})
 	var marbles: Array = []
 	for marble in get_tree().get_nodes_in_group("network_marbles"):
 		marbles.append([marble.network_id,
@@ -173,6 +174,9 @@ func _apply_enemy_frame(states: Array) -> void:
 		var enemy = spawner.current_monster
 		enemy.global_position = Vector3(float(data.p[0]), float(data.p[1]), float(data.p[2]))
 		enemy.rotation.y = float(data.r)
+		var death_progress := float(data.get("death", 0.0))
+		if death_progress > 0.0 and enemy.has_method("apply_network_death"):
+			enemy.apply_network_death(death_progress)
 	for spawner in get_tree().get_nodes_in_group("monster_spawners"):
 		if not live_spawners.has(str(spawner.get_path())) and is_instance_valid(spawner.current_monster):
 			spawner.current_monster.free()
