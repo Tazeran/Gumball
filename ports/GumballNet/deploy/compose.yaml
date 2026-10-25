@@ -7,6 +7,7 @@ services:
     restart: unless-stopped
     ports:
       - "42837:42837/udp"
+      - "42838:42838/udp"
     read_only: true
     tmpfs:
       - /tmp:size=64m

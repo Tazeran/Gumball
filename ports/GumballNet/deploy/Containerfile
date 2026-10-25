@@ -10,5 +10,5 @@ RUN chmod 0555 /opt/gumball/GumballNetServer.x86_64 \
     && chown -R gumball:gumball /opt/gumball
 
 USER gumball
-EXPOSE 42837/udp
+EXPOSE 42837/udp 42838/udp
 ENTRYPOINT ["/opt/gumball/GumballNetServer.x86_64", "--headless", "--server"]

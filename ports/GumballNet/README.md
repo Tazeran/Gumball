@@ -8,7 +8,7 @@ continues to work while the online version is built.
 
 - One dedicated, authoritative match per server process
 - Up to four remote players
-- ENet over UDP port `42837`
+- ENet gameplay over UDP `42837` and discovery/status over UDP `42838`
 - The first player is lobby owner; the droplet remains simulation authority
 - A temporary in-game address/join panel
 - The same build runs as a graphical client normally or as a headless server via `--server`
@@ -44,8 +44,19 @@ and select **Join Online Match**. Local testing uses `127.0.0.1`.
 On Windows, double-click `start-local-match.bat`. It starts:
 
 1. One headless authoritative server on UDP `42837` with up to 16 match seats
-2. Client 1 connected to `127.0.0.1`, using controller device `0`
-3. Client 2 connected to `127.0.0.1`, using controller device `1`
+2. Client 1 at the setup screen, using controller device `0`
+3. Client 2 at the setup screen, using controller device `1`
+
+Each client first chooses 1–4 local players, verifies its expected controllers,
+then probes the entries in `network/servers.json`. Only reachable servers with
+enough free seats can be selected. A successful selection joins and enters the
+match automatically; there is no separate address field or Enter Match button.
+Server display names come from `network/server.json` (or `--server-name=...`).
+Add more candidates by appending objects to `network/servers.json`:
+
+```json
+{ "address": "game.example.com", "statusPort": 42838 }
+```
 
 The two graphical clients open at a 4K-friendly 16:9 size of `1840x1035`,
 side-by-side at `(20,40)` and `(1940,40)` on screen 0. The

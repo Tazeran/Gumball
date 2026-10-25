@@ -1,6 +1,11 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+using System.Net.Sockets;
+using System.Text;
+using System.Text.Json;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace GumballNet.Network;
 
@@ -12,6 +17,7 @@ namespace GumballNet.Network;
 public partial class NetworkSession : Node
 {
     public const int ServerPort = 42837;
+    public const int StatusPort = 42838;
     public const int MaxPlayers = 16;
     public const int MaxLocalPlayers = 4;
     public const string ArenaScene = "res://scenes/arena1.tscn";
@@ -33,12 +39,16 @@ public partial class NetworkSession : Node
     public int RequestedLocalPlayers { get; private set; } = 1;
     public bool AutoEnterMatch { get; private set; }
     public bool IsGamePaused { get; private set; }
+    public string ServerName { get; private set; } = "Gumball Server";
 
     private readonly Dictionary<long, List<int>> _peerSlots = new();
     private readonly Dictionary<int, string> _playerTeams = new();
     private readonly Queue<int> _freeSlots = new();
     private long _lobbyOwnerPeerId;
     private OnlineMenu? _onlineMenu;
+    private UdpClient? _statusListener;
+    private CancellationTokenSource? _statusCancellation;
+    private volatile int _occupiedSeatCount;
 
     public override void _Ready()
     {
@@ -54,6 +64,7 @@ public partial class NetworkSession : Node
 
         var commandLineArgs = new List<string>(OS.GetCmdlineArgs());
         commandLineArgs.AddRange(OS.GetCmdlineUserArgs());
+        LoadServerName();
 
         foreach (var arg in commandLineArgs)
         {
@@ -67,6 +78,8 @@ public partial class NetworkSession : Node
             else if (arg.StartsWith("--controller=", StringComparison.Ordinal)
                 && int.TryParse(arg["--controller=".Length..], out var device))
                 LocalControllerDevices = [Math.Clamp(device, 0, MaxLocalPlayers - 1)];
+            else if (arg.StartsWith("--server-name=", StringComparison.Ordinal))
+                ServerName = arg["--server-name=".Length..].Trim();
         }
         NormalizeControllerList();
 
@@ -81,7 +94,7 @@ public partial class NetworkSession : Node
             foreach (var arg in commandLineArgs)
             {
                 if (arg.StartsWith("--connect=", StringComparison.Ordinal))
-                    CallDeferred(nameof(Connect), arg["--connect=".Length..]);
+                    CallDeferred(nameof(ConnectDefault), arg["--connect=".Length..]);
             }
         }
     }
@@ -100,19 +113,20 @@ public partial class NetworkSession : Node
         }
 
         Multiplayer.MultiplayerPeer = peer;
+        StartStatusListener();
         GD.Print($"GumballNet dedicated server listening on UDP {ServerPort}.");
         EmitSignal(SignalName.StatusChanged, $"Server listening on UDP {ServerPort}");
 
         return Error.Ok;
     }
 
-    public Error Connect(string address)
+    public Error Connect(string address, int port = ServerPort)
     {
         Disconnect();
         address = string.IsNullOrWhiteSpace(address) ? "127.0.0.1" : address.Trim();
 
         var peer = new ENetMultiplayerPeer();
-        var result = peer.CreateClient(address, ServerPort);
+        var result = peer.CreateClient(address, port);
         if (result != Error.Ok)
         {
             EmitSignal(SignalName.StatusChanged, $"Connection could not start: {result}");
@@ -120,10 +134,12 @@ public partial class NetworkSession : Node
         }
 
         Multiplayer.MultiplayerPeer = peer;
-        GD.Print($"Connecting to {address}:{ServerPort}...");
-        EmitSignal(SignalName.StatusChanged, $"Connecting to {address}:{ServerPort}…");
+        GD.Print($"Connecting to {address}:{port}...");
+        EmitSignal(SignalName.StatusChanged, $"Connecting to {address}:{port}…");
         return Error.Ok;
     }
+
+    private void ConnectDefault(string address) => Connect(address, ServerPort);
 
     public void Disconnect()
     {
@@ -178,6 +194,7 @@ public partial class NetworkSession : Node
             _freeSlots.Enqueue(slot);
             _playerTeams.Remove(slot);
         }
+        _occupiedSeatCount = Math.Max(0, _occupiedSeatCount - slots.Count);
         if (_lobbyOwnerPeerId == peerId)
         {
             _lobbyOwnerPeerId = 0;
@@ -252,6 +269,7 @@ public partial class NetworkSession : Node
             _playerTeams[slot] = slot % 2 == 1 ? "A" : "B";
         }
         _peerSlots[peerId] = slots;
+        _occupiedSeatCount += slots.Count;
         if (_lobbyOwnerPeerId == 0)
             _lobbyOwnerPeerId = peerId;
         RpcId(peerId, nameof(ReceiveAssignment), slots.ToArray(), peerId == _lobbyOwnerPeerId);
@@ -401,9 +419,89 @@ public partial class NetworkSession : Node
     private void NormalizeControllerList()
     {
         var devices = new int[RequestedLocalPlayers];
-        for (var index = 0; index < devices.Length; index++)
-            devices[index] = index < LocalControllerDevices.Length ? LocalControllerDevices[index] : index;
+        var used = new HashSet<int>();
+        var writeIndex = 0;
+        foreach (var configured in LocalControllerDevices)
+        {
+            if (writeIndex >= devices.Length || !used.Add(configured))
+                continue;
+            devices[writeIndex++] = configured;
+        }
+        for (var candidate = 0; writeIndex < devices.Length && candidate < MaxLocalPlayers; candidate++)
+        {
+            if (!used.Add(candidate))
+                continue;
+            devices[writeIndex++] = candidate;
+        }
         LocalControllerDevices = devices;
         LocalControllerDevice = devices[0];
+    }
+
+    private void LoadServerName()
+    {
+        try
+        {
+            var path = ProjectSettings.GlobalizePath("res://network/server.json");
+            using var document = JsonDocument.Parse(System.IO.File.ReadAllText(path));
+            if (document.RootElement.TryGetProperty("name", out var name) && !string.IsNullOrWhiteSpace(name.GetString()))
+                ServerName = name.GetString()!;
+        }
+        catch (Exception exception)
+        {
+            GD.PushWarning($"Could not read network/server.json: {exception.Message}");
+        }
+    }
+
+    private void StartStatusListener()
+    {
+        _statusCancellation?.Cancel();
+        _statusListener?.Dispose();
+        _statusCancellation = new CancellationTokenSource();
+        try
+        {
+            _statusListener = new UdpClient(StatusPort);
+            _ = RunStatusListener(_statusCancellation.Token);
+            GD.Print($"Server status available on UDP {StatusPort} as '{ServerName}'.");
+        }
+        catch (Exception exception)
+        {
+            GD.PushError($"Unable to listen for status probes on UDP {StatusPort}: {exception.Message}");
+        }
+    }
+
+    private async Task RunStatusListener(CancellationToken cancellationToken)
+    {
+        while (!cancellationToken.IsCancellationRequested && _statusListener != null)
+        {
+            try
+            {
+                var request = await _statusListener.ReceiveAsync(cancellationToken);
+                if (Encoding.UTF8.GetString(request.Buffer) != "GUMBALL_STATUS_V1")
+                    continue;
+                var response = JsonSerializer.SerializeToUtf8Bytes(new
+                {
+                    protocol = 1,
+                    name = ServerName,
+                    gamePort = ServerPort,
+                    players = _occupiedSeatCount,
+                    capacity = MaxPlayers,
+                    free = MaxPlayers - _occupiedSeatCount,
+                    paused = IsGamePaused
+                });
+                await _statusListener.SendAsync(response, request.RemoteEndPoint, cancellationToken);
+            }
+            catch (OperationCanceledException) { }
+            catch (ObjectDisposedException) { }
+            catch (Exception exception)
+            {
+                GD.PrintErr($"Status listener error: {exception.Message}");
+            }
+        }
+    }
+
+    public override void _ExitTree()
+    {
+        _statusCancellation?.Cancel();
+        _statusListener?.Dispose();
     }
 }
