@@ -209,7 +209,7 @@ func handle_interactables(delta):
 			hold_timer += delta
 			if hold_timer >= hold_target.hold_time_required:
 				if network_session and not bool(network_session.get("IsDedicatedServer")):
-					network_session.call("RequestWorldInteraction", player_id, str(hold_target.get_path()), true)
+					network_session.call("RequestWorldInteraction", player_id, _network_interaction_id(hold_target), true)
 				else:
 					hold_target.finish_hold(self)
 				hold_timer = 0.0
@@ -252,7 +252,7 @@ func handle_interactables(delta):
 
 func try_tap_interact(closest):
 	if closest and network_session and not bool(network_session.get("IsDedicatedServer")):
-		network_session.call("RequestWorldInteraction", player_id, str(closest.get_path()), false)
+		network_session.call("RequestWorldInteraction", player_id, _network_interaction_id(closest), false)
 		return
 	print(nearby_interactables)
 	print(input_interact, " closest: ", closest, "  ", carried_cards)
@@ -280,6 +280,11 @@ func try_tap_interact(closest):
 			print("drop_card ")
 			# No valid target — drop to world
 			drop_card()
+
+func _network_interaction_id(target: Node) -> String:
+	# Scene-relative paths are stable between the graphical client and the
+	# dedicated server even when their SceneTree root node names differ.
+	return str(get_tree().current_scene.get_path_to(target))
 
 
 #!!!! Could also have some kind of event for anything close to returns it's like HUD info, or more generic than that

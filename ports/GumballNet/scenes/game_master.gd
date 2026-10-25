@@ -200,10 +200,16 @@ func _on_world_interaction_requested(slot: int, target_path: String, hold: bool)
 	if not _dedicated:
 		return
 	var player: Player = _online_players.get(slot)
-	var target := get_node_or_null(NodePath(target_path))
-	if player == null or target == null or player.global_position.distance_to(target.global_position) > 5.0:
+	var target := get_tree().current_scene.get_node_or_null(NodePath(target_path))
+	if player == null or target == null:
+		push_warning("Rejected interaction for slot %d: unknown target '%s'." % [slot, target_path])
+		return
+	if player.global_position.distance_to(target.global_position) > 8.0:
+		push_warning("Rejected distant interaction for slot %d and target '%s' (%.2fm)." % [
+			slot, target_path, player.global_position.distance_to(target.global_position)])
 		return
 	if not target.has_method("interaction_available") or not bool(target.interaction_available(player)):
+		push_warning("Rejected unavailable interaction for slot %d and target '%s'." % [slot, target_path])
 		return
 	if hold and target.has_method("finish_hold"):
 		target.finish_hold(player)
