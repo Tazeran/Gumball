@@ -21,6 +21,7 @@ public partial class NetworkSession : Node
     [Signal] public delegate void RosterChangedEventHandler(int[] activeSlots);
     [Signal] public delegate void PlayerStateReceivedEventHandler(int slot, Vector3 position, float rotationY, Vector3 velocity);
     [Signal] public delegate void PlayerTeamChangedEventHandler(int slot, string team);
+    [Signal] public delegate void GamePauseChangedEventHandler(bool paused);
 
     public bool IsDedicatedServer { get; private set; }
     public int LocalPlayerSlot { get; private set; }
@@ -31,6 +32,7 @@ public partial class NetworkSession : Node
     public int[] LocalControllerDevices { get; private set; } = [0];
     public int RequestedLocalPlayers { get; private set; } = 1;
     public bool AutoEnterMatch { get; private set; }
+    public bool IsGamePaused { get; private set; }
 
     private readonly Dictionary<long, List<int>> _peerSlots = new();
     private readonly Dictionary<int, string> _playerTeams = new();
@@ -40,6 +42,7 @@ public partial class NetworkSession : Node
 
     public override void _Ready()
     {
+        ProcessMode = ProcessModeEnum.Always;
         for (var slot = 1; slot <= MaxPlayers; slot++)
             _freeSlots.Enqueue(slot);
 
@@ -133,6 +136,7 @@ public partial class NetworkSession : Node
         ActivePlayerSlots = Array.Empty<int>();
         _playerTeams.Clear();
         IsLobbyOwner = false;
+        ApplyGamePause(false);
         EmitSignal(SignalName.RosterChanged, ActivePlayerSlots);
     }
 
@@ -187,6 +191,8 @@ public partial class NetworkSession : Node
 
         GD.Print($"Peer {peerId} left; slots {string.Join(',', slots)} are available.");
         BroadcastRoster();
+        if (_peerSlots.Count == 0 && IsGamePaused)
+            ApplyGamePause(false);
     }
 
     private void OnConnectedToServer()
@@ -251,6 +257,7 @@ public partial class NetworkSession : Node
         RpcId(peerId, nameof(ReceiveAssignment), slots.ToArray(), peerId == _lobbyOwnerPeerId);
         BroadcastRoster();
         BroadcastTeams();
+        RpcId(peerId, nameof(ReceiveGamePause), IsGamePaused);
         GD.Print($"Peer {peerId} joined with slots {string.Join(',', slots)}.");
     }
 
@@ -306,6 +313,31 @@ public partial class NetworkSession : Node
     {
         foreach (var pair in _playerTeams)
             Rpc(nameof(ReceivePlayerTeam), pair.Key, pair.Value);
+    }
+
+    public void ToggleGamePause()
+    {
+        if (LocalPlayerSlot != 0)
+            RpcId(1, nameof(RequestGamePause), !IsGamePaused);
+    }
+
+    [Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+    private void RequestGamePause(bool paused)
+    {
+        if (!Multiplayer.IsServer() || !_peerSlots.ContainsKey(Multiplayer.GetRemoteSenderId()))
+            return;
+        ApplyGamePause(paused);
+        Rpc(nameof(ReceiveGamePause), paused);
+    }
+
+    [Rpc(MultiplayerApi.RpcMode.Authority, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+    private void ReceiveGamePause(bool paused) => ApplyGamePause(paused);
+
+    private void ApplyGamePause(bool paused)
+    {
+        IsGamePaused = paused;
+        GetTree().Paused = paused;
+        EmitSignal(SignalName.GamePauseChanged, paused);
     }
 
     public void PublishPlayerState(int slot, Vector3 position, float rotationY, Vector3 velocity)

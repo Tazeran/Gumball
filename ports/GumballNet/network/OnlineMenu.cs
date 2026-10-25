@@ -14,6 +14,7 @@ public partial class OnlineMenu : CanvasLayer
     private Button _connect = null!;
     private Button _enterMatch = null!;
     private Button _disconnect = null!;
+    private Button _pauseWorld = null!;
     private VBoxContainer _teamChoices = null!;
     private readonly OptionButton[] _teamSelectors = new OptionButton[NetworkSession.MaxLocalPlayers];
     private bool _inMatch;
@@ -27,6 +28,7 @@ public partial class OnlineMenu : CanvasLayer
         Session.StatusChanged += OnStatusChanged;
         Session.PlayerAssignmentChanged += OnPlayerAssignmentChanged;
         Session.PlayerTeamChanged += OnPlayerTeamChanged;
+        Session.GamePauseChanged += OnGamePauseChanged;
         _address.GrabFocus();
     }
 
@@ -157,6 +159,11 @@ public partial class OnlineMenu : CanvasLayer
         }
         stack.AddChild(_teamChoices);
 
+        _pauseWorld = MakeButton("PAUSE GAME WORLD", new Color("8a6428"));
+        _pauseWorld.Visible = false;
+        _pauseWorld.Pressed += PauseWorldPressed;
+        stack.AddChild(_pauseWorld);
+
         _enterMatch = MakeButton("ENTER MATCH", new Color("39a96b"));
         _enterMatch.Visible = false;
         _enterMatch.Pressed += EnterMatchPressed;
@@ -228,6 +235,7 @@ public partial class OnlineMenu : CanvasLayer
         _disconnect.Visible = false;
         _role.Text = "Not connected";
         _teamChoices.Visible = false;
+        _pauseWorld.Visible = false;
         _status.Text = "Disconnected. Enter a server address to reconnect.";
     }
 
@@ -266,6 +274,7 @@ public partial class OnlineMenu : CanvasLayer
             ? "You joined first. The dedicated server still owns the simulation."
             : "You joined the active dedicated match.";
         _teamChoices.Visible = true;
+        _pauseWorld.Visible = true;
         for (var index = 0; index < _teamSelectors.Length; index++)
         {
             var visible = index < Session.LocalPlayerSlots.Length;
@@ -294,5 +303,17 @@ public partial class OnlineMenu : CanvasLayer
         var localIndex = Array.IndexOf(Session.LocalPlayerSlots, slot);
         if (localIndex >= 0)
             _teamSelectors[localIndex].Selected = team == "B" ? 1 : 0;
+    }
+
+    private void PauseWorldPressed() => Session.ToggleGamePause();
+
+    private void OnGamePauseChanged(bool paused)
+    {
+        _pauseWorld.Text = paused ? "RESUME GAME WORLD" : "PAUSE GAME WORLD";
+        _pauseWorld.AddThemeStyleboxOverride("normal",
+            Panel(paused ? new Color("2f8b57") : new Color("8a6428"), new Color("ffffff"), 1, 10));
+        _status.Text = paused
+            ? "The game world is paused for everyone. Menus and networking remain active."
+            : "The game world is running.";
     }
 }

@@ -62,6 +62,9 @@ After connecting, every local seat has its own unrestricted team selector.
 Red spawns at the right-hand base and blue/purple spawns at the left-hand base.
 Press Escape during a match to reopen the overlay and change teams at any time;
 switching teams respawns that player at the selected base for every client.
+The same overlay includes a global pause/resume button. It pauses gameplay
+simulation on the dedicated server and every client while leaving menus and
+network traffic active so any connected player can resume.
 
 For automated development checks, `--auto-enter` enters the arena as soon as
 the server assigns seats. The normal launchers leave the lobby screen visible.
