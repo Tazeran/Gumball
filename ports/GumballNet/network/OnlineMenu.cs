@@ -72,11 +72,11 @@ public partial class OnlineMenu : CanvasLayer
         }
 
         var device = Session.LocalControllerDevices[0];
-        PollMenuAxis(0, Input.GetJoyAxis(device, JoyAxis.LeftX), "ui_left", "ui_right", delta);
-        PollMenuAxis(1, Input.GetJoyAxis(device, JoyAxis.LeftY), "ui_up", "ui_down", delta);
+        PollMenuAxis(0, Input.GetJoyAxis(device, JoyAxis.LeftX), Side.Left, Side.Right, delta);
+        PollMenuAxis(1, Input.GetJoyAxis(device, JoyAxis.LeftY), Side.Top, Side.Bottom, delta);
     }
 
-    private void PollMenuAxis(int axisIndex, float value, string negativeAction, string positiveAction, double delta)
+    private void PollMenuAxis(int axisIndex, float value, Side negativeSide, Side positiveSide, double delta)
     {
         const float engageThreshold = 0.6f;
         const float releaseThreshold = 0.35f;
@@ -97,23 +97,24 @@ public partial class OnlineMenu : CanvasLayer
         if (direction != previousDirection)
         {
             _menuAxisDirections[axisIndex] = direction;
-            _menuAxisRepeatRemaining[axisIndex] = 0.42;
-            EmitMenuAction(direction < 0 ? negativeAction : positiveAction);
+            _menuAxisRepeatRemaining[axisIndex] = 0.55;
+            MoveMenuFocus(direction < 0 ? negativeSide : positiveSide);
             return;
         }
 
         _menuAxisRepeatRemaining[axisIndex] -= delta;
         if (_menuAxisRepeatRemaining[axisIndex] <= 0)
         {
-            _menuAxisRepeatRemaining[axisIndex] = 0.14;
-            EmitMenuAction(direction < 0 ? negativeAction : positiveAction);
+            _menuAxisRepeatRemaining[axisIndex] = 0.18;
+            MoveMenuFocus(direction < 0 ? negativeSide : positiveSide);
         }
     }
 
-    private static void EmitMenuAction(string action)
+    private void MoveMenuFocus(Side side)
     {
-        Input.ParseInputEvent(new InputEventAction { Action = action, Pressed = true, Strength = 1 });
-        Input.ParseInputEvent(new InputEventAction { Action = action, Pressed = false, Strength = 0 });
+        var current = GetViewport().GuiGetFocusOwner();
+        var next = current?.FindValidFocusNeighbor(side);
+        next?.GrabFocus();
     }
 
     public override void _Input(InputEvent @event)
@@ -122,6 +123,14 @@ public partial class OnlineMenu : CanvasLayer
             return;
         if (Array.IndexOf(Session.LocalControllerDevices, @event.Device) < 0)
         {
+            GetViewport().SetInputAsHandled();
+            return;
+        }
+        if (_screen.Visible && @event is InputEventJoypadMotion)
+        {
+            // PollMenuStick owns analog navigation. Consuming the original
+            // motion prevents Godot's built-in UI actions from moving focus a
+            // second time for the same stick gesture.
             GetViewport().SetInputAsHandled();
             return;
         }
