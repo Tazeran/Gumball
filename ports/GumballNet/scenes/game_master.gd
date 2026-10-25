@@ -102,10 +102,16 @@ func _setup_local_views(local_slots: Array[int]) -> void:
 	var local_count := local_slots.size()
 	ScreenGrid.columns = 1 if local_count == 1 else 2
 	for view_index in range(Views.size()):
-		var container = Views[view_index]
+		var container: SubViewportContainer = Views[view_index]
 		if view_index >= local_count:
 			container.queue_free()
 			continue
+		# Views 2–4 are dormant templates in arena1.tscn. Explicitly wake each
+		# requested local view; otherwise GridContainer reserves its split while
+		# the disabled SubViewport only displays its gray clear color.
+		container.visible = true
+		var sub_viewport := container.get_node("SubViewport") as SubViewport
+		sub_viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 		var global_slot := local_slots[view_index]
 		var player: Player = _online_players.get(global_slot) if not _online_players.is_empty() else Players[global_slot - 1]
 		var marker: Node3D = _online_markers.get(global_slot) if not _online_markers.is_empty() else PlayerMarkers[global_slot - 1]
