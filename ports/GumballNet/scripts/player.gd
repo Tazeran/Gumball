@@ -539,10 +539,32 @@ func apply_authoritative_stamina(value: float) -> void:
 func collect_coin():
 	coins += 1
 
-func collect_heart():
+func collect_heart() -> bool:
+	if health >= health_max:
+		return false
 	health = min(health + 2, health_max)
 	if hud:
 		hud.set_health(health, health_max)
+	if network_session and bool(network_session.get("IsDedicatedServer")):
+		network_session.call("BroadcastPlayerHealth", player_id, health, Vector3.ZERO, false, false)
+	return true
+
+func apply_authoritative_health(value: int) -> void:
+	if health == value:
+		return
+	health = value
+	if hud:
+		hud.set_health(health, health_max)
+
+func apply_network_health_event(value: int, source_pos: Vector3, damaged: bool, respawned: bool) -> void:
+	apply_authoritative_health(value)
+	if not damaged:
+		Audio.play("res://sounds/coin.ogg")
+		return
+	Audio.play("res://sounds/fall.ogg")
+	flash_white()
+	if not respawned:
+		apply_knockback(source_pos)
 
 
 #func find_nearby_card() -> Node3D:
@@ -614,10 +636,13 @@ func take_damage(amount: int, source_pos: Vector3):
 	Audio.play("res://sounds/fall.ogg")
 
 	health = max(0, health - amount)
+	var did_respawn := health <= 0
 	if health <= 0:
 		respawn()
 		if network_session and bool(network_session.get("IsDedicatedServer")):
 			network_session.call("ForcePlayerCorrection", player_id, global_position, rotation.y, Vector3.ZERO)
+	if network_session and bool(network_session.get("IsDedicatedServer")):
+		network_session.call("BroadcastPlayerHealth", player_id, health, source_pos, true, did_respawn)
 	if hud:
 		hud.set_health(health, health_max)
 

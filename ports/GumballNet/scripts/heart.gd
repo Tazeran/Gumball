@@ -13,12 +13,12 @@ func _on_body_entered(body):
 	if session and not bool(session.get("IsDedicatedServer")) and not Array(session.get("LocalPlayerSlots")).is_empty():
 		return
 	if body.has_method("collect_heart") and !grabbed:
-		
-		body.collect_heart()
+		if not body.collect_heart():
+			return
 		
 		Audio.play("res://sounds/coin.ogg") # Play sound
 		
-		$heart.queue_free() # Make invisible
+		$heart.visible = false # Keep the node for stable network state updates.
 		$Particles.emitting = false # Stop emitting stars
 		
 		grabbed = true

@@ -27,6 +27,7 @@ public partial class NetworkSession : Node
     [Signal] public delegate void RosterChangedEventHandler(int[] activeSlots);
     [Signal] public delegate void PlayerStateReceivedEventHandler(int slot, Vector3 position, float rotationY, Vector3 velocity);
     [Signal] public delegate void PlayerCorrectionReceivedEventHandler(int slot, Vector3 position, float rotationY, Vector3 velocity);
+    [Signal] public delegate void PlayerHealthChangedEventHandler(int slot, int health, Vector3 sourcePosition, bool damaged, bool respawned);
     [Signal] public delegate void PlayerTeamChangedEventHandler(int slot, string team);
     [Signal] public delegate void GamePauseChangedEventHandler(bool paused);
     [Signal] public delegate void WorldInteractionRequestedEventHandler(int slot, string targetPath, bool hold);
@@ -545,9 +546,19 @@ public partial class NetworkSession : Node
             Rpc(nameof(ReceivePlayerCorrection), slot, position, rotationY, velocity);
     }
 
+    public void BroadcastPlayerHealth(int slot, int health, Vector3 sourcePosition, bool damaged, bool respawned)
+    {
+        if (Multiplayer.IsServer())
+            Rpc(nameof(ReceivePlayerHealth), slot, health, sourcePosition, damaged, respawned);
+    }
+
     [Rpc(MultiplayerApi.RpcMode.Authority, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
     private void ReceivePlayerCorrection(int slot, Vector3 position, float rotationY, Vector3 velocity) =>
         EmitSignal(SignalName.PlayerCorrectionReceived, slot, position, rotationY, velocity);
+
+    [Rpc(MultiplayerApi.RpcMode.Authority, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+    private void ReceivePlayerHealth(int slot, int health, Vector3 sourcePosition, bool damaged, bool respawned) =>
+        EmitSignal(SignalName.PlayerHealthChanged, slot, health, sourcePosition, damaged, respawned);
 
     [Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Unreliable)]
     private void SubmitPlayerState(int slot, Vector3 position, float rotationY, Vector3 velocity)

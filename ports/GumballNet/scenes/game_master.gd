@@ -47,6 +47,7 @@ func _ready() -> void:
 		_session.connect("PlayerAssignmentChanged", _on_local_assignment_changed)
 		_session.connect("PlayerStateReceived", _on_player_state_received)
 		_session.connect("PlayerCorrectionReceived", _on_player_correction_received)
+		_session.connect("PlayerHealthChanged", _on_player_health_changed)
 		_session.connect("PlayerTeamChanged", _on_player_team_changed)
 		_session.connect("WorldInteractionRequested", _on_world_interaction_requested)
 		_session.connect("WorldSnapshotRequested", _on_world_snapshot_requested)
@@ -128,7 +129,7 @@ func _on_world_frame_received(json: String) -> void:
 	for data in frame.get("players", []):
 		var player: Player = _online_players.get(int(data.slot))
 		if player:
-			player.health = int(data.health)
+			player.apply_authoritative_health(int(data.health))
 			player.apply_authoritative_stamina(float(data.stamina))
 			if player.coins != int(data.coins):
 				player.coins = int(data.coins)
@@ -379,6 +380,11 @@ func _on_player_correction_received(slot: int, position: Vector3, rotation_y: fl
 		player.rotation.y = rotation_y
 		player.velocity = player_velocity
 		player.apply_network_state(position, rotation_y, player_velocity)
+
+func _on_player_health_changed(slot: int, health: int, source_position: Vector3, damaged: bool, respawned: bool) -> void:
+	var player: Player = _online_players.get(slot)
+	if player:
+		player.apply_network_health_event(health, source_position, damaged, respawned)
 
 func _on_player_team_changed(slot: int, team: String) -> void:
 	var player: Player = _online_players.get(slot)
