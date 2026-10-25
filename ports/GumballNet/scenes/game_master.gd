@@ -11,7 +11,7 @@ const PLAYER_SCENE := preload("res://objects/Base/player.tscn")
 
 var _online_players: Dictionary = {}
 var _online_markers: Dictionary = {}
-var _spawn_origin := Vector3.ZERO
+var _team_spawn_origins: Dictionary = {}
 var _session: Node
 
 func _ready() -> void:
@@ -23,7 +23,7 @@ func _ready() -> void:
 			local_slots.append(int(slot))
 	var online := dedicated or not local_slots.is_empty()
 	if online:
-		_spawn_origin = Players[0].global_position
+		_team_spawn_origins = {"A": Players[0].global_position, "B": Players[1].global_position}
 		for player in Players:
 			player.free()
 		for marker in PlayerMarkers:
@@ -39,6 +39,7 @@ func _ready() -> void:
 		_apply_online_roster(active_slots)
 		_session.connect("RosterChanged", _on_roster_changed)
 		_session.connect("PlayerStateReceived", _on_player_state_received)
+		_session.connect("PlayerTeamChanged", _on_player_team_changed)
 	else:
 		for slot in range(1, Master.player_count + 1):
 			local_slots.append(slot)
@@ -61,6 +62,11 @@ func _on_player_state_received(slot: int, position: Vector3, rotation_y: float, 
 	if player:
 		player.apply_network_state(position, rotation_y, player_velocity)
 
+func _on_player_team_changed(slot: int, team: String) -> void:
+	var player: Player = _online_players.get(slot)
+	if player:
+		player.apply_team(team, _team_spawn_position(slot, team), true)
+
 func _apply_online_roster(active_slots: Array[int]) -> void:
 	for existing_slot in _online_players.keys():
 		if not active_slots.has(existing_slot):
@@ -74,16 +80,23 @@ func _apply_online_roster(active_slots: Array[int]) -> void:
 		var player := PLAYER_SCENE.instantiate() as Player
 		player.name = "Player%d" % slot
 		player.player_id = slot
-		player.team = "A" if slot % 2 == 1 else "B"
-		var column := (slot - 1) % 4
-		var row := (slot - 1) / 4
-		player.position = _spawn_origin + Vector3(column * 1.6, 0.0, row * 1.6)
+		var team := String(_session.call("GetPlayerTeam", slot))
+		player.team = team
+		player.position = _team_spawn_position(slot, team)
 		add_child(player)
 		_online_players[slot] = player
 		var marker := Node3D.new()
 		marker.name = "Marker%d" % slot
 		add_child(marker)
 		_online_markers[slot] = marker
+
+func _team_spawn_position(slot: int, team: String) -> Vector3:
+	var origin: Vector3 = _team_spawn_origins.get(team, Vector3.ZERO)
+	var index := slot - 1
+	var column := index % 4
+	var row := index / 4
+	var inward_direction := -1.0 if team == "A" else 1.0
+	return origin + Vector3(column * 1.5 * inward_direction, 0.0, row * 1.5)
 
 func _setup_local_views(local_slots: Array[int]) -> void:
 	var local_count := local_slots.size()

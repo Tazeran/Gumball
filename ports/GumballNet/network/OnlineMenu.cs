@@ -1,4 +1,5 @@
 using Godot;
+using System;
 
 namespace GumballNet.Network;
 
@@ -13,6 +14,8 @@ public partial class OnlineMenu : CanvasLayer
     private Button _connect = null!;
     private Button _enterMatch = null!;
     private Button _disconnect = null!;
+    private VBoxContainer _teamChoices = null!;
+    private readonly OptionButton[] _teamSelectors = new OptionButton[NetworkSession.MaxLocalPlayers];
     private bool _inMatch;
 
     public override void _Ready()
@@ -23,6 +26,7 @@ public partial class OnlineMenu : CanvasLayer
 
         Session.StatusChanged += OnStatusChanged;
         Session.PlayerAssignmentChanged += OnPlayerAssignmentChanged;
+        Session.PlayerTeamChanged += OnPlayerTeamChanged;
         _address.GrabFocus();
     }
 
@@ -124,6 +128,23 @@ public partial class OnlineMenu : CanvasLayer
         _role.AddThemeColorOverride("font_color", new Color("7f91a8"));
         stack.AddChild(_role);
 
+        _teamChoices = new VBoxContainer { Visible = false };
+        _teamChoices.AddThemeConstantOverride("separation", 8);
+        var teamHeading = new Label { Text = "TEAM SELECTION (CHANGE ANYTIME)", HorizontalAlignment = HorizontalAlignment.Center };
+        teamHeading.AddThemeColorOverride("font_color", new Color("a9b9cc"));
+        _teamChoices.AddChild(teamHeading);
+        for (var index = 0; index < _teamSelectors.Length; index++)
+        {
+            var localIndex = index;
+            var selector = new OptionButton { CustomMinimumSize = new Vector2(0, 38), Visible = false };
+            selector.AddItem("RED TEAM — RIGHT BASE");
+            selector.AddItem("BLUE / PURPLE TEAM — LEFT BASE");
+            selector.ItemSelected += selected => TeamSelected(localIndex, selected);
+            _teamSelectors[index] = selector;
+            _teamChoices.AddChild(selector);
+        }
+        stack.AddChild(_teamChoices);
+
         _enterMatch = MakeButton("ENTER MATCH", new Color("39a96b"));
         _enterMatch.Visible = false;
         _enterMatch.Pressed += EnterMatchPressed;
@@ -194,6 +215,7 @@ public partial class OnlineMenu : CanvasLayer
         _enterMatch.Visible = false;
         _disconnect.Visible = false;
         _role.Text = "Not connected";
+        _teamChoices.Visible = false;
         _status.Text = "Disconnected. Enter a server address to reconnect.";
     }
 
@@ -231,7 +253,34 @@ public partial class OnlineMenu : CanvasLayer
         _status.Text = owner
             ? "You joined first. The dedicated server still owns the simulation."
             : "You joined the active dedicated match.";
+        _teamChoices.Visible = true;
+        for (var index = 0; index < _teamSelectors.Length; index++)
+        {
+            var visible = index < Session.LocalPlayerSlots.Length;
+            _teamSelectors[index].Visible = visible;
+            if (!visible)
+                continue;
+            var playerSlot = Session.LocalPlayerSlots[index];
+            _teamSelectors[index].Clear();
+            _teamSelectors[index].AddItem($"PLAYER {playerSlot}: RED TEAM — RIGHT BASE");
+            _teamSelectors[index].AddItem($"PLAYER {playerSlot}: BLUE / PURPLE TEAM — LEFT BASE");
+            _teamSelectors[index].Selected = Session.GetPlayerTeam(playerSlot) == "B" ? 1 : 0;
+        }
         if (Session.AutoEnterMatch)
             CallDeferred(nameof(EnterMatchPressed));
+    }
+
+    private void TeamSelected(int localIndex, long selected)
+    {
+        if (localIndex >= Session.LocalPlayerSlots.Length)
+            return;
+        Session.ChooseTeam(Session.LocalPlayerSlots[localIndex], selected == 1 ? "B" : "A");
+    }
+
+    private void OnPlayerTeamChanged(int slot, string team)
+    {
+        var localIndex = Array.IndexOf(Session.LocalPlayerSlots, slot);
+        if (localIndex >= 0)
+            _teamSelectors[localIndex].Selected = team == "B" ? 1 : 0;
     }
 }

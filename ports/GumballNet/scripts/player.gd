@@ -128,26 +128,31 @@ func _ready():
 	if not accepts_local_input and not is_network_remote:
 		set_physics_process(false)
 
-	var playerTexture = null
-	if player_id % 2 == 1:
-		playerTexture = load("res://models/Textures/colormapStarter.png")
-	else:
-		playerTexture = load("res://models/MarbleRun/Textures/colormap.png")
+	_apply_team_texture()
 
-	print("player ", player_id, playerTexture)
+	spawn_position = global_transform.origin
+	pickup_area.area_entered.connect(_on_pickup_area_body_entered)
+	pickup_area.area_exited.connect(_on_pickup_area_body_exited)
 
+func apply_team(team_name: String, team_spawn_position: Vector3, teleport: bool) -> void:
+	team = team_name
+	spawn_position = team_spawn_position
+	_apply_team_texture()
+	if teleport:
+		global_position = team_spawn_position
+		velocity = Vector3.ZERO
+		network_target_position = team_spawn_position
+
+func _apply_team_texture() -> void:
+	var player_texture = load("res://models/Textures/colormapStarter.png") if team == "A" else load("res://models/MarbleRun/Textures/colormap.png")
 	for mesh in mesh_parts:
 		var material = mesh.material_override
 		if material == null:
 			material = StandardMaterial3D.new()
 		else:
-			material = material.duplicate() # Create a unique copy
+			material = material.duplicate()
 		mesh.material_override = material
-		material.albedo_texture = playerTexture
-
-	spawn_position = global_transform.origin
-	pickup_area.area_entered.connect(_on_pickup_area_body_entered)
-	pickup_area.area_exited.connect(_on_pickup_area_body_exited)
+		material.albedo_texture = player_texture
 
 func setup(): #called by master
 	if hud:

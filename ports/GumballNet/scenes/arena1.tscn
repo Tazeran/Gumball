@@ -1,4 +1,4 @@
-[gd_scene load_steps=75 format=3 uid="uid://bqqgyqafm7xwp"]
+[gd_scene load_steps=74 format=3 uid="uid://bqqgyqafm7xwp"]
 
 [ext_resource type="Script" uid="uid://ssthegxvlm2c" path="res://scripts/sub_viewport_container.gd" id="1_d5vfk"]
 [ext_resource type="Script" uid="uid://cv2hyc71eithw" path="res://scripts/hud.gd" id="2_g5r4m"]
@@ -32,7 +32,6 @@
 [ext_resource type="Script" uid="uid://c3roj5bsj7si0" path="res://scenes/game_master.gd" id="29_i02ga"]
 [ext_resource type="Script" uid="uid://brnr142gyc8gn" path="res://scenes/team_master.gd" id="30_d38fq"]
 [ext_resource type="PackedScene" uid="uid://01w0ora8c1bp" path="res://scenes/p_card.tscn" id="31_lfqxg"]
-[ext_resource type="Script" uid="uid://cl402p5qrngpg" path="res://scenes/monster_spawner.gd" id="32_6b6i7"]
 [ext_resource type="PackedScene" uid="uid://2x0x5ed5k5r1" path="res://Enemies/Beetle.tscn" id="33_ojhao"]
 [ext_resource type="Script" uid="uid://bts6yd18ed053" path="res://scripts/SolitairePathStack.gd" id="34_aa6m4"]
 [ext_resource type="Script" uid="uid://c7ygroxpgne1x" path="res://scripts/solitaire_path.gd" id="35_e5jlj"]
@@ -1484,11 +1483,6 @@ transform = Transform3D(1.28311, 0, 1.53415, 0, 2, 0, -1.53415, 0, 1.28311, 20.7
 
 [node name="block-grass-overhang-edge2" parent="NavigationRegion3D/World" instance=ExtResource("28_rdh0f")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.6102295, 5.2834835, 16.356483)
-
-[node name="MonsterSpawner" type="Node3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14.5771, 3.25655, -23.9264)
-script = ExtResource("32_6b6i7")
-monster_scene = ExtResource("33_ojhao")
 
 [node name="GroundEnemy" parent="." instance=ExtResource("33_ojhao")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.30597, -1.93323, -35.9228)

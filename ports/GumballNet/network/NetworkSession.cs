@@ -20,6 +20,7 @@ public partial class NetworkSession : Node
     [Signal] public delegate void PlayerAssignmentChangedEventHandler(int slot, bool lobbyOwner);
     [Signal] public delegate void RosterChangedEventHandler(int[] activeSlots);
     [Signal] public delegate void PlayerStateReceivedEventHandler(int slot, Vector3 position, float rotationY, Vector3 velocity);
+    [Signal] public delegate void PlayerTeamChangedEventHandler(int slot, string team);
 
     public bool IsDedicatedServer { get; private set; }
     public int LocalPlayerSlot { get; private set; }
@@ -32,6 +33,7 @@ public partial class NetworkSession : Node
     public bool AutoEnterMatch { get; private set; }
 
     private readonly Dictionary<long, List<int>> _peerSlots = new();
+    private readonly Dictionary<int, string> _playerTeams = new();
     private readonly Queue<int> _freeSlots = new();
     private long _lobbyOwnerPeerId;
     private OnlineMenu? _onlineMenu;
@@ -129,6 +131,7 @@ public partial class NetworkSession : Node
         LocalPlayerSlot = 0;
         LocalPlayerSlots = Array.Empty<int>();
         ActivePlayerSlots = Array.Empty<int>();
+        _playerTeams.Clear();
         IsLobbyOwner = false;
         EmitSignal(SignalName.RosterChanged, ActivePlayerSlots);
     }
@@ -167,7 +170,10 @@ public partial class NetworkSession : Node
             return;
 
         foreach (var slot in slots)
+        {
             _freeSlots.Enqueue(slot);
+            _playerTeams.Remove(slot);
+        }
         if (_lobbyOwnerPeerId == peerId)
         {
             _lobbyOwnerPeerId = 0;
@@ -234,12 +240,17 @@ public partial class NetworkSession : Node
 
         var slots = new List<int>(requestedCount);
         for (var index = 0; index < requestedCount; index++)
-            slots.Add(_freeSlots.Dequeue());
+        {
+            var slot = _freeSlots.Dequeue();
+            slots.Add(slot);
+            _playerTeams[slot] = slot % 2 == 1 ? "A" : "B";
+        }
         _peerSlots[peerId] = slots;
         if (_lobbyOwnerPeerId == 0)
             _lobbyOwnerPeerId = peerId;
         RpcId(peerId, nameof(ReceiveAssignment), slots.ToArray(), peerId == _lobbyOwnerPeerId);
         BroadcastRoster();
+        BroadcastTeams();
         GD.Print($"Peer {peerId} joined with slots {string.Join(',', slots)}.");
     }
 
@@ -259,6 +270,42 @@ public partial class NetworkSession : Node
         ActivePlayerSlots = activeSlots.ToArray();
         EmitSignal(SignalName.RosterChanged, ActivePlayerSlots);
         Rpc(nameof(ReceiveRoster), ActivePlayerSlots);
+    }
+
+    public string GetPlayerTeam(int slot) =>
+        _playerTeams.TryGetValue(slot, out var team) ? team : (slot % 2 == 1 ? "A" : "B");
+
+    public void ChooseTeam(int slot, string team)
+    {
+        if (Array.IndexOf(LocalPlayerSlots, slot) < 0 || (team != "A" && team != "B"))
+            return;
+        RpcId(1, nameof(RequestTeam), slot, team);
+    }
+
+    [Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+    private void RequestTeam(int slot, string team)
+    {
+        if (!Multiplayer.IsServer() || (team != "A" && team != "B"))
+            return;
+        var peerId = Multiplayer.GetRemoteSenderId();
+        if (!_peerSlots.TryGetValue(peerId, out var ownedSlots) || !ownedSlots.Contains(slot))
+            return;
+        _playerTeams[slot] = team;
+        EmitSignal(SignalName.PlayerTeamChanged, slot, team);
+        Rpc(nameof(ReceivePlayerTeam), slot, team);
+    }
+
+    [Rpc(MultiplayerApi.RpcMode.Authority, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+    private void ReceivePlayerTeam(int slot, string team)
+    {
+        _playerTeams[slot] = team;
+        EmitSignal(SignalName.PlayerTeamChanged, slot, team);
+    }
+
+    private void BroadcastTeams()
+    {
+        foreach (var pair in _playerTeams)
+            Rpc(nameof(ReceivePlayerTeam), pair.Key, pair.Value);
     }
 
     public void PublishPlayerState(int slot, Vector3 position, float rotationY, Vector3 velocity)

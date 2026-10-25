@@ -52,6 +52,11 @@ count, while `--local-players=1..4` and `--controllers=0,1,2,3` provide explicit
 launch-time configuration. The total across all connected machines may not
 exceed 16 players.
 
+After connecting, every local seat has its own unrestricted team selector.
+Red spawns at the right-hand base and blue/purple spawns at the left-hand base.
+Press Escape during a match to reopen the overlay and change teams at any time;
+switching teams respawns that player at the selected base for every client.
+
 For automated development checks, `--auto-enter` enters the arena as soon as
 the server assigns seats. The normal launchers leave the lobby screen visible.
 
