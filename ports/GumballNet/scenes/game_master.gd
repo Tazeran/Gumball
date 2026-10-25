@@ -17,6 +17,7 @@ var _online := false
 var _dedicated := false
 var _world_frame_timer := 0.0
 var _ground_pound_authorized: Dictionary = {}
+var _marble_push_times: Dictionary = {}
 
 func _ready() -> void:
 	_session = get_node_or_null("/root/NetworkSession")
@@ -55,6 +56,7 @@ func _ready() -> void:
 		_session.connect("WorldFrameReceived", _on_world_frame_received)
 		_session.connect("GroundPoundRequested", _on_ground_pound_requested)
 		_session.connect("StaminaSpentRequested", _on_stamina_spent_requested)
+		_session.connect("MarblePushRequested", _on_marble_push_requested)
 	else:
 		for slot in range(1, Master.player_count + 1):
 			local_slots.append(slot)
@@ -104,9 +106,10 @@ func _capture_world_frame() -> Dictionary:
 			"p": [enemy.global_position.x, enemy.global_position.y, enemy.global_position.z], "r": enemy.rotation.y})
 	var marbles: Array = []
 	for marble in get_tree().get_nodes_in_group("network_marbles"):
-		marbles.append({"id": marble.network_id,
-			"p": [marble.global_position.x, marble.global_position.y, marble.global_position.z],
-			"q": [marble.quaternion.x, marble.quaternion.y, marble.quaternion.z, marble.quaternion.w]})
+		marbles.append([marble.network_id,
+			marble.global_position.x, marble.global_position.y, marble.global_position.z,
+			marble.quaternion.x, marble.quaternion.y, marble.quaternion.z, marble.quaternion.w,
+			marble.linear_velocity.x, marble.linear_velocity.y, marble.linear_velocity.z])
 	var pickup_states: Array = []
 	for pickup in get_tree().get_nodes_in_group("network_pickups"):
 		pickup_states.append(pickup.is_network_active())
@@ -184,20 +187,42 @@ func _apply_marble_frame(states: Array) -> void:
 		by_id[marble.network_id] = marble
 	var live: Dictionary = {}
 	for data in states:
-		var id := int(data.id)
+		var id := int(data[0])
 		live[id] = true
 		var marble = by_id.get(id)
 		if marble == null:
 			marble = spawner.marble_scene.instantiate()
 			marble.network_id = id
-			marble.freeze = true
 			add_child(marble)
-		var target := Vector3(float(data.p[0]), float(data.p[1]), float(data.p[2]))
-		marble.global_position = marble.global_position.lerp(target, 0.65)
-		marble.quaternion = Quaternion(float(data.q[0]), float(data.q[1]), float(data.q[2]), float(data.q[3]))
+			marble.setup_network_proxy()
+		marble.apply_network_state(
+			Vector3(float(data[1]), float(data[2]), float(data[3])),
+			Quaternion(float(data[4]), float(data[5]), float(data[6]), float(data[7])),
+			Vector3(float(data[8]), float(data[9]), float(data[10])))
 	for id in by_id:
 		if not live.has(id):
 			by_id[id].free()
+
+func _on_marble_push_requested(slot: int, marble_id: int) -> void:
+	if not _dedicated or not _online_players.has(slot):
+		return
+	var player: Player = _online_players[slot]
+	var marble: RigidBody3D = null
+	for candidate in get_tree().get_nodes_in_group("network_marbles"):
+		if int(candidate.network_id) == marble_id:
+			marble = candidate
+			break
+	if marble == null or player.global_position.distance_to(marble.global_position) > 2.0:
+		return
+	var key := "%d:%d" % [slot, marble_id]
+	var now := Time.get_ticks_msec()
+	if now - int(_marble_push_times.get(key, 0)) < 120:
+		return
+	var push_velocity := Vector3(player.velocity.x, 0.0, player.velocity.z)
+	if push_velocity.length_squared() < 0.01:
+		return
+	_marble_push_times[key] = now
+	marble.apply_central_impulse(push_velocity.normalized() * 3.0)
 
 func _on_world_interaction_requested(slot: int, target_path: String, hold: bool) -> void:
 	if not _dedicated:

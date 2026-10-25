@@ -338,8 +338,14 @@ func _physics_process(delta):
 		var collision = get_slide_collision(i)
 		var body = collision.get_collider()
 		if body is RigidBody3D:
-			var push_force = velocity.normalized() * 3.0
-			body.apply_impulse(Vector3.ZERO, push_force)
+			var horizontal_velocity := Vector3(velocity.x, 0.0, velocity.z)
+			if horizontal_velocity.length_squared() < 0.01:
+				continue
+			if body.is_in_group("network_marbles") and network_session and accepts_local_input \
+					and not bool(network_session.get("IsDedicatedServer")):
+				network_session.call("RequestMarblePush", player_id, int(body.network_id))
+			else:
+				body.apply_central_impulse(horizontal_velocity.normalized() * 3.0)
 
 	# Rotation
 	if Vector2(velocity.z, velocity.x).length() > 0:

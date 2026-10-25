@@ -36,6 +36,7 @@ public partial class NetworkSession : Node
     [Signal] public delegate void WorldFrameReceivedEventHandler(string json);
     [Signal] public delegate void GroundPoundRequestedEventHandler(int slot, Vector3 position, float impactSpeed);
     [Signal] public delegate void StaminaSpentRequestedEventHandler(int slot, string action);
+    [Signal] public delegate void MarblePushRequestedEventHandler(int slot, int marbleId);
 
     public bool IsDedicatedServer { get; private set; }
     public int LocalPlayerSlot { get; private set; }
@@ -368,6 +369,13 @@ public partial class NetworkSession : Node
         RpcId(1, nameof(SubmitStaminaSpend), slot, action);
     }
 
+    public void RequestMarblePush(int slot, int marbleId)
+    {
+        if (IsDedicatedServer || Array.IndexOf(LocalPlayerSlots, slot) < 0)
+            return;
+        RpcId(1, nameof(SubmitMarblePush), slot, marbleId);
+    }
+
     public void RequestWorldSnapshot()
     {
         if (!IsDedicatedServer && Multiplayer.HasMultiplayerPeer())
@@ -415,6 +423,14 @@ public partial class NetworkSession : Node
         var peerId = Multiplayer.GetRemoteSenderId();
         if (Multiplayer.IsServer() && _peerSlots.TryGetValue(peerId, out var slots) && slots.Contains(slot))
             EmitSignal(SignalName.StaminaSpentRequested, slot, action);
+    }
+
+    [Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Unreliable)]
+    private void SubmitMarblePush(int slot, int marbleId)
+    {
+        var peerId = Multiplayer.GetRemoteSenderId();
+        if (Multiplayer.IsServer() && _peerSlots.TryGetValue(peerId, out var slots) && slots.Contains(slot))
+            EmitSignal(SignalName.MarblePushRequested, slot, marbleId);
     }
 
     [Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
