@@ -1,214 +1,274 @@
-extends RigidBody3D
+extends CharacterBody3D
+class_name BeetleEnemy
 
-#const COIN_SCENE := preload("res://Player/Coin/Coin.tscn")
-#const PUFF_SCENE := preload("smoke_puff/smoke_puff.tscn")
+signal defeated
+
 const DISSOLVE_MATERIAL := preload("res://shared/shaders/monster_disolve.tres")
-var _original_albedo: Texture2D
-var _dissolve_mat: ShaderMaterial
 
-const move_speed = 3;
-const tired_speed = 1;
+enum State { IDLE, PATROL, CHASE, REST, DEFEATED }
 
-enum State { PATROL_IDLE, PATROL_WALK, CHASE, REST }
-var _state: State = State.PATROL_IDLE
+@export_category("Movement")
+@export var patrol_speed := 1.6
+@export var chase_speed := 3.4
+@export var acceleration := 12.0
+@export var turn_speed := 9.0
+@export var patrol_radius := 5.0
+@export var idle_time_range := Vector2(1.0, 2.5)
+@export var patrol_time_range := Vector2(2.5, 5.0)
 
-var patrol_idle_timer := 0.0
-var patrol_idle_duration := 2.0
-var patrol_target_position: Vector3
-var patrol_walk_duration := 5.0
-var patrol_walk_timer := 0.0
-var patrol_radius := 5.0
+@export_category("Combat")
+@export var contact_damage := 1
+@export var attack_cooldown := 0.9
+@export var chase_stamina := 5.0
+@export var rest_duration := 1.5
 
-
-var stamina := 5.0
-var max_stamina := 5.0
-var stamina_regen_rate := 1.5
-var stamina_drain_rate := 1.0
-
-
-@onready var _reaction_animation_player: AnimationPlayer = $ReactionLabel/AnimationPlayer
+@onready var _reaction_animation: AnimationPlayer = $ReactionLabel/AnimationPlayer
 @onready var _detection_area: Area3D = $PlayerDetectionArea
-@onready var _beetle_skin: Node3D = $BeetlebotSkin
-@onready var _beetle_mesh: MeshInstance3D = $BeetlebotSkin/beetle_bot/Armature/Skeleton3D/Beetle
-@onready var _navigation_agent: NavigationAgent3D = $NavigationAgent3D
-@onready var _death_collision_shape: CollisionShape3D = $DeathCollisionShape
+@onready var _skin: Node3D = $BeetlebotSkin
+@onready var _mesh: MeshInstance3D = $BeetlebotSkin/beetle_bot/Armature/Skeleton3D/Beetle
+@onready var _agent: NavigationAgent3D = $NavigationAgent3D
 @onready var _defeat_sound: AudioStreamPlayer3D = $DefeatSound
 
-@onready var _target: Node3D = null
-@onready var _alive: bool = true
+var _state := State.IDLE
+var _spawn_position := Vector3.ZERO
+var _patrol_target := Vector3.ZERO
+var _state_timer := 0.0
+var _stamina := 0.0
+var _attack_timer := 0.0
+var _path_timer := 0.0
+var _target: Player
+var _players_in_range: Array[Player] = []
+var _alive := true
 
 
 func _ready() -> void:
 	add_to_group("enemies")
-	# Cache original texture for this beetle
-	_original_albedo = _beetle_mesh.get_active_material(0).get("albedo_texture")
-
-	# Duplicate shared shader material
-	#_dissolve_mat = DISSOLVE_MATERIAL.duplicate()
-	#_dissolve_mat.set_shader_parameter("albedo_texture", _original_albedo)
-	#_beetle_mesh.set_surface_override_material(0, _dissolve_mat)
-
-	_detection_area.body_entered.connect(_on_body_entered)
-	_detection_area.body_exited.connect(_on_body_exited)
-	_beetle_skin.idle()
+	_spawn_position = global_position
+	_stamina = chase_stamina
+	_state_timer = randf_range(idle_time_range.x, idle_time_range.y)
+	_agent.path_desired_distance = 0.35
+	_agent.target_desired_distance = 0.8
+	_detection_area.body_entered.connect(_on_detection_body_entered)
+	_detection_area.body_exited.connect(_on_detection_body_exited)
+	_skin.idle()
 
 
 func _physics_process(delta: float) -> void:
 	if not _alive:
 		return
 
-	if _target != null:
-		_state = State.CHASE
+	_attack_timer = maxf(0.0, _attack_timer - delta)
+	_state_timer -= delta
+	_path_timer -= delta
+	_validate_target()
+
+	if not is_on_floor():
+		velocity.y -= 24.0 * delta
+	else:
+		velocity.y = -0.5
 
 	match _state:
-		State.PATROL_IDLE:
-			_beetle_skin.idle()
-			stamina = min(max_stamina, stamina + stamina_regen_rate * delta)
-			patrol_idle_timer -= delta
-			if patrol_idle_timer <= 0.0:
-				_set_new_patrol_target()
-				_state = State.PATROL_WALK
+		State.IDLE:
+			_slow_to_stop(delta)
+			_skin.idle()
+			_stamina = minf(chase_stamina, _stamina + delta)
+			if _target:
+				_enter_chase()
+			elif _state_timer <= 0.0:
+				_begin_patrol()
 
-		State.PATROL_WALK:
-			_beetle_skin.walk()
-			stamina = min(max_stamina, stamina + stamina_regen_rate * delta)
-
-			_navigation_agent.target_position = patrol_target_position
-			var next_location = _navigation_agent.get_next_path_position()
-			if not _navigation_agent.is_target_reached():
-				var direction = (next_location - global_position)
-				direction.y = 0
-				direction = direction.normalized()
-				# Make the beetle face the movement direction
-				if direction.length() > 0.01:
-					look_at(global_position + direction)
-				move_and_collide(direction * delta * move_speed * 0.5)  # patrol slower
-
-			patrol_walk_timer -= delta
-			if patrol_walk_timer <= 0.0 or _navigation_agent.is_target_reached():
-				_state = State.PATROL_IDLE
-				patrol_idle_timer = patrol_idle_duration
+		State.PATROL:
+			_skin.walk()
+			_stamina = minf(chase_stamina, _stamina + delta * 0.75)
+			if _target:
+				_enter_chase()
+			elif _state_timer <= 0.0 or _agent.is_navigation_finished():
+				_enter_idle()
+			else:
+				_follow_path(patrol_speed, delta)
 
 		State.CHASE:
-			_beetle_skin.walk()
-			stamina -= stamina_drain_rate * delta
-			if stamina < 0:
-				stamina = 0
-
-			if _target != null:
-				var target_pos = _target.global_position
-				target_pos.y = global_position.y
-				var to_target = (target_pos - global_position)
-				if to_target.length() > 0.01:
-					look_at(target_pos)
-
-				_navigation_agent.target_position = _target.global_position
-				var next_location = _navigation_agent.get_next_path_position()
-				if not _navigation_agent.is_target_reached():
-					var direction = (next_location - global_position)
-					direction.y = 0
-					direction = direction.normalized()
-					var speed = move_speed
-					if stamina <= 0:
-						speed *= 0.3
-					var collision = move_and_collide(direction * delta * speed)
-					if collision:
-						var collider = collision.get_collider()
-						if collider is Player:
-							if collider.is_ground_pounding:
-								print("Beetle hit by ground pound!")
-								var impact_point = global_position - collider.global_position
-								damage(impact_point, Vector3.UP * 6)  # Trigger beetle damage with knockback
-							else:
-								# Standard bump damage to player
-								var impact = global_position - collider.global_position
-								var force = -impact
-								force.y = 0.5
-								force *= 10.0
-								collider.take_damage(1, global_position)
-								_beetle_skin.attack()
+			if not _target:
+				_enter_idle()
+			elif _stamina <= 0.0:
+				_enter_rest()
+			else:
+				_skin.walk()
+				_stamina = maxf(0.0, _stamina - delta)
+				if _path_timer <= 0.0:
+					_agent.target_position = _target.global_position
+					_path_timer = 0.15
+				_follow_path(chase_speed, delta)
 
 		State.REST:
-			_beetle_skin.idle()
-			stamina = min(max_stamina, stamina + stamina_regen_rate * delta)
-			if stamina >= max_stamina:
-				_state = State.PATROL_IDLE
-				patrol_idle_timer = patrol_idle_duration
+			_slow_to_stop(delta)
+			_skin.idle()
+			_stamina = minf(chase_stamina, _stamina + delta * 2.0)
+			if _state_timer <= 0.0:
+				if _target:
+					_enter_chase()
+				else:
+					_enter_idle()
+
+	move_and_slide()
+	_handle_contacts()
 
 
-func _set_new_patrol_target():
-	var random_offset = Vector3(randf_range(-patrol_radius, patrol_radius), 0, randf_range(-patrol_radius, patrol_radius))
-	patrol_target_position = global_position + random_offset
-	patrol_walk_timer = patrol_walk_duration
-	_navigation_agent.target_position = patrol_target_position
+func _follow_path(speed: float, delta: float) -> void:
+	if _agent.is_navigation_finished():
+		_slow_to_stop(delta)
+		return
+
+	var next_position := _agent.get_next_path_position()
+	var direction := next_position - global_position
+	direction.y = 0.0
+	if direction.length_squared() < 0.0025:
+		_slow_to_stop(delta)
+		return
+
+	direction = direction.normalized()
+	velocity.x = move_toward(velocity.x, direction.x * speed, acceleration * delta)
+	velocity.z = move_toward(velocity.z, direction.z * speed, acceleration * delta)
+	var desired_yaw := atan2(direction.x, direction.z)
+	rotation.y = lerp_angle(rotation.y, desired_yaw, turn_speed * delta)
 
 
-func damage(impact_point: Vector3, force: Vector3) -> void:
-	lock_rotation = false
-	force = force.limit_length(3.0)
-	apply_impulse(force, impact_point)
+func _slow_to_stop(delta: float) -> void:
+	velocity.x = move_toward(velocity.x, 0.0, acceleration * delta)
+	velocity.z = move_toward(velocity.z, 0.0, acceleration * delta)
 
+
+func _handle_contacts() -> void:
+	if _attack_timer > 0.0:
+		return
+
+	for index in get_slide_collision_count():
+		var player := get_slide_collision(index).get_collider() as Player
+		if not player:
+			continue
+		# A descending player is resolved by the landing impact, never as contact damage.
+		if player.is_ground_pounding:
+			return
+		player.take_damage(contact_damage, global_position)
+		_skin.attack()
+		_attack_timer = attack_cooldown
+		return
+
+
+func _begin_patrol() -> void:
+	_state = State.PATROL
+	_state_timer = randf_range(patrol_time_range.x, patrol_time_range.y)
+	var offset := Vector3(randf_range(-patrol_radius, patrol_radius), 0.0, randf_range(-patrol_radius, patrol_radius))
+	_patrol_target = _spawn_position + offset
+	_agent.target_position = _patrol_target
+
+
+func _enter_idle() -> void:
+	_state = State.IDLE
+	_state_timer = randf_range(idle_time_range.x, idle_time_range.y)
+
+
+func _enter_chase() -> void:
+	_state = State.CHASE
+	_path_timer = 0.0
+
+
+func _enter_rest() -> void:
+	_state = State.REST
+	_state_timer = rest_duration
+
+
+func _validate_target() -> void:
+	_players_in_range = _players_in_range.filter(func(player: Player): return is_instance_valid(player))
+	if _target and not _players_in_range.has(_target):
+		_target = null
+	if not _target and not _players_in_range.is_empty():
+		_target = _closest_player()
+
+
+func _closest_player() -> Player:
+	var closest: Player
+	var closest_distance := INF
+	for player in _players_in_range:
+		var distance := global_position.distance_squared_to(player.global_position)
+		if distance < closest_distance:
+			closest = player
+			closest_distance = distance
+	return closest
+
+
+func receive_ground_pound(player: Player, impact_speed: float) -> void:
+	if not _alive:
+		return
+	var direction := global_position - player.global_position
+	direction.y = 0.0
+	if direction.length_squared() < 0.01:
+		direction = Vector3.FORWARD
+	defeat(direction.normalized(), impact_speed)
+
+
+func damage(_impact_point: Vector3, force: Vector3) -> void:
+	# Compatibility with existing damageable interactions.
+	defeat(Vector3(force.x, 0.0, force.z).normalized(), force.length())
+
+
+func defeat(knockback_direction := Vector3.ZERO, impact_speed := 12.0) -> void:
 	if not _alive:
 		return
 
-	_defeat_sound.play()
 	_alive = false
-	_beetle_skin.power_off()
+	_state = State.DEFEATED
+	velocity = Vector3.ZERO
+	_detection_area.monitoring = false
+	_defeat_sound.play()
+	_skin.power_off()
+	defeated.emit()
 
-	_detection_area.body_entered.disconnect(_on_body_entered)
-	_detection_area.body_exited.disconnect(_on_body_exited)
-	_target = null
-	_death_collision_shape.set_deferred("disabled", false)
+	for child in get_children():
+		if child is CollisionShape3D:
+			child.set_deferred("disabled", true)
+
+	var shove := knockback_direction * minf(impact_speed * 0.04, 0.8)
+	var fall_tween := create_tween().set_parallel(true)
+	fall_tween.tween_property(self, "position", position + shove + Vector3.UP * 0.25, 0.18).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	fall_tween.tween_property(_skin, "rotation:z", deg_to_rad(85.0), 0.28).set_trans(Tween.TRANS_BACK)
+	await fall_tween.finished
+	await get_tree().create_timer(0.55).timeout
+	await _dissolve_and_remove()
 
 
-	#axis_lock_angular_x = false
-	#axis_lock_angular_y = false
-	#axis_lock_angular_z = false
-	gravity_scale = 1.0
+func _dissolve_and_remove() -> void:
+	var dissolve := DISSOLVE_MATERIAL.duplicate() as ShaderMaterial
+	var source_material := _mesh.get_active_material(0)
+	if source_material and source_material.get("albedo_texture"):
+		dissolve.set_shader_parameter("albedo_texture", source_material.get("albedo_texture"))
+	dissolve.set_shader_parameter("dissolve_amount", 0.0)
+	for surface in _mesh.get_surface_override_material_count():
+		_mesh.set_surface_override_material(surface, dissolve)
 
-	await get_tree().create_timer(2).timeout
-
-	#var puff := PUFF_SCENE.instantiate()
-	#get_parent().add_child(puff)
-	#puff.global_position = global_position
-	#await puff.full
-	#for i in range(coins_count):
-		#var coin := COIN_SCENE.instantiate()
-		#get_parent().add_child(coin)
-		#coin.global_position = global_position
-		#coin.spawn()
-	#await get_tree().create_timer(1.0).timeout  # Delay before dissolve
-	disable_all_collisions(self)
-	gravity_scale = 0.1
-	_beetle_mesh.set_surface_override_material(0, DISSOLVE_MATERIAL)
-	_beetle_mesh.set_surface_override_material(1, DISSOLVE_MATERIAL)
-	_beetle_mesh.set_surface_override_material(2, DISSOLVE_MATERIAL)
-	#_beetle_mesh.material_overlay = DISSOLVE_MATERIAL
-	# Animate dissolve over 1 second
-	for i in range(30):
-		var t = i / 30.0
-		DISSOLVE_MATERIAL.set_shader_parameter("dissolve_amount", t)
-		await get_tree().create_timer(0.05).timeout
-	await get_tree().create_timer(0.1).timeout
+	var tween := create_tween()
+	tween.tween_method(func(value: float): dissolve.set_shader_parameter("dissolve_amount", value), 0.0, 1.0, 0.8)
+	await tween.finished
 	queue_free()
 
-func disable_all_collisions(root: Node):
-	for child in root.get_children():
-		if child is CollisionShape3D:
-			child.disabled = true
-		elif child.get_child_count() > 0:
-			disable_all_collisions(child)
 
-func _on_body_entered(body: Node3D) -> void:
-	if body is Player:
-		_target = body
-		_state = State.CHASE
-		_reaction_animation_player.play("found_player")
+func _on_detection_body_entered(body: Node3D) -> void:
+	var player := body as Player
+	if not player or _players_in_range.has(player):
+		return
+	_players_in_range.append(player)
+	_target = _closest_player()
+	_reaction_animation.play("found_player")
+	_enter_chase()
 
-func _on_body_exited(body: Node3D) -> void:
-	if body is Player:
-		_target = null
-		_state = State.PATROL_IDLE
-		patrol_idle_timer = patrol_idle_duration
-		_reaction_animation_player.play("lost_player")
-		_beetle_skin.idle()
+
+func _on_detection_body_exited(body: Node3D) -> void:
+	var player := body as Player
+	if not player:
+		return
+	_players_in_range.erase(player)
+	if _target == player:
+		_target = _closest_player() if not _players_in_range.is_empty() else null
+	if not _target:
+		_reaction_animation.play("lost_player")
+		_enter_idle()

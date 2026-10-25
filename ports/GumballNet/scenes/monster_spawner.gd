@@ -13,7 +13,9 @@ func _ready():
 	respawn_timer.timeout.connect(_on_respawn_timeout)
 	add_child(respawn_timer)
 
-	spawn_monster()
+	# The arena may still be attaching its children during this node's _ready.
+	# Defer spawning so the monster can safely enter the scene tree.
+	call_deferred("spawn_monster")
 
 func spawn_monster():
 	if monster_scene == null:

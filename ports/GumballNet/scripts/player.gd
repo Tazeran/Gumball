@@ -71,6 +71,9 @@ var health_max: int = 8
 var is_ground_pounding = false
 var ground_pound_started = false
 var ground_pound_gravity_multiplier = 4.0
+@export var ground_pound_impact_radius := 2.25
+@export var ground_pound_min_impact_speed := 10.0
+var ground_pound_impact_speed := 0.0
 
 @onready var particles_trail = $ParticlesTrail
 @onready var sound_footsteps = $SoundFootsteps
@@ -325,6 +328,7 @@ func handle_controls(delta):
 func handle_gravity(delta):
 	if is_ground_pounding:
 		gravity += 25 * ground_pound_gravity_multiplier * delta
+		ground_pound_impact_speed = maxf(ground_pound_impact_speed, gravity)
 	else:
 		gravity += 25 * delta
 
@@ -365,6 +369,7 @@ func start_ground_pound():
 		is_ground_pounding = true
 		ground_pound_started = true
 		gravity = 0
+		ground_pound_impact_speed = 0.0
 		stamina -= ground_pound_stamina_cost
 		#animation.play("ground_pound_spin")  # if you want an animation
 	else:
@@ -372,9 +377,23 @@ func start_ground_pound():
 		print("Not enough stamina to ground pound")
 
 func land_ground_pound():
+	var impact_speed := ground_pound_impact_speed
 	is_ground_pounding = false
+	ground_pound_started = false
+	ground_pound_impact_speed = 0.0
 	Audio.play("res://sounds/land.ogg")
 	model.scale = Vector3(1.5, 0.5, 1.5)
+	if impact_speed < ground_pound_min_impact_speed:
+		return
+
+	for enemy in get_tree().get_nodes_in_group("enemies"):
+		if not is_instance_valid(enemy) or not enemy.has_method("receive_ground_pound"):
+			continue
+		var offset: Vector3 = enemy.global_position - global_position
+		var horizontal_distance := Vector2(offset.x, offset.z).length()
+		# Only hit enemies at the landing level, never enemies above or on another floor.
+		if horizontal_distance <= ground_pound_impact_radius and absf(offset.y) <= 1.6:
+			enemy.receive_ground_pound(self, impact_speed)
 
 func handle_effects(delta):
 	particles_trail.emitting = false
