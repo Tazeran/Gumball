@@ -174,7 +174,8 @@ func _follow_path(speed: float, delta: float) -> void:
 	direction = direction.normalized()
 	velocity.x = move_toward(velocity.x, direction.x * speed, acceleration * delta)
 	velocity.z = move_toward(velocity.z, direction.z * speed, acceleration * delta)
-	var desired_yaw := atan2(direction.x, direction.z)
+	# The imported beetle skin faces -Z, opposite Godot's controller-forward axis.
+	var desired_yaw := atan2(direction.x, direction.z) + PI
 	rotation.y = lerp_angle(rotation.y, desired_yaw, turn_speed * delta)
 
 
